@@ -97,10 +97,7 @@ program define findsj_download
         }
     }
     
-    * Display download information in Results window
-    dis as text "Downloading " as result "`file_ext'" as text " file for article " as result "`artid'" as text "..."
-    dis as text "Save location: " as result `"{browse "`downloadpath'":`downloadpath'}"'
-    dis as text "File name: " as result "`file_name'"
+    dis as text "Downloading `file_ext' file for `artid'..."
 end
 
 *===============================================================================
@@ -113,22 +110,15 @@ version 14
 syntax [anything(name=keywords id="keywords")] [, ///
     Author Title Keyword ///
     REF  ///
-    NOBrowser NOPDF NOPkg ///
+    MD Markdown Latex TEX Plain  ///
+    NOBrowser NOPDF NOPkg NOCLip ///
     N(integer 10) ALLresults ///
     GETDOI ///
     Clear Debug ///
     SETPath(string) QUERYpath RESETpath ///
     UPdate source(string) ///
     Type(string) ///
-    CLS ///
-    MD TEXT TEX ///
-    from(string) to(string) ///
     ]
-
-* Handle CLS option
-if "`cls'" != "" {
-    cls
-}
 
 * Check for updates (once per day)
 findsj_check_update
@@ -141,6 +131,16 @@ if "`type'" != "" {
     }
     findsj_download `keywords', type(`type')
     exit
+}
+
+* Handle showref subcommand (findsj artid, ref)
+if "`ref'" != "" & "`keywords'" != "" & "`author'" == "" & "`title'" == "" & "`keyword'" == "" {
+    * Check if keywords looks like an article ID (not a search term)
+    * Article IDs are typically alphanumeric strings like "st0001" or "dm0065"
+    if regexm("`keywords'", "^[a-z]+[0-9]+$") | regexm("`keywords'", "^ï»¿[a-z]+[0-9]+$") {
+        findsj_show_ref `keywords'
+        exit
+    }
 }
 
 * Handle database update subcommand
@@ -209,28 +209,25 @@ if "`querypath'" != "" | "`resetpath'" != "" | "`setpath'" != "" {
 
 if "`debug'" != "" set trace on
 
-* Auto-enable getdoi when ref option is specified
-if "`ref'" != "" {
-    local getdoi "getdoi"
+* Handle TEX as alias for latex
+if "`tex'" != "" local latex "latex"
+
+* Handle MD and Markdown options (both supported)
+if "`md'" != "" | "`markdown'" != "" {
+    local md "md"
 }
 
-* Check format options conflicts
-local format_opts "`md' `text' `tex'"
-if wordcount("`format_opts'") > 1 {
-    dis as error "Error: Only one format option (md, text, or tex) is allowed"
+* Validate export format options
+local args_export "`md' `latex' `plain'"
+local num_export = wordcount("`args_export'")
+if `num_export' > 1 {
+    dis as error "Specify only one export format: markdown, latex, or plain"
     exit 198
 }
 
-* Set output format
-local output_format ""
-if "`md'" != "" {
-    local output_format "markdown"
-}
-else if "`text'" != "" {
-    local output_format "text"
-}
-else if "`tex'" != "" {
-    local output_format "latex"
+* Auto-enable getdoi when ref option is specified
+if "`ref'" != "" {
+    local getdoi "getdoi"
 }
 
 * Read download path from config file
@@ -378,15 +375,16 @@ qui {
     drop v 
     keep if art_id != ""
     gen selected = 1
-    local n_results_before_time = _N
+    local n_results = _N
     
-    * Calculate how many results to display (will be updated after time filtering)
-    if "`allresults'" != "" local n_display = `n_results_before_time'
-    else local n_display = min(`n', `n_results_before_time')
+    * Calculate how many results to display
+    if "`allresults'" != "" local n_display = `n_results'
+    else local n_display = min(`n', `n_results')
 }  // Temporarily exit qui block for user messages
 
-* Create clickable link to show all results (will be updated if time filtering is applied)
+* Create clickable link to show all results
 local url_sj "https://www.stata-journal.com/sjsearch.html?choice=`scope'&q=`keywords_url'"
+dis as text "Showing " as result "`n_display'" as text " of " `"{browse "`url_sj'":`n_results' articles}"' _n
 
 qui {  // Resume qui block
     * Use HTML-extracted data as primary source
@@ -400,46 +398,6 @@ qui {  // Resume qui block
     gen doi = "."
     gen page = "."
     gen volnum = real(volume + "." + number) if volume != "" & volume != "."
-    
-    * Time range filtering (from/to options)
-    if "`from'" != "" | "`to'" != "" {
-        * Parse from date (format: YYYY-N, e.g., 2023-1)
-        if "`from'" != "" {
-            local from_clean = subinstr("`from'", "-", ".", .)
-            local from_val = real("`from_clean'")
-        }
-        else {
-            local from_val = 0  // No lower bound
-        }
-        
-        * Parse to date (format: YYYY-N, e.g., 2024-1)
-        if "`to'" != "" {
-            local to_clean = subinstr("`to'", "-", ".", .)
-            local to_val = real("`to_clean'")
-        }
-        else {
-            local to_val = 9999  // No upper bound
-        }
-        
-        * Filter by time range
-        if "`from'" != "" & "`to'" != "" {
-            keep if volnum >= `from_val' & volnum <= `to_val'
-        }
-        else if "`from'" != "" {
-            keep if volnum >= `from_val'
-        }
-        else if "`to'" != "" {
-            keep if volnum <= `to_val'
-        }
-        
-        * Update result count after time filtering
-        local n_results_after_time = _N
-        local time_filtered = 1
-    }
-    else {
-        local n_results_after_time = _N
-        local time_filtered = 0
-    }
     
     keep if selected == 1
     
@@ -484,127 +442,24 @@ qui {  // Resume qui block
     * Page string for display
     gen page_str = ": " + page if page != "" & page != "."
     replace page_str = "" if page_str == ": ."
-    
-    * Generate title with auto-wrap support for Results Window display
-    * Using {browse "URL":"text"} format for automatic line wrapping
-    local title_br `"{browse ""' + url_html + `"":"' + title + `"}"'
-    
-    * Generate formatted output strings based on output_format
-    if "`output_format'" == "markdown" {
-        * Markdown format: - Author, Year, [title](URL), Stata Journal Vol(No): pages
-        gen _title_link = "[" + title + "](" + url_html + ")"
-        gen _title_link_br = "[" + `"`title_br'"' + "](" + url_html + ")"
-        gen _journal_info = ", Stata Journal " + volnum_str if volnum_str != "" & volnum_str != "."
-        replace _journal_info = _journal_info + page_str if page_str != ""
-        replace _journal_info = "" if _journal_info == "."
-        gen _OutputStr = "- " + author + ", " + year + ", " + _title_link + _journal_info
-        gen _OutputDis = "- " + author + ", " + year + ", " + _title_link_br + _journal_info
-    }
-    else if "`output_format'" == "latex" {
-        * LaTeX format: - Author, Year, \href{URL}{title}, Stata Journal Vol(No): pages
-        gen _title_link = "\href{" + url_html + "}{" + title + "}"
-        gen _title_link_br = "\href{" + url_html + "}{" + `"`title_br'"' + "}"
-        gen _journal_info = ", Stata Journal " + volnum_str if volnum_str != "" & volnum_str != "."
-        replace _journal_info = _journal_info + page_str if page_str != ""
-        replace _journal_info = "" if _journal_info == "."
-        gen _OutputStr = "- " + author + ", " + year + ", " + _title_link + _journal_info
-        gen _OutputDis = "- " + author + ", " + year + ", " + _title_link_br + _journal_info
-    }
-    else if "`output_format'" == "text" {
-        * Plain text format: Author, Year, title, URL, Stata Journal Vol(No): pages
-        gen _journal_info = ", Stata Journal " + volnum_str if volnum_str != "" & volnum_str != "."
-        replace _journal_info = _journal_info + page_str if page_str != ""
-        replace _journal_info = "" if _journal_info == "."
-        gen _OutputStr = author + ", " + year + ", " + title + ", " + url_html + _journal_info
-        gen _OutputDis = author + ", " + year + ", " + `"`title_br'"' + ", " + url_html + _journal_info
-    }
 }
 
 local total_results = _N
 if "`allresults'" != "" local n_display = `total_results'
 else local n_display = min(`n', `total_results')
 
-* Display search summary with appropriate message
-if `time_filtered' == 1 {
-    * Time filtering was applied - show filtered results
-    dis as text "Showing " as result "`n_display'" as text " of " as result "`total_results'" as text " articles" _c
-    dis as text " (filtered from " as result "`n_results_before_time'" as text " total)" _n
+* If export format specified, skip displaying search results
+if `num_export' > 0 {
+    * Save results count but don't display search results
+    local n_results = `total_results'
 }
 else {
-    * No time filtering - show link to full online results
-    dis as text "Showing " as result "`n_display'" as text " of " `"{browse "`url_sj'":`total_results' articles}"' _n
-}
+    * Save and increase line size to prevent wrapping
+    local old_linesize = c(linesize)
+    quietly set linesize 255
 
-* Display time range if from/to options are used
-if "`from'" != "" | "`to'" != "" {
-    dis as text "  Time range: " _c
-    if "`from'" != "" & "`to'" != "" {
-        dis as result "SJ `from'" as text " to " as result "SJ `to'" _n
-    }
-    else if "`from'" != "" {
-        dis as result "from SJ `from'" _n
-    }
-    else {
-        dis as result "up to SJ `to'" _n
-    }
-}
-
-* Save and increase line size to prevent wrapping
-local old_linesize = c(linesize)
-quietly set linesize 255
-
-local n = `n_display'
-forvalues i = 1/`n' {
-    * For formatted output, use the pre-generated display string with auto-wrap
-    if "`output_format'" != "" {
-        local output_dis = _OutputDis[`i']
-        dis `"`output_dis'"'
-    }
-    else {
-        * Default format: Original display style
-        local volnum_i  = volnum_str[`i']
-        local author_i  = author[`i']
-        local title_i   = title[`i']
-        local year_i    = year[`i']
-        local art_id_i  = art_id[`i']
-        local art_id_clean_i = art_id_clean[`i']
-        local url_html_i = url_html[`i']
-        
-        * Create BOM-free version for Stata commands (search, etc.)
-        local art_id_nobom = subinstr("`art_id_i'", "ï»¿", "", .)
-        
-        * Clean HTML entities in title for display
-        local title_display = `"`title_i'"'
-        local title_display = subinstr(`"`title_display'"', "&amp;", "&", .)
-        local title_display = subinstr(`"`title_display'"', "&ndash;", "-", .)
-        local title_display = subinstr(`"`title_display'"', "&mdash;", "--", .)
-        local title_display = subinstr(`"`title_display'"', "&lt;", "<", .)
-        local title_display = subinstr(`"`title_display'"', "&gt;", ">", .)
-        local title_display = subinstr(`"`title_display'"', "&quot;", `"""', .)
-        
-        * First line: Article number and title (use smcl to prevent wrapping)
-        dis as text "{p 0 0 0}[" as result `i' as text "] " as result `"`title_display'"' as text "{p_end}"
-        
-        * Second line: Author, year, and journal info
-        dis as text "{p 4 4 4}" as result "`author_i'" as text " (" as result "`year_i'" as text "). " ///
-            as text "Stata Journal" _c
-        if "`volnum_i'" != "" & "`volnum_i'" != "." {
-            dis as text " " as result "`volnum_i'" _c
-        }
-        
-        cap local page_i = page[`i']
-        if "`page_i'" != "" & "`page_i'" != "." {
-            dis as text ": " as result "`page_i'" _c
-        }
-        dis as text "{p_end}"
-    }
-    
-    * Skip the rest for formatted output
-    if "`output_format'" != "" {
-        continue
-    }
-    
-    * Get article info for default format links
+    local n = `n_display'
+    forvalues i = 1/`n' {
     local volnum_i  = volnum_str[`i']
     local author_i  = author[`i']
     local title_i   = title[`i']
@@ -612,7 +467,34 @@ forvalues i = 1/`n' {
     local art_id_i  = art_id[`i']
     local art_id_clean_i = art_id_clean[`i']
     local url_html_i = url_html[`i']
+    
+    * Create BOM-free version for Stata commands (search, etc.)
     local art_id_nobom = subinstr("`art_id_i'", "ï»¿", "", .)
+    
+    * Clean HTML entities in title for display
+    local title_display = `"`title_i'"'
+    local title_display = subinstr(`"`title_display'"', "&amp;", "&", .)
+    local title_display = subinstr(`"`title_display'"', "&ndash;", "-", .)
+    local title_display = subinstr(`"`title_display'"', "&mdash;", "--", .)
+    local title_display = subinstr(`"`title_display'"', "&lt;", "<", .)
+    local title_display = subinstr(`"`title_display'"', "&gt;", ">", .)
+    local title_display = subinstr(`"`title_display'"', "&quot;", `"""', .)
+    
+    * First line: Article number and title (use smcl to prevent wrapping)
+    dis as text "{p 0 0 0}[" as result `i' as text "] " as result `"`title_display'"' as text "{p_end}"
+    
+    * Second line: Author, year, and journal info
+    dis as text "{p 4 4 4}" as result "`author_i'" as text " (" as result "`year_i'" as text "). " ///
+        as text "Stata Journal" _c
+    if "`volnum_i'" != "" & "`volnum_i'" != "." {
+        dis as text " " as result "`volnum_i'" _c
+    }
+    
+    cap local page_i = page[`i']
+    if "`page_i'" != "" & "`page_i'" != "." {
+        dis as text ": " as result "`page_i'" _c
+    }
+    dis as text "{p_end}"
     
     * Get DOI and page info from data file or fetch real-time
     cap local doi_i = doi[`i']
@@ -677,8 +559,8 @@ forvalues i = 1/`n' {
         }
     }
 
-    * Priority 2 (fallback): if still not found and ref option is used, fetch online automatically
-    if `has_doi' == 0 & "`ref'" != "" {
+    * Priority 2 (fallback): if still not found, fetch online automatically
+    if `has_doi' == 0 {
         qui {
             cap findsj_doi `art_id_nobom'
             if _rc == 0 {
@@ -691,7 +573,7 @@ forvalues i = 1/`n' {
         }
     }
     
-    if "`nobrowser'" == "" & "`output_format'" == "" {
+    if "`nobrowser'" == "" {
         dis as text "    " _c
         dis as text `"{browse "`url_html_i'":Article}"' _c
         
@@ -716,22 +598,22 @@ forvalues i = 1/`n' {
             dis as text `"{stata "search `art_id_nobom'":Install}"' _c
         }
         
+        * Add Ref button
+        dis as text " | " _c
+        dis as text `"{stata "findsj `art_id_nobom', ref":Ref}"' _c
+        
         * Display BibTeX and RIS buttons (on-demand download via helper program)
         dis as text " | " _c
         dis as text `"{stata "findsj `art_id_nobom', type(bib)":BibTeX}"' _c
         dis as text " | " _c
         dis as text `"{stata "findsj `art_id_nobom', type(ris)":RIS}"'
     }
-    else if "`output_format'" != "" {
-        * In formatted output mode, skip browser links
-        dis ""
-    }
     else {
         dis ""  // End line if nobrowser
     }
     
-    * Display format buttons (.md .latex .txt) if ref option is specified (but skip if output_format is set)
-    if "`ref'" != "" & "`output_format'" == "" {
+    * Display format buttons (.md .latex .txt) if ref option is specified
+    if "`ref'" != "" {
         dis ""  // End the button line first
         
         * Check if we have DOI for generating citations
@@ -763,68 +645,25 @@ global findsj_n_display `n_display'
 if `total_results' > `n_display' {
     dis _n as text "{hline 60}"
     dis as text "  Showing " as result "`n_display'" as text " of " as result "`total_results'" as text " results."
-    if `time_filtered' == 1 {
-        * Time filtering applied - suggest adding allresults to see all filtered results
-        dis as text "  To see all filtered results, add option: " as result "allresults"
-        if "`from'" != "" & "`to'" != "" {
-            dis as text "  Example: " `"{stata "findsj `keywords', from(`from') to(`to') allresults":findsj `keywords', from(`from') to(`to') allresults}"'
-        }
-        else if "`from'" != "" {
-            dis as text "  Example: " `"{stata "findsj `keywords', from(`from') allresults":findsj `keywords', from(`from') allresults}"'
-        }
-        else {
-            dis as text "  Example: " `"{stata "findsj `keywords', to(`to') allresults":findsj `keywords', to(`to') allresults}"'
-        }
-    }
-    else {
-        * No time filtering - standard message
-        dis as text "  To see all results, add option: " as result "allresults"
-        dis as text "  Example: " `"{stata "findsj `keywords', allresults":findsj `keywords', allresults}"'
-    }
+    dis as text "  To see all results, add option: " as result "allresults"
+    dis as text "  Example: " `"{stata "findsj `keywords', allresults":findsj `keywords', allresults}"'
     dis as text "{hline 60}"
 }
 
 * Note: Batch clipboard copy removed. Users can click individual "Ref" buttons to copy citations.
 * This provides better user experience and avoids command-line length limitations.
 
-* Export formatted output to file if format option specified
-if "`output_format'" != "" {
-    * Determine file extension
-    if "`output_format'" == "markdown" {
-        local fn_suffix ".md"
-    }
-    else if "`output_format'" == "latex" {
-        local fn_suffix ".txt"
-    }
-    else if "`output_format'" == "text" {
-        local fn_suffix ".txt"
-    }
-    
-    * Set save path (current directory)
-    local path `"`c(pwd)'"'
-    local path = subinstr(`"`path'"', "\\", "/", .)
-    local saving "_findsj_temp_out_`fn_suffix'"
-    
-    * Export to file
-    qui export delimited _OutputStr using `"`path'/`saving'"', ///
-        novar nolabel delimiter(tab) replace
-    
-    * Display file location with four buttons (View/Open_Mac/Open_Win/dir)
-    dis " "
-    dis _dup(58) "-" _n ///
-        _col(3)  `"{stata `" view  "`path'/`saving'" "': View}"' ///
-        _col(17) `"{stata `" !open "`path'/`saving'" "' : Open_Mac}"' ///
-        _col(30) `"{stata `" winexec cmd /c start "" "`path'/`saving'" "' : Open_Win}"' ///
-        _col(50) `"{browse `"`path'"': dir}"'
-    dis _dup(58) "-"
-}
+} // End of else block for non-export display
+
+* Common return values
+local n_results = `total_results'
 
 return local keywords   = "`keywords'"
 return local scope      = "`scope'"
 return local url        = "`url_sj'"
-return scalar n_results = `total_results'
+return scalar n_results = `n_results'
 
-if `total_results' > 0 {
+if `n_results' > 0 {
     return local art_id_1  = art_id[1]
     return local title_1   = title[1]
     return local author_1  = author[1]
@@ -834,19 +673,291 @@ if `total_results' > 0 {
 
 restore
 
-dis _n as text "{hline 60}"
-dis as text "  Search completed. Found " as result `total_results' as text " article(s)" _c
-if `time_filtered' == 1 {
-    dis as text " (filtered from " as result "`n_results_before_time'" as text " total)."
+* Display search completion message only if not exporting
+if `num_export' == 0 {
+    dis _n as text "{hline 60}"
+    dis as text "  Search completed. Found " as result `n_results' as text " article(s)."
+    if "`nobrowser'" == "" {
+        dis as text "  To view full search results online: " _c
+        dis as text `"{browse "`url_sj'":Open in browser}"'
+    }
+    dis as text "{hline 60}" _n
 }
-else {
-    dis as text "."
+
+* Generate formatted citations if export format specified
+if `num_export' > 0 {
+    preserve
+    qui {
+        tempfile sj_search_result
+        local url_sj "https://www.stata-journal.com/sjsearch.html?choice=`scope'&q=`keywords_url'"
+        
+        cap copy "`url_sj'" "`sj_search_result'.txt", replace
+        if _rc == 0 {
+            cap import delimited "`sj_search_result'.txt", delim("@#@") clear varnames(nonames) stringcols(_all)
+            if _rc {
+                cap infix strL v 1-20000 using "`sj_search_result'.txt", clear
+            }
+            else {
+                rename v1 v
+            }
+            
+            if _rc == 0 {
+                cap drop if v == ""
+                keep if regexm(v, ".*<d[td]>.*")
+                
+                if _N > 0 {
+                    findsj_strget v, gen(art_id) begin(`"article="') end(`"">"')
+                    findsj_strget v, gen(title) begin(`"">"') end(`"</a></dt>"')
+                    
+                    gen author_year_raw = ""
+                    gen n = _n
+                    forvalues i = 1/`=_N' {
+                        if art_id[`i'] != "" & `i' < _N {
+                            if regexm(v[`i'+1], "<dd>(.+)</dd>") {
+                                qui replace author_year_raw = regexs(1) in `i'
+                            }
+                        }
+                    }
+                    drop n
+                    
+                    gen volume_html = ""
+                    gen number_html = ""
+                    gen n = _n
+                    forvalues i = 1/`=_N' {
+                        if art_id[`i'] != "" & `i' < _N - 1 {
+                            if regexm(v[`i'+2], "Volume ([0-9]+) Number ([0-9]+)") {
+                                qui replace volume_html = regexs(1) in `i'
+                                qui replace number_html = regexs(2) in `i'
+                            }
+                        }
+                    }
+                    drop n
+                    
+                    gen year = ""
+                    replace year = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.[ ]*$")
+                    
+                    gen author = regexr(author_year_raw, "\.[ ]*[0-9]{4}\.[ ]*$", ".")
+                    replace author = strtrim(author)
+                    
+                    drop v author_year_raw
+                    keep if art_id != ""
+                    
+                    gen volume = volume_html
+                    gen number = number_html
+                    gen volnum_str = volume + "(" + number + ")" if volume != "" & volume != "."
+                    
+                    local url_base "https://www.stata-journal.com/article.html?article="
+                    gen art_id_clean = art_id
+                    qui replace art_id_clean = subinstr(art_id_clean, "ï»¿", "%EF%BB%BF", .)
+                    gen url_html = "`url_base'" + art_id_clean
+                    
+                    * Try to get DOI for PDF links from local database
+                    gen doi = "."
+                    gen page = "."
+                    
+                    * Simplified DOI lookup: merge with local database if available
+                    local search_paths "`c(pwd)' `c(sysdir_personal)' `c(sysdir_plus)' `c(sysdir_plus)'f"
+                    local found_db = 0
+                    foreach p of local search_paths {
+                        if `found_db' == 0 {
+                            capture confirm file "`p'/findsj.dta"
+                            if _rc == 0 {
+                                tempfile current_data
+                                save "`current_data'", replace
+                                
+                                capture {
+                                    use "`p'/findsj.dta", clear
+                                    cap confirm variable art_id
+                                    if _rc == 0 {
+                                        keep art_id DOI page
+                                        cap rename DOI doi
+                                        replace art_id = subinstr(art_id, "ï»¿", "", .)
+                                        tempfile doi_data
+                                        save "`doi_data'", replace
+                                        
+                                        use "`current_data'", clear
+                                        merge 1:1 art_id using "`doi_data'", update replace nogen
+                                        local found_db = 1
+                                    }
+                                    else {
+                                        cap confirm variable artid
+                                        if _rc == 0 {
+                                            keep artid DOI
+                                            cap rename DOI doi
+                                            cap gen page = "."
+                                            rename artid art_id
+                                            replace art_id = subinstr(art_id, "ï»¿", "", .)
+                                            tempfile doi_data
+                                            save "`doi_data'", replace
+                                            
+                                            use "`current_data'", clear
+                                            merge 1:1 art_id using "`doi_data'", update replace nogen
+                                            local found_db = 1
+                                        }
+                                        else {
+                                            use "`current_data'", clear
+                                        }
+                                    }
+                                }
+                                if _rc != 0 {
+                                    use "`current_data'", clear
+                                }
+                            }
+                        }
+                    }
+                    
+                    local url_pdf_base "https://journals.sagepub.com/doi/pdf/"
+                    gen url_pdf = "`url_pdf_base'" + doi if doi != "" & doi != "."
+                    gen page_str = ": " + page if page != "" & page != "."
+                    replace page_str = "" if page_str == ": ."
+                    
+                    * Clean HTML entities in title BEFORE generating Google link
+                    replace title = subinstr(title, "&amp;", "&", .)
+                    replace title = subinstr(title, "&ndash;", "-", .)
+                    replace title = subinstr(title, "&mdash;", "--", .)
+                    replace title = subinstr(title, "&lt;", "<", .)
+                    replace title = subinstr(title, "&gt;", ">", .)
+                    replace title = subinstr(title, "&quot;", char(34), .)
+                    
+                    * Generate Google Scholar link (simplified - use space for now)
+                    gen title_for_url = subinstr(title, " ", "%20", .)
+                    gen url_google = "https://scholar.google.com/scholar?q=" + title_for_url
+                    
+                    * Convert author format: "N. J. Cox" -> "Cox, N. J."
+                    * Use word() function to extract last word (surname)
+                    gen author_getiref = ""
+                    gen n_words = wordcount(author)
+                    * Get last word (surname) - remove trailing period if exists
+                    gen lastname = word(author, n_words)
+                    replace lastname = subinstr(lastname, ".", "", .) if substr(lastname, -1, 1) == "."
+                    * Get everything before last word (first/middle names)
+                    gen firstname = ""
+                    replace firstname = substr(author, 1, length(author) - length(word(author, n_words)) - 1)
+                    replace firstname = strtrim(firstname)
+                    * Combine as "Lastname, Firstname"
+                    replace author_getiref = lastname + ", " + firstname if firstname != ""
+                    replace author_getiref = lastname if firstname == ""
+                    drop n_words lastname firstname
+                    
+                    * Title case for title (capitalize first letter of each major word)
+                    gen title_display = proper(title)
+                    
+                    * Limit to display count
+                    if "`allresults'" == "" {
+                        keep in 1/`n'
+                    }
+                    
+                    * Generate formatted citations (getiref style)
+                    if "`md'" != "" {
+                        gen cite_text = author_getiref + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str
+                        replace cite_text = cite_text + ", " + page if page != "" & page != "."
+                        replace cite_text = cite_text + ". "
+                        replace cite_text = cite_text + "[Link](" + url_html + ")"
+                        if "`nopdf'" == "" replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
+                        replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
+                    }
+                    else if "`latex'" != "" {
+                        gen cite_text = author_getiref + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str
+                        replace cite_text = cite_text + ", " + page if page != "" & page != "."
+                        replace cite_text = cite_text + ". "
+                        replace cite_text = cite_text + "\\href{" + url_html + "}{Link}"
+                        if "`nopdf'" == "" replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
+                        replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
+                    }
+                    else if "`plain'" != "" {
+                        gen cite_text = author_getiref + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str
+                        replace cite_text = cite_text + ", " + page if page != "" & page != "."
+                        replace cite_text = cite_text + ". "
+                        replace cite_text = cite_text + "Link: " + url_html
+                        if "`nopdf'" == "" replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
+                        replace cite_text = cite_text + ", Google: " + url_google
+                    }
+                    
+                    * Save citations to local macros for later display
+                    local n_cite = _N
+                    forvalues i = 1/`n_cite' {
+                        local cite_`i' = cite_text[`i']
+                    }
+                    
+                    * Combine all citations for clipboard
+                    * Generate a single string with line breaks by concatenating cite_text
+                    gen cite_combined = cite_text[1] if _n == 1
+                    forvalues i = 2/`n_cite' {
+                        qui replace cite_combined = cite_combined + char(10) + cite_text[`i'] in 1
+                    }
+                    local all_cites = cite_combined[1]
+                    
+                    * Save combined citations to global for clipboard
+                    global findsj_all_citations `"`all_cites'"'
+                    
+                    * Save to file
+                    * Determine file extension and save path
+                    if "`md'" != "" local fn_suffix ".md"
+                    else if "`latex'" != "" local fn_suffix ".txt"
+                    else if "`plain'" != "" local fn_suffix ".txt"
+                    
+                    local saving "_findsj_temp_out_`fn_suffix'"
+                    
+                    * Get save path (use current working directory)
+                    local save_path "`c(pwd)'"
+                    local save_path = subinstr("`save_path'", "\", "/", .)
+                    
+                    * Export citations to file
+                    qui export delimited cite_text using "`save_path'/`saving'", ///
+                        novar nolabel delimiter(tab) replace
+                    
+                    * Save file location info to global (will be cleaned up later)
+                    global findsj_export_path "`save_path'"
+                    global findsj_export_file "`saving'"
+                }
+            }
+        }
+    }
+    
+    * Display formatted citations (outside qui block)
+    if `num_export' > 0 {
+        noi dis _n as text "{hline 60}"
+        if "`md'" != "" noi dis as text "  Markdown format:"
+        else if "`latex'" != "" noi dis as text "  LaTeX format:"
+        else if "`plain'" != "" noi dis as text "  Plain text format:"
+        noi dis as text "{hline 60}" _n
+        
+        forvalues i = 1/`n_cite' {
+            noi dis as text "`cite_`i''"
+            noi dis ""
+        }
+        
+        noi dis as text "{hline 60}" _n
+        
+        * Copy to clipboard (unless noclip specified)
+        if "`noclip'" == "" {
+            * Get combined citations from global
+            local all_cites "$findsj_all_citations"
+            * Call clipboard function
+            findsj_clipout `"`all_cites'"'
+        }
+        
+        * Display file location with four buttons (View/Open_Mac/Open_Win/dir)
+        * Use globals saved from qui block
+        local file_path "$findsj_export_path"
+        local file_name "$findsj_export_file"
+        
+        noi dis " "
+        noi dis _dup(58) "-" _n ///
+                _col(3)  `"{stata `" view  "`file_path'/`file_name'" "': View}"' ///
+                _col(17) `"{stata `" !open "`file_path'/`file_name'" "' : Open_Mac}"' ///
+                _col(30) `"{stata `" winexec cmd /c start "" "`file_path'/`file_name'" "' : Open_Win}"' ///
+                _col(50) `"{browse `"`file_path'"': dir}"'
+        noi dis _dup(58) "-"
+        
+        * Clean up globals
+        global findsj_export_path ""
+        global findsj_export_file ""
+        global findsj_all_citations ""
+    }
+    
+    restore
 }
-if "`nobrowser'" == "" & `time_filtered' == 0 {
-    dis as text "  To view full search results online: " _c
-    dis as text `"{browse "`url_sj'":Open in browser}"'
-}
-dis as text "{hline 60}" _n
 
 if "`debug'" != "" set trace off
 
@@ -855,6 +966,100 @@ end
 *==========================================
 * SUB-PROGRAMS
 *==========================================
+
+cap program drop findsj_show_ref
+program define findsj_show_ref
+    version 14
+    args art_id
+    
+    * Clean art_id (remove BOM if present)
+    local art_id_clean = subinstr("`art_id'", "ï»¿", "", .)
+    
+    dis as text _n "{hline 70}"
+    dis as text "Article ID: " as result "`art_id_clean'"
+    dis as text "{hline 70}" _n
+    
+    * Try to get DOI - Priority 1: local database
+    local doi ""
+    local has_doi = 0
+    
+    qui {
+        local search_paths "`c(pwd)' `c(sysdir_personal)' `c(sysdir_plus)' `c(sysdir_plus)'f"
+        foreach p of local search_paths {
+            if `has_doi' == 0 {
+                capture confirm file "`p'/findsj.dta"
+                if _rc == 0 {
+                    * Use frame to avoid nested preserve issue (Stata 16+)
+                    local framename = "findsj_temp_" + string(floor(runiform()*100000))
+                    capture {
+                        frame create `framename'
+                        frame `framename': use "`p'/findsj.dta", clear
+                        frame `framename' {
+                            cap confirm variable artid
+                            if _rc == 0 {
+                                qui keep if artid == "`art_id_clean'"
+                                if _N > 0 {
+                                    cap local doi_tmp = DOI[1]
+                                    if _rc != 0 cap local doi_tmp = doi[1]
+                                    if "`doi_tmp'" != "" & "`doi_tmp'" != "." {
+                                        local doi = "`doi_tmp'"
+                                        local has_doi = 1
+                                    }
+                                }
+                            }
+                            else {
+                                cap confirm variable art_id
+                                if _rc == 0 {
+                                    qui keep if art_id == "`art_id_clean'"
+                                    if _N > 0 {
+                                        cap local doi_tmp = DOI[1]
+                                        if _rc != 0 cap local doi_tmp = doi[1]
+                                        if "`doi_tmp'" != "" & "`doi_tmp'" != "." {
+                                            local doi = "`doi_tmp'"
+                                            local has_doi = 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        cap frame drop `framename'
+                    }
+                }
+            }
+        }
+    }
+    
+    * Priority 2: fetch online
+    if `has_doi' == 0 {
+        dis as text "Fetching DOI information online..." _n
+        qui {
+            cap findsj_doi `art_id_clean'
+            if _rc == 0 {
+                local doi = r(doi)
+                if "`doi'" != "" & "`doi'" != "." {
+                    local has_doi = 1
+                }
+            }
+        }
+    }
+    
+    * Display citation buttons or error message
+    if `has_doi' == 1 {
+        dis as text "Cite: " _c
+        dis as text `"{stata "getiref `doi', md":.md}"' _c
+        dis as text " | " _c
+        dis as text `"{stata "getiref `doi', latex":.latex}"' _c
+        dis as text " | " _c
+        dis as text `"{stata "getiref `doi', text":.txt}"'
+    }
+    else {
+        dis as text "" as error "(No DOI found)" as text " - Try: " _c
+        dis as text `"{stata "findsj, update source(both)":Update database}"'
+    }
+    
+    dis as text "{hline 70}" _n
+end
+
 
 cap program drop findsj_strget   
 program define findsj_strget, rclass 
@@ -1393,3 +1598,43 @@ program define findsj_check_update
         restore
     }
 end
+
+*==========================================
+* Clipboard function (similar to getiref's get_clipout)
+*==========================================
+cap program drop findsj_clipout
+program define findsj_clipout
+    version 14
+    args text
+    
+    if "`c(os)'" == "Windows" {
+        * Windows: use PowerShell to handle multi-line text properly
+        tempfile cliptemp
+        quietly {
+            file open fh using "`cliptemp'.txt", write replace
+            file write fh `"`text'"'
+            file close fh
+        }
+        shell powershell -Command "Get-Content '`cliptemp'.txt' | Set-Clipboard"
+        local shortcut "Ctrl+V"
+    }
+    else if "`c(os)'" == "MacOSX" {
+        * Mac: use pbcopy
+        tempfile cliptemp
+        quietly {
+            file open fh using "`cliptemp'.txt", write replace
+            file write fh `"`text'"'
+            file close fh
+        }
+        shell cat "`cliptemp'.txt" | pbcopy
+        local shortcut "Command+V"
+    }
+    else {
+        * Linux or other OS - skip clipboard
+        dis as text "{txt}Note: Clipboard not supported on this OS. Text saved to file."
+        exit
+    }
+    
+    dis as text _n "{txt}Tips: Text is on clipboard. Press '{res}`shortcut'{txt}' to paste, ^-^"
+end
+
