@@ -164,7 +164,7 @@ findsj instrumental variable, n(3)
 
 * Example 7.2: Search and download RIS file  
 * Click [RIS] button for desired article after running:
-findsj panel data, n(3)
+findsj instrumental variable, n(3)
 
 * Example 7.3: Direct download using article ID
 * Download BibTeX file for specific article
@@ -247,69 +247,14 @@ findsj, querypath
 * DOIs fetched automatically when available
 findsj synthetic control, ref
 
-* Example 11.2: Explicit DOI retrieval
-* Force DOI lookup even without ref option
-findsj panel data, getdoi
-
-* Example 11.3: Search without local database
+* Example 11.2: Search without local database
 * If findsj.dta not found, DOIs fetched online (slower)
 * One-time notice shown with database update instructions
 findsj instrumental variable, ref
 
 
 *===============================================================================
-* SECTION 12: Combining Options
-*===============================================================================
-
-* Multiple options can be combined for customized searches
-
-* Example 12.1: Author search with limited results and Markdown export
-findsj Cox, author md n(5)
-
-* Example 12.2: Title search with LaTeX export, no PDF, no clipboard
-findsj matching, title latex nopdf noclip
-
-* Example 12.3: Keyword search with all results and plain text export
-findsj causal inference, keyword plain allresults
-
-* Example 12.4: Search with package button hidden and citations shown
-findsj fixed effects, nopkg ref n(3)
-
-* Example 12.5: Complete customization
-findsj regression, author markdown nopdf nopkg n(10)
-
-
-*===============================================================================
-* SECTION 13: Understanding Return Values
-*===============================================================================
-
-* findsj stores search information in r() results
-* Useful for programming and automation
-
-* Example 13.1: Display return values after search
-findsj panel data, n(3)
-return list
-
-* Return values include:
-* r(keywords)   - Search keywords used
-* r(scope)      - Search scope (author/title/keyword)
-* r(url)        - Full search URL on Stata Journal website
-* r(n_results)  - Total number of articles found
-* r(art_id_1)   - Article ID of first result
-* r(title_1)    - Title of first result  
-* r(author_1)   - Author of first result
-* r(doi_1)      - DOI of first result (if available)
-* r(url_1)      - Article URL of first result
-
-* Example 13.2: Use return values in programming
-findsj instrumental variable, n(1)
-display "Found `r(n_results)' articles"
-display "First article: `r(title_1)'"
-display "By: `r(author_1)'"
-
-
-*===============================================================================
-* SECTION 14: Working with Article IDs
+* SECTION 12: Working with Article IDs
 *===============================================================================
 
 * Each article has unique ID (format: st0001, dm0065, etc.)
@@ -330,10 +275,10 @@ findsj st0547, type(ris)
 
 
 *===============================================================================
-* SECTION 15: Workflow Examples
+* SECTION 13: Workflow Examples
 *===============================================================================
 
-* Example 15.1: Research Literature Review Workflow
+* Example 13.1: Research Literature Review Workflow
 * Step 1: Search for relevant articles
 findsj causal inference, n(10)
 
@@ -347,7 +292,7 @@ findsj causal inference, markdown n(10)
 * Step 7: Copy-paste from clipboard into your document
 
 
-* Example 15.2: Package Installation Workflow
+* Example 13.2: Package Installation Workflow
 * Step 1: Find articles about specific method
 findsj propensity score matching, n(5)
 
@@ -355,7 +300,7 @@ findsj propensity score matching, n(5)
 * Step 3: Install packages from search results
 
 
-* Example 15.3: Reference Management Workflow
+* Example 13.3: Reference Management Workflow
 * Step 1: Search for articles
 findsj instrumental variable, n(5)
 
@@ -363,7 +308,7 @@ findsj instrumental variable, n(5)
 * Step 3: Import downloaded files into reference manager (Zotero, EndNote, Mendeley)
 
 
-* Example 15.4: Writing Paper Workflow
+* Example 13.4: Writing Paper Workflow
 * Step 1: Set custom download path for project (adjust path as needed)
 * findsj, setpath("D:\\Projects\\MyPaper\\References")
 
@@ -379,7 +324,7 @@ findsj synthetic control, latex n(5)
 
 
 *===============================================================================
-* SECTION 16: Tips and Best Practices
+* SECTION 14: Tips and Best Practices
 *===============================================================================
 
 * Tip 1: Use specific keywords for better results
@@ -415,7 +360,7 @@ findsj panel data, nopdf nopkg n(5)
 
 
 *===============================================================================
-* SECTION 17: Troubleshooting
+* SECTION 15: Troubleshooting
 *===============================================================================
 
 * Problem 1: "No articles found"
@@ -447,34 +392,7 @@ findsj panel data, md noclip
 
 
 *===============================================================================
-* SECTION 18: Platform-Specific Notes
-*===============================================================================
-
-* Windows Users:
-* - File access: Use [Open_Win] button to open exported files
-* - Clipboard: Uses PowerShell, automatically available
-* - Download path: Use Windows path format (e.g., "D:\References")
-
-* Example for Windows:
-findsj instrumental variable, md
-* Click [Open_Win] to open file in default application
-
-* Mac Users:
-* - File access: Use [Open_Mac] button to open exported files  
-* - Clipboard: Uses pbcopy, automatically available
-* - Download path: Use Unix path format (e.g., "/Users/name/References")
-
-* Example for Mac:
-findsj instrumental variable, md
-* Click [Open_Mac] to open file in default application
-
-* Universal:
-* - [View] button works on all platforms (opens in Stata viewer)
-* - [dir] button opens containing directory on all platforms
-
-
-*===============================================================================
-* SECTION 19: Integration with getiref
+* SECTION 16: Integration with getiref
 *===============================================================================
 
 * findsj integrates with getiref command for citation generation
@@ -494,126 +412,7 @@ ssc install getiref, replace
 
 
 *===============================================================================
-* SECTION 20: Advanced Programming Examples
-*===============================================================================
-
-* Example 20.1: Loop through search results
-findsj panel data, n(5)
-local n_found = r(n_results)
-display "Total articles found: `n_found'"
-
-* Example 20.2: Extract first result information
-findsj instrumental variable, n(1)
-local first_title = r(title_1)
-local first_author = r(author_1)
-local first_id = r(art_id_1)
-display "Article: `first_title'"
-display "Author: `first_author'"
-display "ID: `first_id'"
-
-* Example 20.3: Conditional search based on results
-findsj regression, n(1)
-if r(n_results) > 0 {
-    display "Articles found. Title: `r(title_1)'"
-}
-else {
-    display "No articles found. Try different keywords."
-}
-
-* Example 20.4: Build search URL for external use
-findsj causal inference, n(1)
-local search_url = r(url)
-display "Full search results: `search_url'"
-
-* Example 20.5: Automate multiple searches
-foreach topic in "panel data" "instrumental variable" "fixed effects" {
-    display _n "Searching: `topic'"
-    findsj `topic', n(3)
-    display "Found `r(n_results)' articles"
-}
-
-
-*===============================================================================
-* SECTION 21: Citation Format Comparison
-*===============================================================================
-
-* Same search, three different export formats for comparison
-
-* Example 21.1: Markdown format
-findsj synthetic control, markdown n(3)
-* Output: [Link](url), [PDF](url), [Google](<url>)
-* Best for: GitHub README, Markdown documents, wikis
-
-* Example 21.2: LaTeX format
-findsj synthetic control, latex n(3)
-* Output: \href{url}{Link}, \href{url}{PDF}, \href{url}{Google}
-* Best for: Academic papers, LaTeX documents, dissertations
-
-* Example 21.3: Plain text format
-findsj synthetic control, plain n(3)
-* Output: Link: url, PDF: url, Google: url
-* Best for: Plain text documents, emails, simple notes
-
-
-*===============================================================================
-* SECTION 22: Database Version Check
-*===============================================================================
-
-* findsj automatically checks database age and notifies if update needed
-* Checks run once per day, non-intrusive
-
-* Example 22.1: Trigger automatic check
-* Any findsj command triggers the check
-findsj regression
-
-* Example 22.2: Manual database information
-* Check when database was last updated (if file exists)
-findsj, update
-* Shows update options and current database status
-
-
-*===============================================================================
-* SECTION 23: Complete Real-World Example
-*===============================================================================
-
-* Scenario: Writing a paper on causal inference methods
-* Need to cite key Stata Journal articles
-
-* Step 1: Set up download path for project (adjust paths as needed)
-* cd "D:\\Projects\\Causal_Paper"
-* findsj, setpath("D:\\Projects\\Causal_Paper\\References")
-
-* Step 2: Search for relevant articles
-findsj causal inference, allresults
-
-* Step 3: Review articles by clicking [Article] and [PDF] buttons
-* (Interactive: click buttons in Stata results window)
-
-* Step 4: Download BibTeX files for reference manager
-* (Interactive: click [BibTeX] buttons for selected articles)
-
-* Step 5: Export formatted citations for manuscript
-findsj causal inference, latex n(10)
-
-* Step 6: View exported citations
-* (Interactive: click [View] button)
-
-* Step 7: Paste from clipboard into LaTeX document
-* Press Ctrl+V (Windows) or Command+V (Mac)
-
-* Step 8: Search for related packages
-findsj causal inference, n(5)
-* (Interactive: click [Install] buttons)
-
-* Step 9: Check Google Scholar for additional citations
-* (Interactive: click [Google] buttons)
-
-* Step 10: Save article IDs for future reference
-* Note article IDs (e.g., st0547) for direct access later
-
-
-*===============================================================================
-* SECTION 24: Quick Reference
+* SECTION 17: Quick Reference
 *===============================================================================
 
 * Basic Syntax:
@@ -656,7 +455,6 @@ findsj causal inference, n(5)
 *   resetpath      - Reset to default directory
 
 * Other Options:
-*   getdoi     - Force DOI lookup
 *   clear      - Clear data
 *   debug      - Enable debug mode
 
