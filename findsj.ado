@@ -480,11 +480,56 @@ else {
     local title_display = subinstr(`"`title_display'"', "&gt;", ">", .)
     local title_display = subinstr(`"`title_display'"', "&quot;", `"""', .)
     
+    * Clean HTML entities in author for display
+    local author_display = "`author_i'"
+    local author_display = subinstr("`author_display'", "&amp;", "&", .)
+    local author_display = subinstr("`author_display'", "&ndash;", "-", .)
+    local author_display = subinstr("`author_display'", "&mdash;", "--", .)
+    local author_display = subinstr("`author_display'", "&lt;", "<", .)
+    local author_display = subinstr("`author_display'", "&gt;", ">", .)
+    local author_display = subinstr("`author_display'", "&quot;", `"""', .)
+    local author_display = subinstr("`author_display'", "&auml;", "ä", .)
+    local author_display = subinstr("`author_display'", "&ouml;", "ö", .)
+    local author_display = subinstr("`author_display'", "&uuml;", "ü", .)
+    local author_display = subinstr("`author_display'", "&Auml;", "Ä", .)
+    local author_display = subinstr("`author_display'", "&Ouml;", "Ö", .)
+    local author_display = subinstr("`author_display'", "&Uuml;", "Ü", .)
+    local author_display = subinstr("`author_display'", "&aacute;", "á", .)
+    local author_display = subinstr("`author_display'", "&eacute;", "é", .)
+    local author_display = subinstr("`author_display'", "&iacute;", "í", .)
+    local author_display = subinstr("`author_display'", "&oacute;", "ó", .)
+    local author_display = subinstr("`author_display'", "&uacute;", "ú", .)
+    local author_display = subinstr("`author_display'", "&Aacute;", "Á", .)
+    local author_display = subinstr("`author_display'", "&Eacute;", "É", .)
+    local author_display = subinstr("`author_display'", "&Iacute;", "Í", .)
+    local author_display = subinstr("`author_display'", "&Oacute;", "Ó", .)
+    local author_display = subinstr("`author_display'", "&Uacute;", "Ú", .)
+    local author_display = subinstr("`author_display'", "&ntilde;", "ñ", .)
+    local author_display = subinstr("`author_display'", "&Ntilde;", "Ñ", .)
+    local author_display = subinstr("`author_display'", "&agrave;", "à", .)
+    local author_display = subinstr("`author_display'", "&egrave;", "è", .)
+    local author_display = subinstr("`author_display'", "&igrave;", "ì", .)
+    local author_display = subinstr("`author_display'", "&ograve;", "ò", .)
+    local author_display = subinstr("`author_display'", "&ugrave;", "ù", .)
+    local author_display = subinstr("`author_display'", "&acirc;", "â", .)
+    local author_display = subinstr("`author_display'", "&ecirc;", "ê", .)
+    local author_display = subinstr("`author_display'", "&icirc;", "î", .)
+    local author_display = subinstr("`author_display'", "&ocirc;", "ô", .)
+    local author_display = subinstr("`author_display'", "&ucirc;", "û", .)
+    local author_display = subinstr("`author_display'", "&ccedil;", "ç", .)
+    local author_display = subinstr("`author_display'", "&Ccedil;", "Ç", .)
+    local author_display = subinstr("`author_display'", "&aring;", "å", .)
+    local author_display = subinstr("`author_display'", "&Aring;", "Å", .)
+    local author_display = subinstr("`author_display'", "&oslash;", "ø", .)
+    local author_display = subinstr("`author_display'", "&Oslash;", "Ø", .)
+    local author_display = subinstr("`author_display'", "&atilde;", "ã", .)
+    local author_display = subinstr("`author_display'", "&otilde;", "õ", .)
+    
     * First line: Article number and title (use smcl to prevent wrapping)
     dis as text "{p 0 0 0}[" as result `i' as text "] " as result `"`title_display'"' as text "{p_end}"
     
     * Second line: Author, year, and journal info
-    dis as text "{p 4 4 4}" as result "`author_i'" as text " (" as result "`year_i'" as text "). " ///
+    dis as text "{p 4 4 4}" as result "`author_display'" as text " (" as result "`year_i'" as text "). " ///
         as text "Stata Journal" _c
     if "`volnum_i'" != "" & "`volnum_i'" != "." {
         dis as text " " as result "`volnum_i'" _c
