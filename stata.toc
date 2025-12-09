@@ -1,4 +1,4 @@
 v 3
 d findsj package from https://github.com/BlueDayDreeaming/findsj
-d Version 1.1.0 (2025-11-05) - Real-time search, cross-platform support
-p findsj Search and cite articles from Stata Journal
+d Version 1.4.0 (2025-12-08) - Interactive buttons, citation export, auto-updates
+p findsj Search and cite Stata Journal articles with interactive buttons

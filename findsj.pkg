@@ -1,17 +1,18 @@
 v 3
-d findsj: Search Stata Journal and Stata Technical Bulletin articles
+d findsj: Search and cite Stata Journal articles with interactive buttons
 d
-d Version 1.4.0 - Local database with online updates and citation support
+d Version 1.4.0 - Interactive search, citation generation, and automatic updates
 d
-d Search articles from Stata Journal and STB with a local database for fast
-d searches. Update the database from GitHub or Gitee. Supports DOI retrieval,
-d citation copy, and configurable download paths. Works on Windows, Mac, and Linux.
+d Search Stata Journal and STB articles with clickable buttons for Article, PDF,
+d Google Scholar, package installation, and citation generation. Export formatted
+d citations in Markdown, LaTeX, or plain text with automatic clipboard copying.
+d Download BibTeX/RIS files. Database automatically updated via GitHub Actions.
 d
-d Distribution-Date: 20251114
+d Distribution-Date: 20251208
 d License: MIT
 d
-d Author: Yujun Lian (连玉君), Sun Yat-sen University
-d Author: Chucheng Wan (万楚呈)
+d Author: Yujun Lian, Zhongnan University of Economics and Law
+d Author: Chucheng Wan
 d Support: email arlionn@163.com, chucheng.wan@outlook.com
 d
 d Requires: Stata version 14.0 or higher
