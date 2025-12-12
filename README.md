@@ -39,29 +39,29 @@ The Stata Journal website **does not provide direct download links** to companio
 ### Example 1: Find panel data methods and install packages
 ```stata
 . findsj panel, n(3)
-  Searching ... Showing 3 of 101 articles
-[1] Testing and estimating structural breaks in time series and panel data in Stata
+  Searching ... Showing 3 of 103 articles
+[1] Weighted-average least squares:  Beyond the classical linear regression model
+    G. De Luca and J. R. Magnus. (2025). Stata Journal 25(4)
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
+[2] Testing for slope heterogeneity bias in the fixed-effects estimator
+    J. Alejo, A. F. Galvao, and G. Montes-Rojas. (2025). Stata Journal 25(4)
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
+[3] Testing and estimating structural breaks in time series and panel data in Stata
     J. Ditzen, Y. Karavias, and J. Westerlund. (2025). Stata Journal 25(3)
-    Article | PDF | Google | Install | BibTeX | RIS
-[2] xtevent: Estimation and visualization in the linear panel event-study design
-    S. Freyaldenhoven, C. B. Hansen, J. P. Pérez, J. M. Shapiro, and C. Carreto. (2025). Stata Journal 25(1)
-    Article | PDF | Google | Install | BibTeX | RIS
-[3] xtpb: The pooled Bewley estimator of long-run relationships in dynamic heterogeneous panels
-    P. Asnani, A. Chudik, and B. Strackman. (2025). Stata Journal 25(1)
-    Article | PDF | Google | Install | BibTeX | RIS
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
 ```
 👆 Click **Install** to directly install the companion package!
 
 ### Example 2: Search by author name
 ```stata
 . findsj Baum, author n(2)
-  Searching ... Showing 2 of 24 articles
-[1] Estimating treatment effects when program participation is misreported
+  Searching ... Showing 2 of 25 articles
+[1] Stata tip 166: Changing the axis scale with marginsplot
+    C. F. Baum. (2025). Stata Journal 25(4)
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
+[2] Estimating treatment effects when program participation is misreported
     C. F. Baum, D. Tommasi, and L. Zhang. (2024). Stata Journal 24(4)
-    Article | PDF | Google | Install | BibTeX | RIS
-[2] Testing for time-varying Granger causality
-    C. F. Baum, S. Hurn, and J. Otero. (2022). Stata Journal 22(2)
-    Article | PDF | Google | Install | BibTeX | RIS
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
 ```
 
 ### Example 3: Find machine learning tools
@@ -80,12 +80,12 @@ The Stata Journal website **does not provide direct download links** to companio
 ```stata
 . findsj differences, title n(2)
   Searching ... Showing 2 of 10 articles
-[1] Avoiding the eyeballing fallacy: Visualizing statistical differences
+[1] Avoiding the eyeballing fallacy: Visualizing statistical differences between estimates using the pheatplot command
     E. Brini, S. T. Borgen, and N. T. Borgen. (2025). Stata Journal 25(1)
-    Article | PDF | Google | Install | BibTeX | RIS
-[2] On synthetic difference-in-differences and related estimation methods
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
+[2] On synthetic difference-in-differences and related estimation methods in Stata
     D. Clarke, D. Pailañir, S. Athey, and G. Imbens. (2024). Stata Journal 24(4)
-    Article | PDF | Google | Install | BibTeX | RIS
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
 ```
 
 ---

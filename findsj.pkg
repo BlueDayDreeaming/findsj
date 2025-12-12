@@ -11,11 +11,11 @@ d
 d Distribution-Date: 20251208
 d License: MIT
 d
-d Author: Yujun Lian, Zhongnan University of Economics and Law
-d Author: Chucheng Wan
+d Author: Yujun Lian, Lingnan College, Sun Yat-sen University
+d Author: Chucheng Wan, Lingnan College, Sun Yat-sen University
 d Support: email arlionn@163.com, chucheng.wan@outlook.com
 d
-d Requires: Stata version 14.0 or higher
+d Requires: Stata version 16.0 or higher
 d
 f findsj.ado
 f findsj.sthlp

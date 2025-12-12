@@ -474,7 +474,7 @@ Complete documentation and examples available at:{break}
 
 {pstd}
 Yujun Lian{break}
-Zhongnan University of Economics and Law{break}
+Lingnan College, Sun Yat-sen University{break}
 Email: {browse "mailto:arlionn@163.com":arlionn@163.com}{break}
 Web: {browse "https://www.lianxh.cn":www.lianxh.cn}
 

@@ -6,16 +6,16 @@ Package name:   findsj
 
 DOI:  
 
-Title: findsj - Search and cite articles from Stata Journal
+Title: findsj - Search and cite Stata Journal articles with interactive buttons
 
-Version: 1.1.0 (2025/11/05)
+Version: 1.4.0 (2025/12/08)
 
 Author 1 name: Yujun Lian
-Author 1 from: Sun Yat-sen University, Guangzhou, China
+Author 1 from: Lingnan College, Sun Yat-sen University, Guangzhou, China
 Author 1 email: arlionn@163.com
 
 Author 2 name: Chucheng Wan
-Author 2 from: Sun Yat-sen University, Guangzhou, China
+Author 2 from: Lingnan College, Sun Yat-sen University, Guangzhou, China
 Author 2 email: chucheng.wan@outlook.com
 
 Author 3 name:  
@@ -30,42 +30,69 @@ Author 5 name:
 Author 5 from:  
 Author 5 email: 
 
-Help keywords: findsj, Stata Journal, search, citation, bibliography, BibTeX, RIS
+Help keywords: findsj, Stata Journal, search, citation, bibliography, BibTeX, RIS, interactive buttons, getiref
 
-File list: findsj.ado findsj.sthlp findsj_examples.do stata.toc
+File list: findsj.ado findsj.sthlp findsj.dta findsj_version.dta findsj_examples.do getiref.ado stata.toc
 
 Notes: 
 
 findsj searches for articles from the Stata Journal (SJ) and Stata 
 Technical Bulletin (STB) by keywords, author names, or article titles. 
-All article information is fetched directly from the Stata Journal website
-in real-time, ensuring the most up-to-date results without requiring local
-data files.
+Articles are searched using a local database (findsj.dta) for fast, 
+offline access. The database is automatically updated via GitHub Actions
+and includes 1260+ articles with full metadata.
 
 Key Features:
-- Real-time search directly from Stata Journal website
-- Display article information with clickable links (HTML, PDF, Google Scholar)
-- Download citations in BibTeX and RIS formats with proper Referer headers
-- Cross-platform support (Windows, Mac, Linux) with native download scripts
-- Export citations in Markdown, LaTeX, or plain text formats
-- Automatic clipboard support on Windows and Mac
-- Search by keyword, author, or title
+- Fast local database search with 1260+ Stata Journal articles
+- Interactive clickable buttons for each article:
+  * Article - Open article page
+  * PDF - Direct PDF download link
+  * Google - Search on Google Scholar
+  * Install - One-click package installation
+  * Ref - Show citation format buttons (.md/.latex/.txt)
+  * BibTeX - Download BibTeX citation file
+  * RIS - Download RIS citation file
+- Citation generation via getiref integration (Markdown, LaTeX, plain text)
+- Automatic database update checking (monthly reminders)
+- Database updates from GitHub or Gitee (with auto-fallback)
+- Cross-platform support (Windows, Mac, Linux)
+- Automatic clipboard copying for citations
 - Configurable download path (persistent across sessions)
-- Optional real-time DOI fetching with getdoi option
+- DOI information for PDF links and citations
+
+Version 1.4.0 Changes:
+- Added automatic database update checking (monthly reminders)
+- Improved update system with clickable download options
+- Enhanced database management with version tracking
+- Fixed HTML entity display in author names (supports international characters)
+- Streamlined examples file with 17 focused sections
+
+Version 1.3.0 Changes:
+- Direct getiref integration for citation generation
+- Click .md/.latex/.txt buttons to generate formatted citations
+- Automatic DOI fetching when using ref option
+
+Version 1.2.0 Changes:
+- Added "Ref" button for each article
+- Three clickable citation format buttons (.md/.latex/.txt)
+- Integrated with getiref for professional citation formatting
 
 Version 1.1.0 Changes:
-- Removed dependency on local data files (findsj_finddata, findsj_download_data)
-- All article information now fetched online in real-time
-- Improved Mac/Unix download support with proper shell script generation
+- Transitioned from online fetching to local database system
+- Added findsj.dta for fast offline search
+- Improved Mac/Unix download support with proper shell scripts
 - Added download path configuration (setpath, querypath, resetpath)
 - Fixed BibTeX/RIS download with Referer header spoofing
-- Enhanced display format (title first, configurable number of results)
+- Enhanced display format (title first, configurable results)
 
 System Requirements:
-- Stata 14.0 or higher
-- Internet connection required
-- Mac users: curl command-line tool (pre-installed on macOS)
-- Windows users: PowerShell (built-in)
+- Stata 16.0 or higher
+- Internet connection (for database updates and downloads)
+- Operating System: Windows, macOS, or Linux
+- Tools:
+  - Windows: PowerShell (built-in)
+  - Mac/Linux: curl and bash (pre-installed)
+- Required packages: getiref (auto-installed if missing)
 
 Installation: 
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
@@ -75,7 +102,9 @@ Quick Start:
 findsj regression                          // Basic search
 findsj panel data, n(10)                   // Show 10 results
 findsj Baum, author                        // Search by author
+findsj synthetic control, ref              // Show citation buttons
 findsj propensity score, markdown          // Export in Markdown
+findsj, update source(github)              // Update database
 findsj, setpath(/your/path)                // Set download path
 findsj, querypath                          // Check current path
 
