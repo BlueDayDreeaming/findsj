@@ -998,12 +998,10 @@ if `num_export' > 0 {
         local file_name "$findsj_export_file"
         
         noi dis " "
-        * Construct full path with proper quoting
-        local full_path "`file_path'/`file_name'"
         noi dis _dup(58) "-" _n ///
-                _col(3)  `"{stata `" view "`full_path'" "': View}"' ///
-                _col(17) `"{stata `" !open "`full_path'" "' : Open_Mac}"' ///
-                _col(30) `"{stata `" winexec cmd /c start "" "\"`full_path'\"" "' : Open_Win}"' ///
+                _col(3)  `"{stata `"view "`file_path'/`file_name'""': View}"' ///
+                _col(17) `"{stata `"!open "`file_path'/`file_name'""': Open_Mac}"' ///
+                _col(30) `"{stata `"shell start "" "`file_path'/`file_name'""': Open_Win}"' ///
                 _col(50) `"{browse `"`file_path'"': dir}"'
         noi dis _dup(58) "-"
         
