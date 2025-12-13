@@ -996,12 +996,13 @@ if `num_export' > 0 {
         * Use globals saved from qui block
         local file_path "$findsj_export_path"
         local file_name "$findsj_export_file"
+        local full_path "`file_path'/`file_name'"
         
         noi dis " "
         noi dis _dup(58) "-" _n ///
-                _col(3)  `"{stata `" view  "`file_path'/`file_name'" "': View}"' ///
-                _col(17) `"{stata `" !open "`file_path'/`file_name'" "' : Open_Mac}"' ///
-                _col(30) `"{stata `" winexec cmd /c start "" "`file_path'/`file_name'" "' : Open_Win}"' ///
+                _col(3)  `"{stata `" view  "`full_path'" "': View}"' ///
+                _col(17) `"{stata `" !open "`full_path'" "' : Open_Mac}"' ///
+                _col(30) `"{stata `" winexec cmd /c start /b "" "`full_path'" "' : Open_Win}"' ///
                 _col(50) `"{browse `"`file_path'"': dir}"'
         noi dis _dup(58) "-"
         
@@ -1706,22 +1707,14 @@ program define findsj_clipout
         local shortcut "Ctrl+V"
     }
     else if "`c(os)'" == "MacOSX" {
-        * Mac: use pbcopy with UTF-8 encoding
+        * Mac: use pbcopy
         tempfile cliptemp
         quietly {
-            * Write to temporary file with UTF-8 encoding
             file open fh using "`cliptemp'.txt", write replace
             file write fh `"`text'"'
             file close fh
-            
-            * Convert to UTF-8 if needed
-            capture unicode analyze "`cliptemp'.txt"
-            if _rc == 0 {
-                capture unicode translate "`cliptemp'.txt"
-            }
         }
-        * Use iconv to ensure UTF-8 encoding before piping to pbcopy
-        shell iconv -f UTF-8 -t UTF-8 "`cliptemp'.txt" | pbcopy
+        shell cat "`cliptemp'.txt" | pbcopy
         local shortcut "Command+V"
     }
     else {
