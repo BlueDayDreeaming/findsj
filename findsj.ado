@@ -996,13 +996,14 @@ if `num_export' > 0 {
         * Use globals saved from qui block
         local file_path "$findsj_export_path"
         local file_name "$findsj_export_file"
-        local full_path "`file_path'/`file_name'"
         
         noi dis " "
+        * Construct full path with proper quoting
+        local full_path "`file_path'/`file_name'"
         noi dis _dup(58) "-" _n ///
-                _col(3)  `"{stata `" view  "`full_path'" "': View}"' ///
+                _col(3)  `"{stata `" view "`full_path'" "': View}"' ///
                 _col(17) `"{stata `" !open "`full_path'" "' : Open_Mac}"' ///
-                _col(30) `"{stata `" winexec cmd /c start /b "" "`full_path'" "' : Open_Win}"' ///
+                _col(30) `"{stata `" winexec cmd /c start "" "\"`full_path'\"" "' : Open_Win}"' ///
                 _col(50) `"{browse `"`file_path'"': dir}"'
         noi dis _dup(58) "-"
         
