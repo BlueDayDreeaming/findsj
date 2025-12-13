@@ -1706,14 +1706,22 @@ program define findsj_clipout
         local shortcut "Ctrl+V"
     }
     else if "`c(os)'" == "MacOSX" {
-        * Mac: use pbcopy
+        * Mac: use pbcopy with UTF-8 encoding
         tempfile cliptemp
         quietly {
+            * Write to temporary file with UTF-8 encoding
             file open fh using "`cliptemp'.txt", write replace
             file write fh `"`text'"'
             file close fh
+            
+            * Convert to UTF-8 if needed
+            capture unicode analyze "`cliptemp'.txt"
+            if _rc == 0 {
+                capture unicode translate "`cliptemp'.txt"
+            }
         }
-        shell cat "`cliptemp'.txt" | pbcopy
+        * Use iconv to ensure UTF-8 encoding before piping to pbcopy
+        shell iconv -f UTF-8 -t UTF-8 "`cliptemp'.txt" | pbcopy
         local shortcut "Command+V"
     }
     else {
