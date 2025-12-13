@@ -1446,10 +1446,31 @@ program define findsj_update_db
     dis as text "{hline 70}"
     dis ""
     
-    * Find findsj.ado location
+    * Find findsj.ado location and normalize path
     qui findfile findsj.ado
-    local ado_dir = subinstr("`r(fn)'", "findsj.ado", "", .)
-    local dta_file "`ado_dir'findsj.dta"
+    local ado_path = r(fn)
+    
+    * First normalize all path separators to forward slash (handle mixed paths)
+    local ado_path = subinstr("`ado_path'", "\", "/", .)
+    
+    * Get directory by removing filename
+    local ado_dir = substr("`ado_path'", 1, strlen("`ado_path'") - strlen("findsj.ado"))
+    
+    * Remove trailing slash if present
+    if substr("`ado_dir'", -1, 1) == "/" {
+        local ado_dir = substr("`ado_dir'", 1, strlen("`ado_dir'") - 1)
+    }
+    
+    * Convert to OS-appropriate format and create full path
+    if c(os) == "Windows" {
+        local ado_dir = subinstr("`ado_dir'", "/", "\", .)
+        local dta_file "`ado_dir'\findsj.dta"
+        * Normalize for display
+        local dta_file = subinstr("`dta_file'", "/", "\", .)
+    }
+    else {
+        local dta_file "`ado_dir'/findsj.dta"
+    }
     
     dis as text "Database location: " as result "`dta_file'"
     dis ""
@@ -1510,13 +1531,18 @@ program define findsj_update_db
             if _rc == 0 {
                 qui count
                 local n_records = r(N)
+                * Normalize path for display
+                local display_path = "`dta_file'"
+                if c(os) == "Windows" {
+                    local display_path = subinstr("`display_path'", "/", "\", .)
+                }
                 dis ""
                 dis as text "{hline 70}"
                 dis as result "  Update Complete!"
                 dis as text "{hline 70}"
                 dis as text "Database updated successfully from `source_name'"
                 dis as text "Total articles: " as result "`n_records'"
-                dis as text "Location: " as result "`dta_file'"
+                dis as text "Location: " as result "`display_path'"
                 dis as text "{hline 70}"
                 exit
             }
@@ -1536,6 +1562,12 @@ program define findsj_update_db
     }
     
     * All sources failed
+    * Normalize ado_dir for display
+    local display_dir = "`ado_dir'"
+    if c(os) == "Windows" {
+        local display_dir = subinstr("`display_dir'", "/", "\", .)
+    }
+    
     dis ""
     dis as text "{hline 70}"
     dis as error "  Update Failed"
@@ -1550,7 +1582,7 @@ program define findsj_update_db
     dis as text "  1. Visit: " as result "https://github.com/BlueDayDreeaming/findsj"
     dis as text "     (China: " as result "https://gitee.com/ChuChengWan/findsj" as text ")"
     dis as text "  2. Download findsj.dta"
-    dis as text "  3. Copy to: " as result "`ado_dir'"
+    dis as text "  3. Copy to: " as result "`display_dir'"
     dis as text "{hline 70}"
 end
 
