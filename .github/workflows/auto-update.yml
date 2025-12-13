@@ -1,9 +1,9 @@
 name: Auto Update Stata Journal Database
 
 on:
-  # 每月1号的00:00 UTC自动运行
+  # 每天00:00 UTC自动运行（北京时间08:00）
   schedule:
-    - cron: '0 0 1 * *'
+    - cron: '0 0 * * *'
   
   # 允许手动触发
   workflow_dispatch:
