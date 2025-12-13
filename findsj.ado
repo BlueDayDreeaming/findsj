@@ -123,7 +123,7 @@ syntax [anything(name=keywords id="keywords")] [, ///
 * Check if getiref is installed (needed for citation formats)
 capture which getiref
 if _rc != 0 {
-    dis as text "{p}getiref command not found. Installing from SSC...{p_end}"
+    dis as text "{p}command getiref is unrecognized. Installing from SSC...{p_end}"
     capture ssc install getiref
     if _rc != 0 {
         dis as error "{p}Failed to install getiref. Please check your internet connection or install manually: {stata ssc install getiref}{p_end}"
