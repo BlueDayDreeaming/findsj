@@ -120,16 +120,21 @@ syntax [anything(name=keywords id="keywords")] [, ///
     Type(string) ///
     ]
 
-* Check for updates (once per day)
-findsj_check_update
-
-* Check and auto-install getiref if needed
+* Check if getiref is installed (needed for citation formats)
 capture which getiref
 if _rc != 0 {
-    dis as text "getiref not found. Installing from SSC..."
-    quietly ssc install getiref
-    dis as result "getiref has been successfully installed."
+    dis as text "{p}getiref command not found. Installing from SSC...{p_end}"
+    capture ssc install getiref
+    if _rc != 0 {
+        dis as error "{p}Failed to install getiref. Please check your internet connection or install manually: {stata ssc install getiref}{p_end}"
+    }
+    else {
+        dis as result "{p}getiref successfully installed!{p_end}"
+    }
 }
+
+* Check for updates (once per day)
+findsj_check_update
 
 * Handle download subcommand (findsj artid, type(bib|ris))
 if "`type'" != "" {
