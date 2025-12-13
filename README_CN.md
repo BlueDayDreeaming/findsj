@@ -201,7 +201,7 @@ findsj [关键词] [, 选项]
   - `both` - 先尝试 GitHub，失败后回退到 Gitee
 
 ### 高级选项
-- `getdoi` - 从 Stata Journal 网站实时获取 DOI（较慢）
+- `getdoi` - 在搜索结果中显示每篇文章的 DOI 信息
 - `debug` - 显示调试信息
 
 ---

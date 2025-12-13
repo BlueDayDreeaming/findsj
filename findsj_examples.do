@@ -243,11 +243,15 @@ findsj, querypath
 * DOI (Digital Object Identifier) enables PDF links and citations
 * DOIs are fetched automatically from local database or online
 
-* Example 11.1: Basic search with DOI lookup
+* Example 11.1: Display DOI information with getdoi option
+* Use getdoi to show DOI for each article in search results
+findsj panel data, getdoi n(3)
+
+* Example 11.2: Basic search with DOI lookup
 * DOIs fetched automatically when available
 findsj synthetic control, ref
 
-* Example 11.2: Search without local database
+* Example 11.3: Search without local database
 * If findsj.dta not found, DOIs fetched online (slower)
 * One-time notice shown with database update instructions
 findsj instrumental variable, ref

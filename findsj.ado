@@ -618,6 +618,16 @@ else {
         }
     }
     
+    * Display DOI information if getdoi option is specified and DOI is found
+    if "`getdoi'" != "" {
+        if `has_doi' == 1 {
+            dis as text "    DOI: " as result "`doi_i'"
+        }
+        else {
+            dis as text "    DOI: " as error "(not found)"
+        }
+    }
+    
     if "`nobrowser'" == "" {
         dis as text "    " _c
         dis as text `"{browse "`url_html_i'":Article}"' _c
@@ -968,7 +978,7 @@ if `num_export' > 0 {
         noi dis as text "{hline 60}" _n
         
         forvalues i = 1/`n_cite' {
-            noi dis as text "`cite_`i''"
+            noi dis `"`cite_`i''"'
             noi dis ""
         }
         

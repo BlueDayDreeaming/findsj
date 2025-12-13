@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  D:\User\private\Desktop\stata\findsj_v4\findsj_examples.log
   log type:  text
- opened on:   9 Dec 2025, 22:53:04
+ opened on:  13 Dec 2025, 15:36:14
 
 . 
 . clear all
@@ -661,11 +661,13 @@
 
 [1] diff: Simplifying the estimation of difference-in-differences treatment effects
     J. M. Villa. 2016. (). Stata Journal 16(1)
+    DOI: 10.1177/1536867X1601600108
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [2] Estimation of average treatment effects based on propensity scores
     S.O. Becker and A. Ichino. 2002. (). Stata Journal 2(4)
+    DOI: 10.1177/1536867X0200200403
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
@@ -1397,14 +1399,22 @@ Click on a source above to download.
 Database location: ./findsj.dta
 
 
-Downloading from GitHub... Success!
+Downloading from GitHub... Failed.
 
 ----------------------------------------------------------------------
-  Update Complete!
+  Update Failed
 ----------------------------------------------------------------------
-Database updated successfully from GitHub
-Total articles: 1260
-Location: ./findsj.dta
+Could not download database from selected source(s)
+Possible reasons:
+  - No internet connection
+  - Firewall blocking access
+  - Repository temporarily unavailable
+
+Manual download instructions:
+  1. Visit: https://github.com/BlueDayDreeaming/findsj
+     (China: https://gitee.com/ChuChengWan/findsj)
+  2. Download findsj.dta
+  3. Copy to: ./
 ----------------------------------------------------------------------
 
 . 
@@ -1418,14 +1428,22 @@ Location: ./findsj.dta
 Database location: ./findsj.dta
 
 
-Downloading from Gitee... Success!
+Downloading from Gitee... Failed.
 
 ----------------------------------------------------------------------
-  Update Complete!
+  Update Failed
 ----------------------------------------------------------------------
-Database updated successfully from Gitee
-Total articles: 1260
-Location: ./findsj.dta
+Could not download database from selected source(s)
+Possible reasons:
+  - No internet connection
+  - Firewall blocking access
+  - Repository temporarily unavailable
+
+Manual download instructions:
+  1. Visit: https://github.com/BlueDayDreeaming/findsj
+     (China: https://gitee.com/ChuChengWan/findsj)
+  2. Download findsj.dta
+  3. Copy to: ./
 ----------------------------------------------------------------------
 
 . 
@@ -1439,24 +1457,25 @@ Location: ./findsj.dta
 Database location: ./findsj.dta
 
 
-Downloading from GitHub... Success!
+Downloading from GitHub... Failed.
+Trying next source...
+
+Downloading from Gitee... Failed.
 
 ----------------------------------------------------------------------
-  Update Complete!
+  Update Failed
 ----------------------------------------------------------------------
-Database updated successfully from GitHub
-Total articles: 1260
-Location: ./findsj.dta
-----------------------------------------------------------------------
+Could not download database from selected source(s)
+Possible reasons:
+  - No internet connection
+  - Firewall blocking access
+  - Repository temporarily unavailable
 
-Downloading from Gitee... Success!
-
-----------------------------------------------------------------------
-  Update Complete!
-----------------------------------------------------------------------
-Database updated successfully from Gitee
-Total articles: 1260
-Location: ./findsj.dta
+Manual download instructions:
+  1. Visit: https://github.com/BlueDayDreeaming/findsj
+     (China: https://gitee.com/ChuChengWan/findsj)
+  2. Download findsj.dta
+  3. Copy to: ./
 ----------------------------------------------------------------------
 
 . 
@@ -1553,7 +1572,39 @@ Current download path: D:\User\private\Desktop\stata\findsj_v4 (default)
 . * DOI (Digital Object Identifier) enables PDF links and citations
 . * DOIs are fetched automatically from local database or online
 . 
-. * Example 11.1: Basic search with DOI lookup
+. * Example 11.1: Display DOI information with getdoi option
+. * Use getdoi to show DOI for each article in search results
+. findsj panel data, getdoi n(3)
+
+  Searching ... Showing 3 of 71 articles
+
+[1] Weighted-average least squares:  Beyond the classical linear regression model
+    G. De Luca and J. R. Magnus. 2025. (). Stata Journal 25(4)
+    DOI: 10.1177/1536867x251398599
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
+[2] Testing for slope heterogeneity bias in the fixed-effects estimator
+    J. Alejo, A. F. Galvao, and G. Montes-Rojas. 2025. (). Stata Journal 25(4)
+    DOI: 10.1177/1536867x251398607
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
+[3] Testing and estimating structural breaks in time series and panel data in Stata
+    J. Ditzen, Y. Karavias, and J. Westerlund. 2025. (). Stata Journal 25(3)
+    DOI: 10.1177/1536867x251365449
+    Article | PDF | Google | Install | Ref | BibTeX | RIS
+
+------------------------------------------------------------
+  Showing 3 of 71 results.
+  To see all results, add option: allresults
+  Example: findsj panel data, allresults
+------------------------------------------------------------
+
+------------------------------------------------------------
+  Search completed. Found 71 article(s).
+  To view full search results online: Open in browser
+------------------------------------------------------------
+
+
+. 
+. * Example 11.2: Basic search with DOI lookup
 . * DOIs fetched automatically when available
 . findsj synthetic control, ref
 
@@ -1561,26 +1612,31 @@ Current download path: D:\User\private\Desktop\stata\findsj_v4 (default)
 
 [1] Quantile control method: Causal inference with one treated unit via random forest
     G. Yan, Q. Chen, and Z. Xiao. 2025. (). Stata Journal 25(2)
+    DOI: 10.1177/1536867x251341181
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [2] On synthetic difference-in-differences and related estimation methods in Stata
     D. Clarke, D. Pailañir, S. Athey, and G. Imbens. 2024. (). Stata Journal 24(4)
+    DOI: 10.1177/1536867x241297914
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [3] synth2: Synthetic control method with placebo tests, robustness test, and visualization
     G. Yan and Q. Chen. 2023. (). Stata Journal 23(3)
+    DOI: 10.1177/1536867x231195278
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [4] Nonparametric synthetic control using the npsynth command
     G. Cerulli. 2020. (). Stata Journal 20(4)
+    DOI: 10.1177/1536867X20976315
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [5] The synth_runner package: Utilities to automate synthetic control estimation using synth
     S. Galiani and B. Quistorff. 2017. (). Stata Journal 17(4)
+    DOI: 10.1177/1536867X1801700404
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
@@ -1592,7 +1648,7 @@ Current download path: D:\User\private\Desktop\stata\findsj_v4 (default)
 
 
 . 
-. * Example 11.2: Search without local database
+. * Example 11.3: Search without local database
 . * If findsj.dta not found, DOIs fetched online (slower)
 . * One-time notice shown with database update instructions
 . findsj instrumental variable, ref
@@ -1601,51 +1657,61 @@ Current download path: D:\User\private\Desktop\stata\findsj_v4 (default)
 
 [1] netivreg: Estimation of peer effects in endogenous social networks
     P. Estrada, J. Estrada, K. P. Huynh, D. Jacho-Chávez, and L. Sánchez-Aragón. 2025. (). Stata Journal 25(2)
+    DOI: 10.1177/1536867x251341145
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [2] Estimating treatment effects when program participation is misreported
     C. F. Baum, D. Tommasi, and L. Zhang. 2024. (). Stata Journal 24(4)
+    DOI: 10.1177/1536867x241297916
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [3] Bounding program benefits when participation is misreported: Estimation and inference with Stata
     A. Lin, D. Tommasi, and L. Zhang. 2024. (). Stata Journal 24(2)
+    DOI: 10.1177/1536867x241257347
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [4] First-stage analysis for instrumental-variables quantile regression
     J. Alejo, A. F. Galvao, and G. Montes-Rojas. 2024. (). Stata Journal 24(2)
+    DOI: 10.1177/1536867x241257803
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [5] Ordinary least squares and instrumental-variables estimators for any outcome and heterogeneity
     M.-J. Lee and C. Han. 2024. (). Stata Journal 24(1)
+    DOI: 10.1177/1536867x241233645
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [6] Nearly collinear robust procedures for 2SLS estimation
     A. Young. 2024. (). Stata Journal 24(1)
+    DOI: 10.1177/1536867x241233668
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [7] ivcrc: An instrumental-variables estimator for the correlated random-coefficients model
     D. Benson, M. A. Masten, and A. Torgovitsky. 2022. (). Stata Journal 22(3)
+    DOI: 10.1177/1536867X221124449
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [8] Smoothed instrumental variables quantile regression
     D. M. Kaplan. 2022. (). Stata Journal 22(2)
+    DOI: 10.1177/1536867X221106404
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [9] Instrumental-variable estimation of large-T panel-data models with common factors
     S. Kripfganz and V. Sarafidis. 2021. (). Stata Journal 21(3)
+    DOI: 10.1177/1536867X211045558
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [10] kinkyreg: Instrument-free inference for linear regression models with endogenous regressors
     S. Kripfganz and J. F. Kiviet. 2021. (). Stata Journal 21(3)
+    DOI: 10.1177/1536867X211045575
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
@@ -2073,24 +2139,25 @@ Tips: Text is on clipboard. Press 'Ctrl+V' to paste, ^-^
 Database location: ./findsj.dta
 
 
-Downloading from GitHub... Success!
+Downloading from GitHub... Failed.
+Trying next source...
+
+Downloading from Gitee... Failed.
 
 ----------------------------------------------------------------------
-  Update Complete!
+  Update Failed
 ----------------------------------------------------------------------
-Database updated successfully from GitHub
-Total articles: 1260
-Location: ./findsj.dta
-----------------------------------------------------------------------
+Could not download database from selected source(s)
+Possible reasons:
+  - No internet connection
+  - Firewall blocking access
+  - Repository temporarily unavailable
 
-Downloading from Gitee... Success!
-
-----------------------------------------------------------------------
-  Update Complete!
-----------------------------------------------------------------------
-Database updated successfully from Gitee
-Total articles: 1260
-Location: ./findsj.dta
+Manual download instructions:
+  1. Visit: https://github.com/BlueDayDreeaming/findsj
+     (China: https://gitee.com/ChuChengWan/findsj)
+  2. Download findsj.dta
+  3. Copy to: ./
 ----------------------------------------------------------------------
 
 . 
@@ -2285,16 +2352,19 @@ Tips: Text is on clipboard. Press 'Ctrl+V' to paste, ^-^
 
 [1] Quantile control method: Causal inference with one treated unit via random forest
     G. Yan, Q. Chen, and Z. Xiao. 2025. (). Stata Journal 25(2)
+    DOI: 10.1177/1536867x251341181
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [2] ddml: Double/debiased machine learning in Stata
     A. Ahrens, C. B. Hansen, M. E. Schaffer, and T. Wiemann. 2024. (). Stata Journal 24(1)
+    DOI: 10.1177/1536867x241233641
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [3] Review of A. Colin Cameron and Pravin K. Trivedi's Microeconometrics Using Stata, Second Edition
     S. Kripfganz. 2023. (). Stata Journal 23(4)
+    DOI: 10.1177/1536867x231212446
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
@@ -2463,24 +2533,25 @@ Try different keywords or search scope.
 Database location: ./findsj.dta
 
 
-Downloading from GitHub... Success!
+Downloading from GitHub... Failed.
+Trying next source...
+
+Downloading from Gitee... Failed.
 
 ----------------------------------------------------------------------
-  Update Complete!
+  Update Failed
 ----------------------------------------------------------------------
-Database updated successfully from GitHub
-Total articles: 1260
-Location: ./findsj.dta
-----------------------------------------------------------------------
+Could not download database from selected source(s)
+Possible reasons:
+  - No internet connection
+  - Firewall blocking access
+  - Repository temporarily unavailable
 
-Downloading from Gitee... Success!
-
-----------------------------------------------------------------------
-  Update Complete!
-----------------------------------------------------------------------
-Database updated successfully from Gitee
-Total articles: 1260
-Location: ./findsj.dta
+Manual download instructions:
+  1. Visit: https://github.com/BlueDayDreeaming/findsj
+     (China: https://gitee.com/ChuChengWan/findsj)
+  2. Download findsj.dta
+  3. Copy to: ./
 ----------------------------------------------------------------------
 
 . 
@@ -2494,14 +2565,22 @@ Location: ./findsj.dta
 Database location: ./findsj.dta
 
 
-Downloading from GitHub... Success!
+Downloading from GitHub... Failed.
 
 ----------------------------------------------------------------------
-  Update Complete!
+  Update Failed
 ----------------------------------------------------------------------
-Database updated successfully from GitHub
-Total articles: 1260
-Location: ./findsj.dta
+Could not download database from selected source(s)
+Possible reasons:
+  - No internet connection
+  - Firewall blocking access
+  - Repository temporarily unavailable
+
+Manual download instructions:
+  1. Visit: https://github.com/BlueDayDreeaming/findsj
+     (China: https://gitee.com/ChuChengWan/findsj)
+  2. Download findsj.dta
+  3. Copy to: ./
 ----------------------------------------------------------------------
 
 . 
@@ -2520,51 +2599,61 @@ Current download path: D:\User\private\Desktop\stata\findsj_v4 (default)
 
 [1] Weighted-average least squares:  Beyond the classical linear regression model
     G. De Luca and J. R. Magnus. 2025. (). Stata Journal 25(4)
+    DOI: 10.1177/1536867x251398599
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [2] Testing for slope heterogeneity bias in the fixed-effects estimator
     J. Alejo, A. F. Galvao, and G. Montes-Rojas. 2025. (). Stata Journal 25(4)
+    DOI: 10.1177/1536867x251398607
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [3] Testing and estimating structural breaks in time series and panel data in Stata
     J. Ditzen, Y. Karavias, and J. Westerlund. 2025. (). Stata Journal 25(3)
+    DOI: 10.1177/1536867x251365449
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [4] xtevent: Estimation and visualization in the linear panel event-study design
     S. Freyaldenhoven, C. B. Hansen, J. Pérez Pérez, J. M. Shapiro, and C. Carreto. 2025. (). Stata Journal 25(1)
+    DOI: 10.1177/1536867x251322964
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [5] Identify latent group structures in panel data: The classifylasso command
     W. Huang, Y. Wang, and L. Zhou. 2024. (). Stata Journal 24(1)
+    DOI: 10.1177/1536867x241233642
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [6] Review of A. Colin Cameron and Pravin K. Trivedi's Microeconometrics Using Stata, Second Edition
     S. Kripfganz. 2023. (). Stata Journal 23(4)
+    DOI: 10.1177/1536867x231212446
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [7] Speaking Stata: Replacing missing values: The easiest problems
     N. J. Cox. 2023. (). Stata Journal 23(3)
+    DOI: 10.1177/1536867x231196519
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [8] A Lagrange multiplier test for the mean stationarity assumption in dynamic panel-data models
     L. Magazzini and G. Calzolari. 2023. (). Stata Journal 23(2)
+    DOI: 10.1177/1536867x231175276
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [9] xtnumfac: A battery of estimators for the number of common factors in time series and panel-data models
     J. Ditzen and S. Reese. 2023. (). Stata Journal 23(2)
+    DOI: 10.1177/1536867x231175305
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [10] Improved tests for Granger noncausality in panel data
     J. Xiao, A. Juodis, Y. Karavias, V. Sarafidis, and J. Ditzen. 2023. (). Stata Journal 23(1)
+    DOI: 10.1177/1536867x231162034
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
@@ -2671,16 +2760,19 @@ Current download path: D:\User\private\Desktop\stata\findsj_v4 (default)
 
 [1] Quantile control method: Causal inference with one treated unit via random forest
     G. Yan, Q. Chen, and Z. Xiao. 2025. (). Stata Journal 25(2)
+    DOI: 10.1177/1536867x251341181
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [2] On synthetic difference-in-differences and related estimation methods in Stata
     D. Clarke, D. Pailañir, S. Athey, and G. Imbens. 2024. (). Stata Journal 24(4)
+    DOI: 10.1177/1536867x241297914
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
 [3] synth2: Synthetic control method with placebo tests, robustness test, and visualization
     G. Yan and Q. Chen. 2023. (). Stata Journal 23(3)
+    DOI: 10.1177/1536867x231195278
     Article | PDF | Google | Install | Ref | BibTeX | RIS
 
     Cite: .md | .latex | .txt
@@ -2794,5 +2886,5 @@ all files already exist and are up to date.
       name:  <unnamed>
        log:  D:\User\private\Desktop\stata\findsj_v4\findsj_examples.log
   log type:  text
- closed on:   9 Dec 2025, 22:56:45
+ closed on:  13 Dec 2025, 15:37:38
 --------------------------------------------------------------------------------------------------

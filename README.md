@@ -201,7 +201,7 @@ findsj [keyword(s)] [, options]
   - `both` - Try GitHub first, fallback to Gitee
 
 ### Advanced Options
-- `getdoi` - Fetch real-time DOI from Stata Journal website (slower)
+- `getdoi` - Display DOI information for each article in search results
 - `debug` - Show debugging information
 
 ---
