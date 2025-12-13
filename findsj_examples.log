@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  D:\User\private\Desktop\stata\findsj_v4\findsj_examples.log
   log type:  text
- opened on:  13 Dec 2025, 15:36:14
+ opened on:  13 Dec 2025, 16:06:29
 
 . 
 . clear all
@@ -1378,7 +1378,7 @@ Downloading ris file for st0547...
   Stata Journal Database Update
 ----------------------------------------------------------------------
 
-Database location: ./findsj.dta
+Database location: .\findsj.dta
 
 Download source options:
   github = GitHub (Recommended for international users)
@@ -1396,25 +1396,17 @@ Click on a source above to download.
   Stata Journal Database Update
 ----------------------------------------------------------------------
 
-Database location: ./findsj.dta
+Database location: .\findsj.dta
 
 
-Downloading from GitHub... Failed.
+Downloading from GitHub... Success!
 
 ----------------------------------------------------------------------
-  Update Failed
+  Update Complete!
 ----------------------------------------------------------------------
-Could not download database from selected source(s)
-Possible reasons:
-  - No internet connection
-  - Firewall blocking access
-  - Repository temporarily unavailable
-
-Manual download instructions:
-  1. Visit: https://github.com/BlueDayDreeaming/findsj
-     (China: https://gitee.com/ChuChengWan/findsj)
-  2. Download findsj.dta
-  3. Copy to: ./
+Database updated successfully from GitHub
+Total articles: 1260
+Location: .\findsj.dta
 ----------------------------------------------------------------------
 
 . 
@@ -1425,25 +1417,17 @@ Manual download instructions:
   Stata Journal Database Update
 ----------------------------------------------------------------------
 
-Database location: ./findsj.dta
+Database location: .\findsj.dta
 
 
-Downloading from Gitee... Failed.
+Downloading from Gitee... Success!
 
 ----------------------------------------------------------------------
-  Update Failed
+  Update Complete!
 ----------------------------------------------------------------------
-Could not download database from selected source(s)
-Possible reasons:
-  - No internet connection
-  - Firewall blocking access
-  - Repository temporarily unavailable
-
-Manual download instructions:
-  1. Visit: https://github.com/BlueDayDreeaming/findsj
-     (China: https://gitee.com/ChuChengWan/findsj)
-  2. Download findsj.dta
-  3. Copy to: ./
+Database updated successfully from Gitee
+Total articles: 1260
+Location: .\findsj.dta
 ----------------------------------------------------------------------
 
 . 
@@ -1454,28 +1438,27 @@ Manual download instructions:
   Stata Journal Database Update
 ----------------------------------------------------------------------
 
-Database location: ./findsj.dta
+Database location: .\findsj.dta
 
 
-Downloading from GitHub... Failed.
-Trying next source...
-
-Downloading from Gitee... Failed.
+Downloading from GitHub... Success!
 
 ----------------------------------------------------------------------
-  Update Failed
+  Update Complete!
 ----------------------------------------------------------------------
-Could not download database from selected source(s)
-Possible reasons:
-  - No internet connection
-  - Firewall blocking access
-  - Repository temporarily unavailable
+Database updated successfully from GitHub
+Total articles: 1260
+Location: .\findsj.dta
+----------------------------------------------------------------------
 
-Manual download instructions:
-  1. Visit: https://github.com/BlueDayDreeaming/findsj
-     (China: https://gitee.com/ChuChengWan/findsj)
-  2. Download findsj.dta
-  3. Copy to: ./
+Downloading from Gitee... Success!
+
+----------------------------------------------------------------------
+  Update Complete!
+----------------------------------------------------------------------
+Database updated successfully from Gitee
+Total articles: 1260
+Location: .\findsj.dta
 ----------------------------------------------------------------------
 
 . 
@@ -2136,28 +2119,27 @@ Tips: Text is on clipboard. Press 'Ctrl+V' to paste, ^-^
   Stata Journal Database Update
 ----------------------------------------------------------------------
 
-Database location: ./findsj.dta
+Database location: .\findsj.dta
 
 
-Downloading from GitHub... Failed.
-Trying next source...
-
-Downloading from Gitee... Failed.
+Downloading from GitHub... Success!
 
 ----------------------------------------------------------------------
-  Update Failed
+  Update Complete!
 ----------------------------------------------------------------------
-Could not download database from selected source(s)
-Possible reasons:
-  - No internet connection
-  - Firewall blocking access
-  - Repository temporarily unavailable
+Database updated successfully from GitHub
+Total articles: 1260
+Location: .\findsj.dta
+----------------------------------------------------------------------
 
-Manual download instructions:
-  1. Visit: https://github.com/BlueDayDreeaming/findsj
-     (China: https://gitee.com/ChuChengWan/findsj)
-  2. Download findsj.dta
-  3. Copy to: ./
+Downloading from Gitee... Success!
+
+----------------------------------------------------------------------
+  Update Complete!
+----------------------------------------------------------------------
+Database updated successfully from Gitee
+Total articles: 1260
+Location: .\findsj.dta
 ----------------------------------------------------------------------
 
 . 
@@ -2530,28 +2512,27 @@ Try different keywords or search scope.
   Stata Journal Database Update
 ----------------------------------------------------------------------
 
-Database location: ./findsj.dta
+Database location: .\findsj.dta
 
 
-Downloading from GitHub... Failed.
-Trying next source...
-
-Downloading from Gitee... Failed.
+Downloading from GitHub... Success!
 
 ----------------------------------------------------------------------
-  Update Failed
+  Update Complete!
 ----------------------------------------------------------------------
-Could not download database from selected source(s)
-Possible reasons:
-  - No internet connection
-  - Firewall blocking access
-  - Repository temporarily unavailable
+Database updated successfully from GitHub
+Total articles: 1260
+Location: .\findsj.dta
+----------------------------------------------------------------------
 
-Manual download instructions:
-  1. Visit: https://github.com/BlueDayDreeaming/findsj
-     (China: https://gitee.com/ChuChengWan/findsj)
-  2. Download findsj.dta
-  3. Copy to: ./
+Downloading from Gitee... Success!
+
+----------------------------------------------------------------------
+  Update Complete!
+----------------------------------------------------------------------
+Database updated successfully from Gitee
+Total articles: 1260
+Location: .\findsj.dta
 ----------------------------------------------------------------------
 
 . 
@@ -2562,25 +2543,17 @@ Manual download instructions:
   Stata Journal Database Update
 ----------------------------------------------------------------------
 
-Database location: ./findsj.dta
+Database location: .\findsj.dta
 
 
-Downloading from GitHub... Failed.
+Downloading from GitHub... Success!
 
 ----------------------------------------------------------------------
-  Update Failed
+  Update Complete!
 ----------------------------------------------------------------------
-Could not download database from selected source(s)
-Possible reasons:
-  - No internet connection
-  - Firewall blocking access
-  - Repository temporarily unavailable
-
-Manual download instructions:
-  1. Visit: https://github.com/BlueDayDreeaming/findsj
-     (China: https://gitee.com/ChuChengWan/findsj)
-  2. Download findsj.dta
-  3. Copy to: ./
+Database updated successfully from GitHub
+Total articles: 1260
+Location: .\findsj.dta
 ----------------------------------------------------------------------
 
 . 
@@ -2886,5 +2859,5 @@ all files already exist and are up to date.
       name:  <unnamed>
        log:  D:\User\private\Desktop\stata\findsj_v4\findsj_examples.log
   log type:  text
- closed on:  13 Dec 2025, 15:37:38
+ closed on:  13 Dec 2025, 16:08:24
 --------------------------------------------------------------------------------------------------
