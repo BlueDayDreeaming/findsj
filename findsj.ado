@@ -999,10 +999,10 @@ if `num_export' > 0 {
         
         noi dis " "
         noi dis _dup(58) "-" _n ///
-                _col(3)  `"{stata view "`file_path'/`file_name'": View}"' ///
-                _col(17) `"{stata !open "`file_path'/`file_name'": Open_Mac}"' ///
-                _col(30) `"{stata !start "`file_path'/`file_name'": Open_Win}"' ///
-                _col(50) `"{stata !open "`file_path'": dir}"'
+                _col(3)  as text `"{stata view "`file_path'/`file_name'":View}"' ///
+                _col(17) as text `"{stata !open "`file_path'/`file_name'":Open_Mac}"' ///
+                _col(30) as text `"{stata !start "`file_path'/`file_name'":Open_Win}"' ///
+                _col(50) as text `"{stata !open "`file_path'":dir}"'
         noi dis _dup(58) "-"
         
         * Clean up globals
