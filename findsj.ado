@@ -1482,8 +1482,8 @@ program define findsj_update_db
     * Determine source based on argument
     if "`source_choice'" == "" | "`source_choice'" == "auto" {
         dis as text "Download source options:"
-        dis as text "  {stata findsj, update source(github):github} = GitHub (Recommended for international users)"
-        dis as text "  {stata findsj, update source(gitee):gitee}  = Gitee (Recommended for users in China)"
+        dis as text "  {stata findsj, update source(github):github} = GitHub"
+        dis as text "  {stata findsj, update source(gitee):gitee}  = Gitee (Fallback when GitHub is unavailable)"
         dis as text "  {stata findsj, update source(both):both}   = Try both (GitHub first, then Gitee)"
         dis as text ""
         dis as text "Click on a source above to download."

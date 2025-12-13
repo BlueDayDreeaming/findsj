@@ -277,8 +277,8 @@ from specified location.
 {opt source(string)} specifies download source:
 
 {phang2}
-• {bf:github} - Download from GitHub (recommended for international users){break}
-• {bf:gitee} - Download from Gitee mirror (recommended for China users, faster){break}
+• {bf:github} - Download from GitHub{break}
+• {bf:gitee} - Download from Gitee mirror (fallback when GitHub is unavailable){break}
 • {bf:both} - Try GitHub first, fallback to Gitee if failed (recommended for reliability)
 
 {pmore}
