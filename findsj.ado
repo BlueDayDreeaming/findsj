@@ -123,6 +123,14 @@ syntax [anything(name=keywords id="keywords")] [, ///
 * Check for updates (once per day)
 findsj_check_update
 
+* Check and auto-install getiref if needed
+capture which getiref
+if _rc != 0 {
+    dis as text "getiref not found. Installing from SSC..."
+    quietly ssc install getiref
+    dis as result "getiref has been successfully installed."
+}
+
 * Handle download subcommand (findsj artid, type(bib|ris))
 if "`type'" != "" {
     if "`type'" != "bib" & "`type'" != "ris" {
