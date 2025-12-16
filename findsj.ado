@@ -1012,11 +1012,18 @@ if `num_export' > 0 {
         local full_path "`file_path'/`file_name'"
         
         noi dis " "
-        noi dis _dup(58) "-" _n ///
-                _col(3)  as text `"{browse "`full_path'":View}"' ///
+        noi dis _dup(58) "-"
+        * Show first 3 buttons
+        noi dis _col(3)  as text `"{stata `"view "`full_path'""':View}"' ///
                 _col(15) as text `"{stata `"shell open "`full_path'""':Open_Mac}"' ///
-                _col(30) as text `"{stata `"shell start "" "`full_path'""':Open_Win}"' ///
-                _col(48) as text `"{stata `"shell open "`file_path'""':dir}"'
+                _col(30) as text `"{stata `"shell start "" "`full_path'""':Open_Win}"' _c
+        * Show dir button based on OS
+        if "`c(os)'" == "Windows" {
+            noi dis _col(48) as text `"{stata `"shell explorer /select,"`full_path'""':dir}"'
+        }
+        else {
+            noi dis _col(48) as text `"{stata `"shell open "`file_path'""':dir}"'
+        }
         noi dis _dup(58) "-"
         
         * Clean up globals
