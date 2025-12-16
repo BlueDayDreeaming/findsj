@@ -1011,21 +1011,12 @@ if `num_export' > 0 {
         local file_name "$findsj_export_file"
         local full_path "`file_path'/`file_name'"
         
-        * Detect OS and show appropriate buttons
         noi dis " "
-        noi dis _dup(58) "-"
-        if "`c(os)'" == "Windows" {
-            * Windows: use shell start for file, explorer for folder
-            noi dis _col(3) as text `"{stata `"shell start "" "`full_path'""':Open}"' ///
-                    _col(20) as text `"{stata `"shell explorer /select,"`full_path'""':Folder}"' ///
-                    _col(40) as text `"{browse "`full_path'":Browse}"'
-        }
-        else {
-            * Mac/Unix: use shell open for file and folder
-            noi dis _col(3) as text `"{stata `"shell open "`full_path'""':Open}"' ///
-                    _col(20) as text `"{stata `"shell open "`file_path'""':Folder}"' ///
-                    _col(40) as text `"{browse "`full_path'":Browse}"'
-        }
+        noi dis _dup(58) "-" _n ///
+                _col(3)  as text `"{browse "`full_path'":View}"' ///
+                _col(15) as text `"{stata `"shell open "`full_path'""':Open_Mac}"' ///
+                _col(30) as text `"{stata `"shell start "" "`full_path'""':Open_Win}"' ///
+                _col(48) as text `"{stata `"shell open "`file_path'""':dir}"'
         noi dis _dup(58) "-"
         
         * Clean up globals
