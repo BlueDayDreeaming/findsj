@@ -1009,14 +1009,14 @@ if `num_export' > 0 {
         * Use globals saved from qui block
         local file_path "$findsj_export_path"
         local file_name "$findsj_export_file"
-        local q = char(34)
+        local full_path "`file_path'/`file_name'"
         
         noi dis " "
         noi dis _dup(58) "-" _n ///
-                _col(3)  as text `"{stata view `q'`file_path'/`file_name'`q':View}"' ///
-                _col(17) as text `"{stata !open `q'`file_path'/`file_name'`q':Open_Mac}"' ///
-                _col(30) as text `"{stata !start `q'`file_path'/`file_name'`q':Open_Win}"' ///
-                _col(50) as text `"{stata !open `q'`file_path'`q':dir}"'
+                _col(3)  as text `"{stata `"view "`full_path'""':View}"' ///
+                _col(17) as text `"{stata `"!open "`full_path'""':Open_Mac}"' ///
+                _col(30) as text `"{stata `"!start "`full_path'""':Open_Win}"' ///
+                _col(50) as text `"{stata `"!open "`file_path'""':dir}"'
         noi dis _dup(58) "-"
         
         * Clean up globals
