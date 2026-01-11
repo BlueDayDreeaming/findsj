@@ -1,0 +1,9 @@
+v 2.1.0
+
+d Authors: Yujun lian, Chucheng Wan
+d Contact: arlionn@163.com
+d Github: https://github.com/arlionn/findsj
+
+d 'findsj': findsj searches for articles from the Stata Journal (SJ) and Stata Technical Bulletin (STB) by keywords, author names, or article titles. 
+
+p findsj  module to search and cite Stata Journal articles with interactive buttons
