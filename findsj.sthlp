@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 2.1.0  10jan2026}{...}
+{* *! version 2.1.1  16jan2026}{...}
 {vieweralsosee "[R] search" "help search"}{...}
 {vieweralsosee "[R] net" "help net"}{...}
 {viewerjumpto "Syntax" "findsj##syntax"}{...}
@@ -108,7 +108,7 @@ Configure download path
 {title:Description}
 
 {pstd}
-{cmd:findsj} searches articles published in the {it:Stata Journal} (2001-present) 
+{cmd:findsj} searches and cites articles published in the {it:Stata Journal} (2001-present) 
 and {it:Stata Technical Bulletin} (1991-2000). It provides an integrated workflow 
 for finding, reading, citing, and installing Stata packages from journal articles.
 

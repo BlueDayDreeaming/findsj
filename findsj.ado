@@ -1,7 +1,12 @@
-*! version 2.1.0  10Jan2026
+*! version 2.1.1  16Jan2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
+* v2.1.1: Bug fixes - BibTeX/RIS download improvements
+*   - Fixed: BibTeX/RIS now correctly downloads to current directory by default
+*   - Fixed: setpath() configuration now properly saved and loaded across sessions
+*   - Fixed: Download path correctly handles Chinese characters in directory names
+*   - Fixed: Path separators normalized for Windows compatibility
 * v2.1.0: Major update - Bug fixes and performance optimization
 *   - Fixed Bug #1: Citation count display (results < n)
 *   - Fixed Bug #3: Author name order (via citation_apa)
@@ -23,12 +28,24 @@ program define findsj_download
     version 14
     syntax anything(name=artid), Type(string) [DOWNloadpath(string)]
     
-    * Set download path (use global if set, otherwise current directory)
+    * Set download path (read from config file, use global if set, otherwise current directory)
     if "`downloadpath'" == "" {
-        if "$findsj_download_path" != "" {
+        * First try to read from config file
+        local config_file "`c(sysdir_personal)'findsj_config.txt"
+        capture confirm file "`config_file'"
+        if _rc == 0 {
+            tempname fh
+            file open `fh' using "`config_file'", read text
+            file read `fh' line
+            file close `fh'
+            local downloadpath = strtrim("`line'")
+        }
+        * If still empty, check global variable
+        if "`downloadpath'" == "" & "$findsj_download_path" != "" {
             local downloadpath "$findsj_download_path"
         }
-        else {
+        * If still empty, use current directory
+        if "`downloadpath'" == "" {
             local downloadpath "`c(pwd)'"
         }
     }
@@ -48,7 +65,14 @@ program define findsj_download
     * Determine file extension
     local file_ext = cond("`type'"=="bib", "bib", "ris")
     local file_name "`artid'.`file_ext'"
-    local full_file "`downloadpath'/`file_name'"
+    * Normalize path separators and build full path
+    if "`c(os)'" == "Windows" {
+        local downloadpath = subinstr("`downloadpath'", "/", "\", .)
+        local full_file = "`downloadpath'" + "\" + "`file_name'"
+    }
+    else {
+        local full_file = "`downloadpath'" + "/" + "`file_name'"
+    }
     local url_article "https://www.stata-journal.com/article.html?article=`artid'"
     
     * Generate unique temp script file name in system temp directory
@@ -81,26 +105,22 @@ program define findsj_download
             shell bash "`script_file'" &
         }
         else {
-            * Windows PowerShell script
-            file open `fh' using "`script_file'", write replace
-            file write `fh' "$" "headers = @{" _n
-            file write `fh' "    'Referer' = '`url_article''" _n
-            file write `fh' "    'User-Agent' = 'Mozilla/5.0'" _n
-            file write `fh' "}" _n
-            file write `fh' "try {" _n
-            file write `fh' "    Invoke-WebRequest -Uri '`url'' -Headers $" "headers -OutFile '`full_file''" _n
-            file write `fh' "    if (Test-Path '`full_file'') {" _n
-            file write `fh' "        Write-Host 'Downloaded: `full_file'' -ForegroundColor Green" _n
-            file write `fh' "        Start-Process '`full_file''" _n
-            file write `fh' "    } else {" _n
-            file write `fh' "        Write-Host 'Download failed!' -ForegroundColor Red" _n
-            file write `fh' "    }" _n
-            file write `fh' "} finally {" _n
-            file write `fh' "    Remove-Item -Path '`script_file'' -Force -ErrorAction SilentlyContinue" _n
-            file write `fh' "}" _n
-            file close `fh'
+            * Windows PowerShell: use -Command instead of -File for better encoding support
+            * Escape single quotes and backslashes in paths
+            local full_file_ps = subinstr("`full_file'", "'", "''", .)
+            local script_ps = subinstr("`script_file'", "'", "''", .)
             
-            shell powershell -ExecutionPolicy Bypass -File "`script_file'"
+            local ps_command = "try { " + ///
+                "Invoke-WebRequest -Uri '`url'' " + ///
+                "-Headers @{'Referer'='`url_article'';'User-Agent'='Mozilla/5.0'} " + ///
+                "-OutFile '`full_file_ps''; " + ///
+                "if (Test-Path '`full_file_ps'') { " + ///
+                "Write-Host 'Downloaded: `full_file_ps'' -ForegroundColor Green; " + ///
+                "Start-Process '`full_file_ps'' } " + ///
+                "else { Write-Host 'Download failed!' -ForegroundColor Red } " + ///
+                "} catch { Write-Host " + char(36) + "_.Exception.Message -ForegroundColor Red }"
+            
+            shell powershell -ExecutionPolicy Bypass -Command "`ps_command'"
         }
     }
     
@@ -222,6 +242,7 @@ if "`querypath'" != "" | "`resetpath'" != "" | "`setpath'" != "" {
     * Reset to default
     if "`resetpath'" != "" {
         capture erase "`config_file'"
+        global findsj_download_path ""
         dis as result "Download path reset to default (current working directory)"
         dis as text "Use " as result "findsj ..., setpath(path)" as text " to set a custom download path"
         exit
@@ -243,6 +264,9 @@ if "`querypath'" != "" | "`resetpath'" != "" | "`setpath'" != "" {
         file open `fh' using "`config_file'", write replace
         file write `fh' "`setpath'"
         file close `fh'
+        
+        * Also set global variable for immediate effect in current session
+        global findsj_download_path "`setpath'"
         
         dis as result "Download path set to: " as text "`setpath'"
         dis as text "This setting will be remembered for future sessions."
