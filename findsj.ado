@@ -161,7 +161,8 @@ syntax [anything(name=keywords id="keywords")] [, ///
 	  QUERYpath ///
 	  RESETpath ///
     UPdate ///
-	source(string) ///
+    UPdatesource ///
+    SOUrce(string) ///
     Type(string) ///
     ]
 
@@ -207,8 +208,19 @@ if "`ref'" != "" & "`keywords'" != "" & "`author'" == "" & "`title'" == "" & "`k
 }
 
 * Handle database update subcommand
-if "`update'" != "" {
-    * Use source if specified, otherwise empty (will show usage)
+* If user specifies 'update' without 'updatesource', default to 'both'
+if "`update'" != "" & "`updatesource'" == "" {
+    local updatesource "updatesource"
+    local source "both"
+}
+
+* If user specifies 'updatesource' without source(), show menu
+if "`updatesource'" != "" & "`source'" == "" {
+    local source ""  // Empty will trigger menu in findsj_update_db
+}
+
+if "`updatesource'" != "" {
+    * source parameter contains the source choice (empty = show menu)
     findsj_update_db "`source'"
     exit
 }
@@ -356,9 +368,9 @@ if `dta_found' == 0 & "`ref'" != "" {
     dis as text " " as result "Notice:" as text " Local database (findsj.dta) not found."
     dis as text " DOI information will be fetched online (may be slower)."
     dis as text _n " For faster performance, update the database:"
-    dis as text "   {stata findsj, update source(github):findsj, update source(github)}  " as text "(international users)"
-    dis as text "   {stata findsj, update source(gitee):findsj, update source(gitee)}   " as text "(China users, faster)"
-    dis as text "   {stata findsj, update source(both):findsj, update source(both)}    " as text "(auto fallback)"
+    dis as text "   {stata findsj, updatesource source(github):findsj, updatesource source(github)}  " as text "(international users)"
+    dis as text "   {stata findsj, updatesource source(gitee):findsj, updatesource source(gitee)}   " as text "(China users, faster)"
+    dis as text "   {stata findsj, updatesource source(both):findsj, updatesource source(both)}    " as text "(auto fallback)"
     dis as text "{hline 70}" _n
 }
 
@@ -1702,7 +1714,7 @@ program define findsj_show_ref
     }
     else {
         dis as text "" as error "(No DOI found)" as text " - Try: " _c
-        dis as text `"{stata "findsj, update source(both)":Update database}"'
+        dis as text `"{stata "findsj, updatesource source(both)":Update database}"'
     }
     
     dis as text "{hline 70}" _n
@@ -2075,9 +2087,9 @@ program define findsj_update_db
     * Determine source based on argument
     if "`source_choice'" == "" | "`source_choice'" == "auto" {
         dis as text "Download source options:"
-        dis as text "  {stata findsj, update source(github):github} = GitHub"
-        dis as text "  {stata findsj, update source(gitee):gitee}  = Gitee (Fallback when GitHub is unavailable)"
-        dis as text "  {stata findsj, update source(both):both}   = Try both (GitHub first, then Gitee)"
+        dis as text "  {stata findsj, updatesource source(github):github} = GitHub"
+        dis as text "  {stata findsj, updatesource source(gitee):gitee}  = Gitee (Fallback when GitHub is unavailable)"
+        dis as text "  {stata findsj, updatesource source(both):both}   = Try both (auto-detect language)"
         dis as text ""
         dis as text "Click on a source above to download."
         dis as text "{hline 70}"
@@ -2096,8 +2108,20 @@ program define findsj_update_db
         local source_names "Gitee"
     }
     else if "`source_choice'" == "both" {
-        local sources "`github_url' `gitee_url'"
-        local source_names "GitHub Gitee"
+        * Auto-detect user's Stata language setting to determine optimal source order
+        * Chinese users (zh_CN): Gitee first (faster access in China)
+        * Non-Chinese users: GitHub first (global CDN)
+        local locale_ui = c(locale_ui)
+        if "`locale_ui'" == "zh_CN" {
+            local sources "`gitee_url' `github_url'"
+            local source_names "Gitee GitHub"
+            dis as text "Language detected: Chinese (优先使用 Gitee)"
+        }
+        else {
+            local sources "`github_url' `gitee_url'"
+            local source_names "GitHub Gitee"
+            dis as text "Language detected: Non-Chinese (Using GitHub first)"
+        }
     }
     else {
         dis as error "Invalid source: `source_choice'"
@@ -2105,8 +2129,9 @@ program define findsj_update_db
         exit 198
     }
     
-    * Try each source
+    * Try each source (stop after first success)
     local n_sources = wordcount("`sources'")
+    local update_success = 0
     forvalues i = 1/`n_sources' {
         local source_url = word("`sources'", `i')
         local source_name = word("`source_names'", `i')
@@ -2137,6 +2162,8 @@ program define findsj_update_db
                 dis as text "Total articles: " as result "`n_records'"
                 dis as text "Location: " as result "`display_path'"
                 dis as text "{hline 70}"
+                local update_success = 1
+                * Exit immediately after successful update (don't try other sources)
                 exit
             }
             else {
@@ -2253,7 +2280,7 @@ program define findsj_check_update
                 noi dis as result "  📢 Database may need updating"
                 noi dis as text "{hline 70}"
                 noi dis as text "Last updated: " as result "`last_update_str'" as text " (" as result "`days_diff'" as text " days ago)"
-                noi dis as text "Update: " `"{stata "findsj, update source(both)":findsj, update source(both)}"'
+                noi dis as text "Update: " `"{stata "findsj, updatesource source(both)":findsj, updatesource source(both)}"`
                 noi dis as text "{hline 70}"
                 noi dis ""
             }
