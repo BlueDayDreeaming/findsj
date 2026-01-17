@@ -6,11 +6,11 @@ TITLE
 
 DESCRIPTION/AUTHOR(S)
 
-  findsj searches for articles from the Stata Journal (SJ) and Stata
-  Technical Bulletin (STB) by keywords, author names, or article titles.
-  Articles are searched using a local database (findsj.dta) for fast,
-  offline access. The database is automatically updated via GitHub Actions
-  and includes 1260+ articles with full metadata.
+  findsj searches for articles from the Stata Journal (SJ) by keywords,
+  author names, or article titles. Articles are searched using a local
+  database (findsj.dta) for fast, offline access. The database is
+  automatically updated weekly via GitHub Actions and includes 1,255
+  articles with full metadata.
   
   KW: findsj
   KW: Stata Journal
@@ -21,9 +21,9 @@ DESCRIPTION/AUTHOR(S)
   KW: RIS
   KW: getiref
   
-  Requires: Stata version 16
+  Requires: Stata version 14
   
-  Distribution-Date: 20251231
+  Distribution-Date: 20260111
   
   Author: Yujun Lian, Lingnan College, Sun Yat-sen University, Guangzhou, China
   Support: email arlionn@163.com
