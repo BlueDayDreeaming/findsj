@@ -98,6 +98,8 @@ Stata Journal 的文章本身**并不会直接在期刊网站上附带对应的�
 ssc install findsj, replace
 ```
 
+⚠️ **说明：** 使用 `ssc install` 配合 `replace` 选项会正确更新程序和数据文件。
+
 ### 从 GitHub/Gitee 安装
 
 **国际用户（GitHub）：**
@@ -110,13 +112,28 @@ net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/find
 net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) replace
 ```
 
+**⚠️ 重要说明：** 从 GitHub/Gitee 更新时，Stata 的 `net install` 命令不会自动替换 `.dta` 数据文件（防止覆盖用户修改）。要获得最新的文章数据库，请使用以下方法：
+
+```stata
+* 方法1：使用内置更新命令（推荐）
+findsj, update                      // 自动检测语言，选择最优源
+
+* 方法2：交互式菜单更新
+findsj, updatesource               // 显示选项菜单手动选择
+
+* 方法3：强制更新（如需要）
+cap erase "findsj.dta"
+net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
+```
+
 ### 更新数据库
 
-安装后，更新至最新文章数据库：
+最便捷的方式更新至最新文章数据库：
 ```stata
-findsj, update source(github)    // 国际用户
-findsj, update source(gitee)     // 中国用户（更快）
-findsj, update source(both)      // 自动回退
+findsj, update                         // 自动选择最优源（根据语言）
+findsj, updatesource source(github)    // 强制使用 GitHub
+findsj, updatesource source(gitee)     // 强制使用 Gitee
+findsj, updatesource source(both)      // 尝试两个源，自动回退
 ```
 
 ---

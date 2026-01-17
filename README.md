@@ -98,6 +98,8 @@ The Stata Journal website **does not provide direct download links** to companio
 ssc install findsj, replace
 ```
 
+⚠️ **Note:** `ssc install` with `replace` option will properly update both program and data files.
+
 ### Install from GitHub/Gitee
 
 **International users (GitHub):**
@@ -110,13 +112,28 @@ net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/find
 net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) replace
 ```
 
+**⚠️ Important Note:** When updating from GitHub/Gitee, Stata's `net install` command does not automatically replace `.dta` data files to avoid overwriting user modifications. To ensure you get the latest article database:
+
+```stata
+* Option 1: Use the built-in update command (Recommended)
+findsj, update source(both)      // Auto-detects language and uses optimal source
+
+* Option 2: Manual database update
+findsj, updatesource              // Shows interactive menu for manual update
+
+* Option 3: Force update (if needed)
+cap erase "findsj.dta"
+net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
+```
+
 ### Update Database
 
-After installation, update to the latest article database:
+The easiest way to update to the latest article database:
 ```stata
-findsj, update source(github)    // International users
-findsj, update source(gitee)     // China users
-findsj, update source(both)      // Auto fallback
+findsj, update                      // Auto-selects best source based on language
+findsj, updatesource source(github) // Force GitHub (international)
+findsj, updatesource source(gitee)  // Force Gitee (China)
+findsj, updatesource source(both)   // Try both with fallback
 ```
 
 ---
