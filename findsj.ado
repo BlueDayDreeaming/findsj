@@ -1,7 +1,10 @@
-*! version 2.1.1  16Jan2026
+*! version 2.1.2  26Jan2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
+* v2.1.2: Bug fix - hyphenated keywords now supported
+*   - Fixed: Keywords with hyphens (e.g., "difference-in-differences") now work correctly
+*   - Added: "everything" subitem to syntax to prevent "in" range misinterpretation
 * v2.1.1: Bug fixes - BibTeX/RIS download improvements
 *   - Fixed: BibTeX/RIS now correctly downloads to current directory by default
 *   - Fixed: setpath() configuration now properly saved and loaded across sessions
@@ -136,7 +139,7 @@ end
 program define findsj, rclass
 version 14
 
-syntax [anything(name=keywords id="keywords")] [, ///
+syntax [anything(name=keywords id="keywords" everything)] [, ///
     Author  ///
 	  Title ///
 	  Keyword ///
