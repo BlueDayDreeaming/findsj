@@ -1,4 +1,4 @@
-*! version 3.1  30Jan2026
+*! version 3.1  01Feb2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
@@ -356,10 +356,45 @@ else {
 }
 
 * Check if findsj.dta exists, if not and ref option is used, show one-time reminder
+* Priority 1: Same directory as findsj.ado (ensures version compatibility)
 local dta_found = 0
-local search_paths "`c(pwd)' `c(sysdir_personal)' `c(sysdir_plus)' `c(sysdir_plus)'f"
+local ado_path = ""
+capture findfile findsj.ado
+if _rc == 0 {
+    local ado_fullpath = r(fn)
+    * Extract directory from full path (cross-platform compatible)
+    * Find the last path separator (/ or \), handle mixed separators
+    local rev_path = reverse("`ado_fullpath'")
+    local pos_slash = strpos("`rev_path'", "/")
+    local pos_backslash = strpos("`rev_path'", "\")
+    local last_sep = 0
+    if `pos_slash' > 0 & `pos_backslash' > 0 {
+        local last_sep = min(`pos_slash', `pos_backslash')
+    }
+    else if `pos_slash' > 0 {
+        local last_sep = `pos_slash'
+    }
+    else if `pos_backslash' > 0 {
+        local last_sep = `pos_backslash'
+    }
+    if `last_sep' > 0 {
+        local ado_path = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
+    }
+}
+
+* Build search paths with findsj.ado directory as highest priority
+local search_paths ""
+if "`ado_path'" != "" {
+    local search_paths "`ado_path'"
+}
+local search_paths "`search_paths' `c(sysdir_plus)'f `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
+
 foreach p of local search_paths {
+    * Try both path separators for cross-platform compatibility
     capture confirm file "`p'/findsj.dta"
+    if _rc != 0 {
+        capture confirm file "`p'findsj.dta"
+    }
     if _rc == 0 {
         local dta_found = 1
         continue, break
@@ -389,6 +424,13 @@ if `dta_found' == 1 {
         capture confirm file "`p'/findsj.dta"
         if _rc == 0 {
             local dta_path "`p'/findsj.dta"
+            local use_offline = 1
+            continue, break
+        }
+        * Try without separator (in case path already ends with one)
+        capture confirm file "`p'findsj.dta"
+        if _rc == 0 {
+            local dta_path "`p'findsj.dta"
             local use_offline = 1
             continue, break
         }
@@ -662,7 +704,7 @@ else {
     replace year_from_html = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.[ ]*$")
     
     * Clean up extracted data - remove year from author string
-    gen author = regexr(author_year_raw, "\.[ ]*[0-9]{4}\.[ ]*$", ".")
+    gen author = regexr(author_year_raw, "\.[ ]*[0-9]{4})\.[ ]*$", ".")
     replace author = strtrim(author)
     replace author = author[_n+1] if author == "" & author[_n+1] != ""
     drop author_year_raw
@@ -675,7 +717,7 @@ else {
     * Use HTML-extracted data as primary source
     gen volume = volume_html
     gen number = number_html
-    gen year = year_from_html
+    gen year = real(year_from_html)
     gen volnum_str = volume + "(" + number + ")" if volume != "" & volume != "."
     gen volnum_url = volume + "-" + number if volume != "" & volume != "."
     
@@ -846,9 +888,33 @@ else {
             * Clean art_id for matching (remove BOM if present)
             local art_id_match = subinstr("`art_id_i'", "ï»¿", "", .)
             
-            local search_paths "`c(pwd)' `c(sysdir_personal)' `c(sysdir_plus)' `c(sysdir_plus)'f"
+            * Build search paths (ado directory has highest priority, cross-platform)
+            local search_paths ""
+            capture findfile findsj.ado
+            if _rc == 0 {
+                local ado_fullpath = r(fn)
+                local rev_path = reverse("`ado_fullpath'")
+                local pos_slash = strpos("`rev_path'", "/")
+                local pos_backslash = strpos("`rev_path'", "\")
+                local last_sep = 0
+                if `pos_slash' > 0 & `pos_backslash' > 0 {
+                    local last_sep = min(`pos_slash', `pos_backslash')
+                }
+                else if `pos_slash' > 0 {
+                    local last_sep = `pos_slash'
+                }
+                else if `pos_backslash' > 0 {
+                    local last_sep = `pos_backslash'
+                }
+                if `last_sep' > 0 {
+                    local ado_dir = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
+                    local search_paths "`ado_dir'"
+                }
+            }
+            local search_paths "`search_paths' `c(sysdir_plus)'f `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
             foreach p of local search_paths {
                 capture confirm file "`p'/findsj.dta"
+                if _rc != 0 capture confirm file "`p'findsj.dta"
                 if _rc == 0 & `has_doi' == 0 {
                     * Use frame to avoid nested preserve issue (Stata 16+)
                     * Generate unique frame name to avoid conflicts
@@ -1366,11 +1432,35 @@ if `num_export' > 0 {
                     gen page = "."
                     
                     * Simplified DOI lookup: merge with local database if available
-                    local search_paths "`c(pwd)' `c(sysdir_personal)' `c(sysdir_plus)' `c(sysdir_plus)'f"
+                    * Build search paths (ado directory has highest priority, cross-platform)
+                    local search_paths ""
+                    capture findfile findsj.ado
+                    if _rc == 0 {
+                        local ado_fullpath = r(fn)
+                        local rev_path = reverse("`ado_fullpath'")
+                        local pos_slash = strpos("`rev_path'", "/")
+                        local pos_backslash = strpos("`rev_path'", "\")
+                        local last_sep = 0
+                        if `pos_slash' > 0 & `pos_backslash' > 0 {
+                            local last_sep = min(`pos_slash', `pos_backslash')
+                        }
+                        else if `pos_slash' > 0 {
+                            local last_sep = `pos_slash'
+                        }
+                        else if `pos_backslash' > 0 {
+                            local last_sep = `pos_backslash'
+                        }
+                        if `last_sep' > 0 {
+                            local ado_dir = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
+                            local search_paths "`ado_dir'"
+                        }
+                    }
+                    local search_paths "`search_paths' `c(sysdir_plus)'f `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
                     local found_db = 0
                     foreach p of local search_paths {
                         if `found_db' == 0 {
                             capture confirm file "`p'/findsj.dta"
+                            if _rc != 0 capture confirm file "`p'findsj.dta"
                             if _rc == 0 {
                                 tempfile current_data
                                 save "`current_data'", replace
@@ -1647,10 +1737,35 @@ program define findsj_show_ref
     local has_doi = 0
     
     qui {
-        local search_paths "`c(pwd)' `c(sysdir_personal)' `c(sysdir_plus)' `c(sysdir_plus)'f"
+        * Build search paths (ado directory has highest priority)
+        * Build search paths (ado directory has highest priority, cross-platform)
+        local search_paths ""
+        capture findfile findsj.ado
+        if _rc == 0 {
+            local ado_fullpath = r(fn)
+            local rev_path = reverse("`ado_fullpath'")
+            local pos_slash = strpos("`rev_path'", "/")
+            local pos_backslash = strpos("`rev_path'", "\")
+            local last_sep = 0
+            if `pos_slash' > 0 & `pos_backslash' > 0 {
+                local last_sep = min(`pos_slash', `pos_backslash')
+            }
+            else if `pos_slash' > 0 {
+                local last_sep = `pos_slash'
+            }
+            else if `pos_backslash' > 0 {
+                local last_sep = `pos_backslash'
+            }
+            if `last_sep' > 0 {
+                local ado_dir = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
+                local search_paths "`ado_dir'"
+            }
+        }
+        local search_paths "`search_paths' `c(sysdir_plus)'f `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
         foreach p of local search_paths {
             if `has_doi' == 0 {
                 capture confirm file "`p'/findsj.dta"
+                if _rc != 0 capture confirm file "`p'findsj.dta"
                 if _rc == 0 {
                     * Use frame to avoid nested preserve issue (Stata 16+)
                     local framename = "findsj_temp_" + string(floor(runiform()*100000))
