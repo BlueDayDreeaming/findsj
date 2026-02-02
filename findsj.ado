@@ -704,7 +704,7 @@ else {
     replace year_from_html = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.[ ]*$")
     
     * Clean up extracted data - remove year from author string
-    gen author = regexr(author_year_raw, "\.[ ]*[0-9]{4})\.[ ]*$", ".")
+    gen author = regexr(author_year_raw, "\.[ ]*[0-9]{4}\.[ ]*$", ".")
     replace author = strtrim(author)
     replace author = author[_n+1] if author == "" & author[_n+1] != ""
     drop author_year_raw
