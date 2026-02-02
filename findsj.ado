@@ -387,7 +387,17 @@ local search_paths ""
 if "`ado_path'" != "" {
     local search_paths "`ado_path'"
 }
-local search_paths "`search_paths' `c(sysdir_plus)'f `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
+* Add PLUS/f/ subdirectory (where net install puts files starting with 'f')
+local plus_f = "`c(sysdir_plus)'" + "f" + c(dirsep)
+local search_paths "`search_paths' `plus_f' `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
+
+* Debug mode: show search paths
+if "`debug'" != "" {
+    dis as text _n "Debug: Searching for findsj.dta in the following paths:"
+    foreach p of local search_paths {
+        dis as text "  - `p'"
+    }
+}
 
 foreach p of local search_paths {
     * Try both path separators for cross-platform compatibility
@@ -397,7 +407,18 @@ foreach p of local search_paths {
     }
     if _rc == 0 {
         local dta_found = 1
+        local dta_found_path = "`p'"
         continue, break
+    }
+}
+
+* Debug: show result of dta search
+if "`debug'" != "" {
+    if `dta_found' == 1 {
+        dis as result "Debug: Found findsj.dta at: `dta_found_path'"
+    }
+    else {
+        dis as error "Debug: findsj.dta NOT found in any search path"
     }
 }
 
