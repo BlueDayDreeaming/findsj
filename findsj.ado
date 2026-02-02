@@ -699,13 +699,20 @@ else {
     }
     drop n
     
-    * Extract year from author_year_raw (format: "Author. Year.")
+    * Extract year from author_year_raw (format: "Author. Year." or "Author. Year")
+    * First, trim whitespace from author_year_raw to ensure clean matching
+    replace author_year_raw = strtrim(author_year_raw)
     gen year_from_html = ""
-    replace year_from_html = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.[ ]*$")
+    * Try matching with trailing dot first, then without
+    replace year_from_html = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.?[ ]*$")
+    * If no match, try alternative pattern (year at end without preceding dot)
+    replace year_from_html = regexs(1) if year_from_html == "" & regexm(author_year_raw, "[ ]([0-9]{4})\.?[ ]*$")
     
     * Clean up extracted data - remove year from author string
-    gen author = regexr(author_year_raw, "\.[ ]*[0-9]{4}\.[ ]*$", ".")
+    gen author = regexr(author_year_raw, "\.?[ ]*[0-9]{4}\.?[ ]*$", "")
     replace author = strtrim(author)
+    * Remove trailing dots and spaces from author
+    replace author = regexr(author, "\.[ ]*$", "")
     replace author = author[_n+1] if author == "" & author[_n+1] != ""
     drop author_year_raw
     
@@ -1409,11 +1416,15 @@ if `num_export' > 0 {
                     }
                     drop n
                     
+                    * Extract year - handle both "Author. Year." and "Author. Year" formats
+                    replace author_year_raw = strtrim(author_year_raw)
                     gen year = ""
-                    replace year = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.[ ]*$")
+                    replace year = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.?[ ]*$")
+                    replace year = regexs(1) if year == "" & regexm(author_year_raw, "[ ]([0-9]{4})\.?[ ]*$")
                     
-                    gen author = regexr(author_year_raw, "\.[ ]*[0-9]{4}\.[ ]*$", ".")
+                    gen author = regexr(author_year_raw, "\.?[ ]*[0-9]{4}\.?[ ]*$", "")
                     replace author = strtrim(author)
+                    replace author = regexr(author, "\.[ ]*$", "")
                     
                     drop v author_year_raw
                     keep if art_id != ""
