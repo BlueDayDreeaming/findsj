@@ -104,27 +104,25 @@ ssc install findsj, replace
 
 **International users (GitHub):**
 ```stata
+* Step 1: Install program files (.ado, .sthlp)
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
+
+* Step 2: Download database (REQUIRED - choose one method)
+findsj, updatesource source(github)   // Recommended: auto-installs to correct location
 ```
 
 **China users (Gitee mirror - faster):**
 ```stata
+* Step 1: Install program files
 net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) replace
+
+* Step 2: Download database (REQUIRED)
+findsj, updatesource source(gitee)    // Recommended for China users
 ```
 
-**⚠️ Important Note:** When updating from GitHub/Gitee, Stata's `net install` command does not automatically replace `.dta` data files to avoid overwriting user modifications. To ensure you get the latest article database:
+**⚠️ Important Note:** Stata's `net install` only downloads program files (`.ado`, `.sthlp`). The database file `findsj.dta` must be downloaded separately using the built-in `updatesource` command, which automatically installs to the correct location.
 
-```stata
-* Option 1: Use the built-in update command (Recommended)
-findsj, update source(both)      // Auto-detects language and uses optimal source
-
-* Option 2: Manual database update
-findsj, updatesource              // Shows interactive menu for manual update
-
-* Option 3: Force update (if needed)
-cap erase "findsj.dta"
-net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
-```
+> **Alternative:** You can use `net get findsj, from(...)` to download database files, but they will be saved to your **current working directory**, not the ado path. The `updatesource` command is recommended as it handles the file location automatically.
 
 ### Update Database
 

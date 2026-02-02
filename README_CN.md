@@ -104,27 +104,25 @@ ssc install findsj, replace
 
 **国际用户（GitHub）：**
 ```stata
+* 第一步：安装程序文件（.ado, .sthlp）
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
+
+* 第二步：下载数据库（必需 - 选择一种方法）
+findsj, updatesource source(github)   // 推荐：自动安装到正确位置
 ```
 
 **中国用户（Gitee 镜像 - 更快）：**
 ```stata
+* 第一步：安装程序文件
 net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) replace
+
+* 第二步：下载数据库（必需）
+findsj, updatesource source(gitee)    // 中国用户推荐
 ```
 
-**⚠️ 重要说明：** 从 GitHub/Gitee 更新时，Stata 的 `net install` 命令不会自动替换 `.dta` 数据文件（防止覆盖用户修改）。要获得最新的文章数据库，请使用以下方法：
+**⚠️ 重要说明：** Stata 的 `net install` 只下载程序文件（`.ado`、`.sthlp`）。数据库文件 `findsj.dta` 必须使用内置的 `updatesource` 命令单独下载，该命令会自动安装到正确位置。
 
-```stata
-* 方法1：使用内置更新命令（推荐）
-findsj, update                      // 自动检测语言，选择最优源
-
-* 方法2：交互式菜单更新
-findsj, updatesource               // 显示选项菜单手动选择
-
-* 方法3：强制更新（如需要）
-cap erase "findsj.dta"
-net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
-```
+> **备选方案：** 您也可以使用 `net get findsj, from(...)` 下载数据库文件，但它们会保存到**当前工作目录**，而不是 ado 路径。推荐使用 `updatesource` 命令，它会自动处理文件位置。
 
 ### 更新数据库
 
