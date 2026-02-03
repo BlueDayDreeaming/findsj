@@ -160,6 +160,7 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
     GETDOI ///
     Clear  ///
 	Debug  ///
+    OFFline ///
     SETPath(string) ///
 	  QUERYpath ///
 	  RESETpath ///
@@ -439,8 +440,19 @@ if `dta_found' == 0 & "`ref'" != "" {
 local use_offline = 0
 local dta_path = ""
 
+* Check if user explicitly requested offline mode
+if "`offline'" != "" {
+    if `dta_found' == 0 {
+        dis as error "Offline mode requested but findsj.dta not found."
+        dis as text "Please download the database first:"
+        dis as text "  {stata findsj, updatesource source(both):findsj, updatesource source(both)}"
+        exit 601
+    }
+    local use_offline = 1
+}
+
 * Find local database path
-if `dta_found' == 1 {
+if `dta_found' == 1 & `use_offline' == 0 {
     foreach p of local search_paths {
         capture confirm file "`p'/findsj.dta"
         if _rc == 0 {
@@ -453,6 +465,21 @@ if `dta_found' == 1 {
         if _rc == 0 {
             local dta_path "`p'findsj.dta"
             local use_offline = 1
+            continue, break
+        }
+    }
+}
+else if "`offline'" != "" {
+    * User explicitly requested offline, find the database
+    foreach p of local search_paths {
+        capture confirm file "`p'/findsj.dta"
+        if _rc == 0 {
+            local dta_path "`p'/findsj.dta"
+            continue, break
+        }
+        capture confirm file "`p'findsj.dta"
+        if _rc == 0 {
+            local dta_path "`p'findsj.dta"
             continue, break
         }
     }

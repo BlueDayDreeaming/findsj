@@ -74,6 +74,7 @@ Configure download path
 {syntab:Display control}
 {synopt:{opt n(#)}}number of results to display; default is {cmd:n(10)}{p_end}
 {synopt:{opt allresults}}display all search results{p_end}
+{synopt:{opt offline}}force offline mode using local database{p_end}
 {synopt:{opt nobrowser}}suppress clickable buttons and links{p_end}
 {synopt:{opt nopdf}}hide PDF download buttons{p_end}
 {synopt:{opt nopkg}}hide package installation buttons{p_end}
