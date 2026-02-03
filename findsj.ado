@@ -161,6 +161,7 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
     Clear  ///
 	Debug  ///
     OFFline ///
+    CHECKdb ///
     SETPath(string) ///
 	  QUERYpath ///
 	  RESETpath ///
@@ -226,6 +227,107 @@ if "`updatesource'" != "" & "`source'" == "" {
 if "`updatesource'" != "" {
     * source parameter contains the source choice (empty = show menu)
     findsj_update_db "`source'"
+    exit
+}
+
+* Handle checkdb subcommand - show database location and status
+if "`checkdb'" != "" {
+    dis ""
+    dis as text "{hline 70}"
+    dis as result "  findsj Database Location Check"
+    dis as text "{hline 70}"
+    dis ""
+    
+    * Find findsj.ado location
+    local ado_path = ""
+    capture findfile findsj.ado
+    if _rc == 0 {
+        local ado_fullpath = r(fn)
+        dis as text "findsj.ado: " as result "`ado_fullpath'"
+        
+        * Extract directory
+        local rev_path = reverse("`ado_fullpath'")
+        local pos_slash = strpos("`rev_path'", "/")
+        local pos_backslash = strpos("`rev_path'", "\")
+        local last_sep = 0
+        if `pos_slash' > 0 & `pos_backslash' > 0 {
+            local last_sep = min(`pos_slash', `pos_backslash')
+        }
+        else if `pos_slash' > 0 {
+            local last_sep = `pos_slash'
+        }
+        else if `pos_backslash' > 0 {
+            local last_sep = `pos_backslash'
+        }
+        if `last_sep' > 0 {
+            local ado_path = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
+        }
+    }
+    
+    * Build search paths
+    local search_paths ""
+    if "`ado_path'" != "" {
+        local search_paths "`ado_path'"
+    }
+    local plus_f = "`c(sysdir_plus)'" + "f" + c(dirsep)
+    local search_paths "`search_paths' `plus_f' `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
+    
+    dis ""
+    dis as text "Search paths:"
+    foreach p of local search_paths {
+        dis as text "  - `p'"
+    }
+    
+    * Search for database
+    dis ""
+    dis as text "Searching for findsj.dta..."
+    dis ""
+    local found = 0
+    foreach p of local search_paths {
+        local file_found = 0
+        capture confirm file "`p'/findsj.dta"
+        if _rc == 0 {
+            local file_found = 1
+            local file_path "`p'/findsj.dta"
+        }
+        else {
+            capture confirm file "`p'findsj.dta"
+            if _rc == 0 {
+                local file_found = 1
+                local file_path "`p'findsj.dta"
+            }
+        }
+        
+        if `file_found' == 1 {
+            * Clean up display path (remove double slashes)
+            local display_path = subinstr("`file_path'", "//", "/", .)
+            local display_path = subinstr("`display_path'", "\\", "/", .)
+            
+            dis as result "  [FOUND] " as text "`display_path'"
+            local found = 1
+            
+            * Get file info
+            capture {
+                use "`file_path'", clear
+                local n_records = _N
+                dis as text "          Records: " as result "`n_records'" as text " articles"
+                clear
+            }
+            
+            * Found in this path, skip remaining paths
+            continue, break
+        }
+    }
+    
+    if `found' == 0 {
+        dis as error "  [NOT FOUND] findsj.dta not found"
+        dis ""
+        dis as text "To download the database:"
+        dis as text "  {stata findsj, updatesource source(both):findsj, updatesource source(both)}"
+    }
+    
+    dis ""
+    dis as text "{hline 70}"
     exit
 }
 
