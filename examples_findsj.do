@@ -1,7 +1,7 @@
 *! Stata Journal 数据库使用示例
 *! 展示如何使用 findsj.dta 进行文献检索和分析
 *! 作者: Yujun Lian
-*! 日期: 2026-02-01
+*! 日期: 2026-02-03
 
 clear all
 set more off

@@ -287,7 +287,7 @@ The `findsj` database includes:
 - **Total**: 1,255 articles with full metadata
 - **Updates**: Manual updates via `findsj, update` command, or weekly auto-update via GitHub Actions
 
-Last database update: January 2026 (Volume 25, Issue 4)
+Last database update: February 2026 (Volume 25, Issue 4)
 
 ---
 

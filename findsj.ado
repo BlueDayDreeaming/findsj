@@ -1,4 +1,4 @@
-*! version 3.1  01Feb2026
+*! version 3.1  03Feb2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
@@ -15,7 +15,7 @@
 *   - Fixed Bug #3: Author name order (via citation_apa)
 *   - Fixed Bug #4: Added text/txt options as aliases for plain format
 * v1.6.0: Use local citation_apa field for offline citations (no need to call getiref)
-* v1.5.0: 'added by Yujun Lian 2025/12/31', add number list before ref
+* v1.5.0: 'added by Yujun Lian 2026/02/03', add number list before ref
 * v1.4.0: Auto-check for database updates (monthly reminder with download option)
 * v1.3.0: Direct getiref integration - click .md/.latex/.txt calls getiref with DOI
 * v1.2.0: Simplified to single 'ref' option with three format buttons
@@ -950,7 +950,7 @@ else {
 
     preserve //===================preserve begin======
 
-    clear   // added by Yujun Lian, 2025/12/31 16:13
+    clear   // added by Yujun Lian, 2026/02/03 16:13
     qui {
         tempfile sj_search_result
         local url_sj "https://www.stata-journal.com/sjsearch.html?choice=`scope'&q=`keywords_url'"
@@ -1693,7 +1693,7 @@ if `num_export' > 0 {
     else {
     * ===== ONLINE EXPORT: Fetch from website =====
     preserve
-	clear      // added by Yujun Lian, 2025/12/31 16:14
+	clear      // added by Yujun Lian, 2026/02/03 16:14
     qui {
         tempfile sj_search_result
         local url_sj "https://www.stata-journal.com/sjsearch.html?choice=`scope'&q=`keywords_url'"

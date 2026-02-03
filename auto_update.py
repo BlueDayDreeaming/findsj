@@ -10,7 +10,7 @@ Auto Update Stata Journal Database with Citation Information
 3. 更新本地数据库文件
 
 作者: GitHub Copilot
-日期: 2026-01-06
+日期: 2026-02-03
 """
 
 import requests

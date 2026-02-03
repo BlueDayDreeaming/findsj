@@ -23,7 +23,7 @@ DESCRIPTION/AUTHOR(S)
   
   Requires: Stata version 14
   
-  Distribution-Date: 20260201
+  Distribution-Date: 20260203
   
   Author: Yujun Lian, Lingnan College, Sun Yat-sen University, Guangzhou, China
   Support: email arlionn@163.com
