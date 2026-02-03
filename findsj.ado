@@ -300,33 +300,33 @@ if "`checkdb'" != "" {
         local rc1 = .
         local rc2 = .
         
-        * Try with forward slash
-        capture confirm file "`p'/findsj.dta"
+        * Try with forward slash (use compound quotes for paths with spaces)
+        capture confirm file `"`p'/findsj.dta"'
         local rc1 = _rc
         if `rc1' == 0 {
             local file_found = 1
-            local file_path "`p'/findsj.dta"
+            local file_path `"`p'/findsj.dta"'
         }
         
         * Try without separator
         if `file_found' == 0 {
-            capture confirm file "`p'findsj.dta"
+            capture confirm file `"`p'findsj.dta"'
             local rc2 = _rc
             if `rc2' == 0 {
                 local file_found = 1
-                local file_path "`p'findsj.dta"
+                local file_path `"`p'findsj.dta"'
             }
         }
         
         * Debug: show what we tried
-        dis as text "  Checking: " as text "`p'/findsj.dta" _c
+        dis as text "  Checking: " as text `"`p'/findsj.dta"' _c
         if `rc1' == 0 {
             dis as result " ✓"
         }
         else {
             dis as error " ✗ (rc=`rc1')"
             if `rc2' != . {
-                dis as text "  Checking: " as text "`p'findsj.dta" _c
+                dis as text "  Checking: " as text `"`p'findsj.dta"' _c
                 if `rc2' == 0 {
                     dis as result " ✓"
                 }
@@ -338,16 +338,16 @@ if "`checkdb'" != "" {
         
         if `file_found' == 1 {
             * Clean up display path (remove double slashes)
-            local display_path = subinstr("`file_path'", "//", "/", .)
-            local display_path = subinstr("`display_path'", "\\", "/", .)
+            local display_path = subinstr(`"`file_path'"', "//", "/", .)
+            local display_path = subinstr(`"`display_path'"', "\\", "/", .)
             
             dis ""
-            dis as result "  [FOUND] " as text "`display_path'"
+            dis as result "  [FOUND] " as text `"`display_path'"'
             local found = 1
             
             * Get file info
             capture {
-                use "`file_path'", clear
+                use `"`file_path'"', clear
                 local n_records = _N
                 dis as text "          Records: " as result "`n_records'" as text " articles"
                 clear
@@ -658,13 +658,14 @@ if "`debug'" != "" {
 
 foreach p of local search_paths {
     * Try both path separators for cross-platform compatibility
-    capture confirm file "`p'/findsj.dta"
+    * Use compound quotes for paths with spaces
+    capture confirm file `"`p'/findsj.dta"'
     if _rc != 0 {
-        capture confirm file "`p'findsj.dta"
+        capture confirm file `"`p'findsj.dta"'
     }
     if _rc == 0 {
         local dta_found = 1
-        local dta_found_path = "`p'"
+        local dta_found_path `"`p'"'
         continue, break
     }
 }
@@ -699,15 +700,15 @@ local dta_path = ""
 * Find local database path first
 if `dta_found' == 1 {
     foreach p of local search_paths {
-        capture confirm file "`p'/findsj.dta"
+        capture confirm file `"`p'/findsj.dta"'
         if _rc == 0 {
-            local dta_path "`p'/findsj.dta"
+            local dta_path `"`p'/findsj.dta"'
             continue, break
         }
         * Try without separator (in case path already ends with one)
-        capture confirm file "`p'findsj.dta"
+        capture confirm file `"`p'findsj.dta"'
         if _rc == 0 {
-            local dta_path "`p'findsj.dta"
+            local dta_path `"`p'findsj.dta"'
             continue, break
         }
     }
@@ -715,15 +716,17 @@ if `dta_found' == 1 {
 
 * Check if user explicitly requested offline mode
 if "`offline'" != "" {
-    if `dta_found' == 0 | "`dta_path'" == "" {
+    if `dta_found' == 0 | `"`dta_path'"' == "" {
         dis as error "Offline mode requested but findsj.dta not found."
         dis as text "Please download the database first:"
         dis as text "  {stata findsj, updatesource source(both):findsj, updatesource source(both)}"
+        dis ""
+        dis as text "Run " as result "findsj, checkdb" as text " to diagnose the issue"
         exit 601
     }
     local use_offline = 1
 }
-else if `dta_found' == 1 & "`dta_path'" != "" {
+else if `dta_found' == 1 & `"`dta_path'"' != "" {
     * Auto-enable offline mode if database is available
     local use_offline = 1
 }
