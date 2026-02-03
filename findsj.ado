@@ -163,6 +163,7 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
     OFFline ///
     CHECKdb ///
     INSTALLdb(string) ///
+    USEdb(string) ///
     SETPath(string) ///
 	  QUERYpath ///
 	  RESETpath ///
@@ -485,6 +486,46 @@ if "`installdb'" != "" {
     exit
 }
 
+* Handle usedb option - directly use specified database for this search
+if "`usedb'" != "" {
+    dis ""
+    dis as text "{hline 70}"
+    dis as result "  Using Specified Database"
+    dis as text "{hline 70}"
+    dis ""
+    
+    * Check if file exists
+    capture confirm file `"`usedb'"'
+    if _rc != 0 {
+        dis as error "Error: Cannot find file: " as text `"`usedb'"'
+        dis ""
+        dis as text "Please check the path and try again."
+        dis as text "Tip: Drag the .dta file into Stata to get the correct path"
+        exit 601
+    }
+    
+    * Verify it's a valid .dta file
+    capture use `"`usedb'"', clear
+    if _rc != 0 {
+        dis as error "Error: File is not a valid Stata dataset"
+        exit 610
+    }
+    
+    dis as text "Database: " as result `"`usedb'"'
+    local n_records = _N
+    dis as text "Records: " as result "`n_records'" as text " articles"
+    dis ""
+    dis as text "Searching..." 
+    dis ""
+    
+    * Force offline search with this specific database
+    local use_offline = 1
+    local dta_path `"`usedb'"'
+    local skip_normal_path_detection = 1
+    
+    * Continue to offline search section below
+}
+
 * Handle download path configuration subcommands
 if "`querypath'" != "" | "`resetpath'" != "" | "`setpath'" != "" {
     local config_file "`c(sysdir_personal)'findsj_config.txt"
@@ -656,17 +697,20 @@ if "`debug'" != "" {
     }
 }
 
-foreach p of local search_paths {
-    * Try both path separators for cross-platform compatibility
-    * Use compound quotes for paths with spaces
-    capture confirm file `"`p'/findsj.dta"'
-    if _rc != 0 {
-        capture confirm file `"`p'findsj.dta"'
-    }
-    if _rc == 0 {
-        local dta_found = 1
-        local dta_found_path `"`p'"'
-        continue, break
+* Skip path detection if using specific database
+if "`skip_normal_path_detection'" != "1" {
+    foreach p of local search_paths {
+        * Try both path separators for cross-platform compatibility
+        * Use compound quotes for paths with spaces
+        capture confirm file `"`p'/findsj.dta"'
+        if _rc != 0 {
+            capture confirm file `"`p'findsj.dta"'
+        }
+        if _rc == 0 {
+            local dta_found = 1
+            local dta_found_path `"`p'"'
+            continue, break
+        }
     }
 }
 
@@ -698,7 +742,7 @@ local use_offline = 0
 local dta_path = ""
 
 * Find local database path first
-if `dta_found' == 1 {
+if `dta_found' == 1 & "`skip_normal_path_detection'" != "1" {
     foreach p of local search_paths {
         capture confirm file `"`p'/findsj.dta"'
         if _rc == 0 {
@@ -738,7 +782,7 @@ if `use_offline' == 1 {
     preserve //===================preserve begin======
     
     qui {
-        use "`dta_path'", clear
+        use `"`dta_path'"', clear
         
         * Normalize variable names (handle both artid and art_id)
         cap confirm variable artid
