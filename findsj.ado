@@ -128,6 +128,7 @@ program define findsj_download
     }
     
     dis as text "Downloading `file_ext' file for `artid'..."
+    dis as result `"Save to: {browse "`full_file'"}"'
 end
 
 
