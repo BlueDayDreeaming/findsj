@@ -162,6 +162,7 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
 	Debug  ///
     OFFline ///
     CHECKdb ///
+    INSTALLdb(string) ///
     SETPath(string) ///
 	  QUERYpath ///
 	  RESETpath ///
@@ -362,8 +363,123 @@ if "`checkdb'" != "" {
         dis ""
         dis as text "To download the database:"
         dis as text "  {stata findsj, updatesource source(both):findsj, updatesource source(both)}"
+        dis ""
+        dis as text "If you have findsj.dta file, manually install it:"
+        dis as text "  1. Drag findsj.dta into Stata to get its full path"
+        dis as text "  2. Run: findsj, installdb(" as result "/full/path/to/findsj.dta" as text ")"
     }
     
+    dis ""
+    dis as text "{hline 70}"
+    exit
+}
+
+* Handle manual database installation
+if "`installdb'" != "" {
+    dis ""
+    dis as text "{hline 70}"
+    dis as result "  Manual Database Installation"
+    dis as text "{hline 70}"
+    dis ""
+    
+    * Check if source file exists
+    capture confirm file "`installdb'"
+    if _rc != 0 {
+        dis as error "Error: Cannot find file: `installdb'"
+        dis ""
+        dis as text "To get the full path:"
+        dis as text "  1. Drag findsj.dta file into Stata command window"
+        dis as text "  2. Copy the displayed path"
+        dis as text "  3. Use: findsj, installdb(" as result "paste-path-here" as text ")"
+        exit 601
+    }
+    
+    * Verify it's a valid .dta file
+    capture use "`installdb'", clear
+    if _rc != 0 {
+        dis as error "Error: File is not a valid Stata dataset"
+        exit 610
+    }
+    local n_records = _N
+    clear
+    
+    * Find findsj.ado location to install database alongside
+    local ado_path = ""
+    capture findfile findsj.ado
+    if _rc == 0 {
+        local ado_fullpath = r(fn)
+        
+        * Extract directory
+        local rev_path = reverse("`ado_fullpath'")
+        local pos_slash = strpos("`rev_path'", "/")
+        local pos_backslash = strpos("`rev_path'", "\")
+        local last_sep = 0
+        if `pos_slash' > 0 & `pos_backslash' > 0 {
+            local last_sep = min(`pos_slash', `pos_backslash')
+        }
+        else if `pos_slash' > 0 {
+            local last_sep = `pos_slash'
+        }
+        else if `pos_backslash' > 0 {
+            local last_sep = `pos_backslash'
+        }
+        if `last_sep' > 0 {
+            local ado_path = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
+        }
+    }
+    
+    if "`ado_path'" == "" {
+        dis as error "Error: Cannot locate findsj.ado directory"
+        exit 601
+    }
+    
+    * Copy file to ado directory
+    local dest_path "`ado_path'findsj.dta"
+    
+    * Check if source and destination are the same
+    local source_clean = subinstr("`installdb'", "\", "/", .)
+    local dest_clean = subinstr("`dest_path'", "\", "/", .)
+    local source_clean = subinstr("`source_clean'", "//", "/", .)
+    local dest_clean = subinstr("`dest_clean'", "//", "/", .)
+    
+    if "`source_clean'" == "`dest_clean'" {
+        dis as result "Database is already in the correct location!"
+        dis as text "Location: " as result "`dest_path'"
+        dis as text "Total articles: " as result "`n_records'"
+        dis ""
+        dis as text "Test offline mode:"
+        dis as text "  {stata findsj machine learning, offline n(3):findsj machine learning, offline n(3)}"
+        dis ""
+        dis as text "{hline 70}"
+        exit
+    }
+    
+    dis as text "Source: " as result "`installdb'"
+    dis as text "Destination: " as result "`dest_path'"
+    dis ""
+    dis as text "Installing..." _c
+    
+    capture copy "`installdb'" "`dest_path'", replace
+    if _rc != 0 {
+        dis as error " Failed! (rc=`_rc')"
+        dis ""
+        dis as error "Error: Cannot copy file. Possible reasons:"
+        dis as text "  - Permission denied"
+        dis as text "  - Destination path not writable"
+        dis as text "  - File in use"
+        exit `_rc'
+    }
+    
+    dis as result " Success!"
+    dis ""
+    dis as text "{hline 70}"
+    dis as result "  Installation Complete!"
+    dis as text "{hline 70}"
+    dis as text "Database installed: " as result "`dest_path'"
+    dis as text "Total articles: " as result "`n_records'"
+    dis ""
+    dis as text "Test offline mode:"
+    dis as text "  {stata findsj machine learning, offline n(3):findsj machine learning, offline n(3)}"
     dis ""
     dis as text "{hline 70}"
     exit
