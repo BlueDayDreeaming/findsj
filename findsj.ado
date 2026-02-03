@@ -440,9 +440,26 @@ if `dta_found' == 0 & "`ref'" != "" {
 local use_offline = 0
 local dta_path = ""
 
+* Find local database path first
+if `dta_found' == 1 {
+    foreach p of local search_paths {
+        capture confirm file "`p'/findsj.dta"
+        if _rc == 0 {
+            local dta_path "`p'/findsj.dta"
+            continue, break
+        }
+        * Try without separator (in case path already ends with one)
+        capture confirm file "`p'findsj.dta"
+        if _rc == 0 {
+            local dta_path "`p'findsj.dta"
+            continue, break
+        }
+    }
+}
+
 * Check if user explicitly requested offline mode
 if "`offline'" != "" {
-    if `dta_found' == 0 {
+    if `dta_found' == 0 | "`dta_path'" == "" {
         dis as error "Offline mode requested but findsj.dta not found."
         dis as text "Please download the database first:"
         dis as text "  {stata findsj, updatesource source(both):findsj, updatesource source(both)}"
@@ -450,39 +467,9 @@ if "`offline'" != "" {
     }
     local use_offline = 1
 }
-
-* Find local database path
-if `dta_found' == 1 & `use_offline' == 0 {
-    foreach p of local search_paths {
-        capture confirm file "`p'/findsj.dta"
-        if _rc == 0 {
-            local dta_path "`p'/findsj.dta"
-            local use_offline = 1
-            continue, break
-        }
-        * Try without separator (in case path already ends with one)
-        capture confirm file "`p'findsj.dta"
-        if _rc == 0 {
-            local dta_path "`p'findsj.dta"
-            local use_offline = 1
-            continue, break
-        }
-    }
-}
-else if "`offline'" != "" {
-    * User explicitly requested offline, find the database
-    foreach p of local search_paths {
-        capture confirm file "`p'/findsj.dta"
-        if _rc == 0 {
-            local dta_path "`p'/findsj.dta"
-            continue, break
-        }
-        capture confirm file "`p'findsj.dta"
-        if _rc == 0 {
-            local dta_path "`p'findsj.dta"
-            continue, break
-        }
-    }
+else if `dta_found' == 1 & "`dta_path'" != "" {
+    * Auto-enable offline mode if database is available
+    local use_offline = 1
 }
 
 if `use_offline' == 1 {
