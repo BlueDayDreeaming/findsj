@@ -262,6 +262,17 @@ if "`checkdb'" != "" {
         if `last_sep' > 0 {
             local ado_path = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
         }
+        
+        * List files in findsj.ado directory
+        dis ""
+        dis as text "Files in findsj.ado directory:"
+        if c(os) == "Windows" {
+            local clean_path = subinstr("`ado_path'", "/", "\", .)
+            shell dir /b "`clean_path'findsj*.*"
+        }
+        else {
+            shell ls -lh "`ado_path'"findsj* 2>/dev/null || echo "No files found or permission denied"
+        }
     }
     
     * Build search paths
@@ -285,16 +296,42 @@ if "`checkdb'" != "" {
     local found = 0
     foreach p of local search_paths {
         local file_found = 0
+        local rc1 = .
+        local rc2 = .
+        
+        * Try with forward slash
         capture confirm file "`p'/findsj.dta"
-        if _rc == 0 {
+        local rc1 = _rc
+        if `rc1' == 0 {
             local file_found = 1
             local file_path "`p'/findsj.dta"
         }
-        else {
+        
+        * Try without separator
+        if `file_found' == 0 {
             capture confirm file "`p'findsj.dta"
-            if _rc == 0 {
+            local rc2 = _rc
+            if `rc2' == 0 {
                 local file_found = 1
                 local file_path "`p'findsj.dta"
+            }
+        }
+        
+        * Debug: show what we tried
+        dis as text "  Checking: " as text "`p'/findsj.dta" _c
+        if `rc1' == 0 {
+            dis as result " ✓"
+        }
+        else {
+            dis as error " ✗ (rc=`rc1')"
+            if `rc2' != . {
+                dis as text "  Checking: " as text "`p'findsj.dta" _c
+                if `rc2' == 0 {
+                    dis as result " ✓"
+                }
+                else {
+                    dis as error " ✗ (rc=`rc2')"
+                }
             }
         }
         
@@ -303,6 +340,7 @@ if "`checkdb'" != "" {
             local display_path = subinstr("`file_path'", "//", "/", .)
             local display_path = subinstr("`display_path'", "\\", "/", .)
             
+            dis ""
             dis as result "  [FOUND] " as text "`display_path'"
             local found = 1
             
