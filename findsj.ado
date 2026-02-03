@@ -163,7 +163,6 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
     OFFline ///
     CHECKdb ///
     INSTALLdb(string) ///
-    USEdb(string) ///
     SETPath(string) ///
 	  QUERYpath ///
 	  RESETpath ///
@@ -277,18 +276,31 @@ if "`checkdb'" != "" {
         }
     }
     
-    * Build search paths
-    local search_paths ""
+    * Build search paths using numbered locals (to handle paths with spaces)
+    local n_paths = 0
+    
     if "`ado_path'" != "" {
-        local search_paths "`ado_path'"
+        local n_paths = `n_paths' + 1
+        local path`n_paths' `"`ado_path'"'
     }
-    local plus_f = "`c(sysdir_plus)'" + "f" + c(dirsep)
-    local search_paths "`search_paths' `plus_f' `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
+    
+    local plus_f `"`c(sysdir_plus)'f`c(dirsep)'"'
+    local n_paths = `n_paths' + 1
+    local path`n_paths' `"`plus_f'"'
+    
+    local n_paths = `n_paths' + 1
+    local path`n_paths' `"`c(sysdir_plus)'"'
+    
+    local n_paths = `n_paths' + 1
+    local path`n_paths' `"`c(sysdir_personal)'"'
+    
+    local n_paths = `n_paths' + 1
+    local path`n_paths' `"`c(pwd)'"'
     
     dis ""
     dis as text "Search paths:"
-    foreach p of local search_paths {
-        dis as text "  - `p'"
+    forvalues i = 1/`n_paths' {
+        dis as text "  - `path`i''"
     }
     
     * Search for database
@@ -296,7 +308,8 @@ if "`checkdb'" != "" {
     dis as text "Searching for findsj.dta..."
     dis ""
     local found = 0
-    foreach p of local search_paths {
+    forvalues i = 1/`n_paths' {
+        local p `"`path`i''"'
         local file_found = 0
         local rc1 = .
         local rc2 = .
@@ -486,46 +499,6 @@ if "`installdb'" != "" {
     exit
 }
 
-* Handle usedb option - directly use specified database for this search
-if "`usedb'" != "" {
-    dis ""
-    dis as text "{hline 70}"
-    dis as result "  Using Specified Database"
-    dis as text "{hline 70}"
-    dis ""
-    
-    * Check if file exists
-    capture confirm file `"`usedb'"'
-    if _rc != 0 {
-        dis as error "Error: Cannot find file: " as text `"`usedb'"'
-        dis ""
-        dis as text "Please check the path and try again."
-        dis as text "Tip: Drag the .dta file into Stata to get the correct path"
-        exit 601
-    }
-    
-    * Verify it's a valid .dta file
-    capture use `"`usedb'"', clear
-    if _rc != 0 {
-        dis as error "Error: File is not a valid Stata dataset"
-        exit 610
-    }
-    
-    dis as text "Database: " as result `"`usedb'"'
-    local n_records = _N
-    dis as text "Records: " as result "`n_records'" as text " articles"
-    dis ""
-    dis as text "Searching..." 
-    dis ""
-    
-    * Force offline search with this specific database
-    local use_offline = 1
-    local dta_path `"`usedb'"'
-    local skip_normal_path_detection = 1
-    
-    * Continue to offline search section below
-}
-
 * Handle download path configuration subcommands
 if "`querypath'" != "" | "`resetpath'" != "" | "`setpath'" != "" {
     local config_file "`c(sysdir_personal)'findsj_config.txt"
@@ -681,36 +654,48 @@ if _rc == 0 {
 }
 
 * Build search paths with findsj.ado directory as highest priority
-local search_paths ""
+* Use numbered locals to handle paths with spaces correctly
+local n_paths = 0
+
 if "`ado_path'" != "" {
-    local search_paths "`ado_path'"
+    local n_paths = `n_paths' + 1
+    local path`n_paths' `"`ado_path'"'
 }
+
 * Add PLUS/f/ subdirectory (where net install puts files starting with 'f')
-local plus_f = "`c(sysdir_plus)'" + "f" + c(dirsep)
-local search_paths "`search_paths' `plus_f' `c(sysdir_plus)' `c(sysdir_personal)' `c(pwd)'"
+local plus_f `"`c(sysdir_plus)'f`c(dirsep)'"'
+local n_paths = `n_paths' + 1
+local path`n_paths' `"`plus_f'"'
+
+local n_paths = `n_paths' + 1
+local path`n_paths' `"`c(sysdir_plus)'"'
+
+local n_paths = `n_paths' + 1
+local path`n_paths' `"`c(sysdir_personal)'"'
+
+local n_paths = `n_paths' + 1
+local path`n_paths' `"`c(pwd)'"'
 
 * Debug mode: show search paths
 if "`debug'" != "" {
     dis as text _n "Debug: Searching for findsj.dta in the following paths:"
-    foreach p of local search_paths {
-        dis as text "  - `p'"
+    forvalues i = 1/`n_paths' {
+        dis as text "  - `path`i''"
     }
 }
 
-* Skip path detection if using specific database
-if "`skip_normal_path_detection'" != "1" {
-    foreach p of local search_paths {
-        * Try both path separators for cross-platform compatibility
-        * Use compound quotes for paths with spaces
-        capture confirm file `"`p'/findsj.dta"'
-        if _rc != 0 {
-            capture confirm file `"`p'findsj.dta"'
-        }
-        if _rc == 0 {
-            local dta_found = 1
-            local dta_found_path `"`p'"'
-            continue, break
-        }
+forvalues i = 1/`n_paths' {
+    local p `"`path`i''"'
+    * Try both path separators for cross-platform compatibility
+    * Use compound quotes for paths with spaces
+    capture confirm file `"`p'/findsj.dta"'
+    if _rc != 0 {
+        capture confirm file `"`p'findsj.dta"'
+    }
+    if _rc == 0 {
+        local dta_found = 1
+        local dta_found_path `"`p'"'
+        continue, break
     }
 }
 
@@ -742,8 +727,9 @@ local use_offline = 0
 local dta_path = ""
 
 * Find local database path first
-if `dta_found' == 1 & "`skip_normal_path_detection'" != "1" {
-    foreach p of local search_paths {
+if `dta_found' == 1 {
+    forvalues i = 1/`n_paths' {
+        local p `"`path`i''"'
         capture confirm file `"`p'/findsj.dta"'
         if _rc == 0 {
             local dta_path `"`p'/findsj.dta"'
@@ -782,7 +768,7 @@ if `use_offline' == 1 {
     preserve //===================preserve begin======
     
     qui {
-        use `"`dta_path'"', clear
+        use "`dta_path'", clear
         
         * Normalize variable names (handle both artid and art_id)
         cap confirm variable artid
