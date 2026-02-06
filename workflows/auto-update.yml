@@ -1,9 +1,9 @@
-name: Auto Update Stata Journal Database with Citations
+name: Auto Update Stata Journal Database
 
 on:
-  # 每周一早上8点 UTC（北京时间下午4点）运行一次
+  # 每天凌晨1点 UTC (北京时间上午9点) 运行
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: '0 1 * * *'
   
   # 允许手动触发
   workflow_dispatch:
@@ -17,37 +17,85 @@ jobs:
   update-database:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Allow pushing changes
-      issues: write    # Allow creating issues on error
+      contents: write
+      issues: write
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Full history for Gitee sync
+        fetch-depth: 0 # 需要完整历史才能推送到 Gitee
         token: ${{ secrets.GITHUB_TOKEN }}
       
-    - name: Set up Python
+    - name: Set up Python 3.10
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        cache: 'pip'  # Cache pip dependencies
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/auto_update.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
         
     - name: Install Python dependencies
       run: |
-        pip install --upgrade pip
+        python -m pip install --upgrade pip
         pip install pandas requests beautifulsoup4 pyreadstat lxml
-        pip list  # Show installed packages for debugging
         
     - name: Run update script
       id: update
       run: |
-        echo "🚀 开始从搜索页面爬取 Stata Journal 数据库..."
-        echo "📊 爬取方式: 从 https://www.stata-journal.com/sjsearch.html 搜索页面获取所有文章"
-        echo "✅ 包括所有文章类型: st (正式文章), dm (数据管理), gn (书评), gr (图形), pr (编程) 等"
+        echo "🚀 Starting Stata Journal database update..."
         python auto_update.py 2>&1 | tee update_output.log
       
-    - name: Check update status
+    - name: Check for changes
+      id: git_status
+      run: |
+        echo "changed=$(git status --porcelain | wc -l)" >> $GITHUB_OUTPUT
+        
+    - name: Commit and push changes to GitHub
+      if: steps.git_status.outputs.changed > 0 || github.event.inputs.force_update == 'true'
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add findsj.dta
+        git commit -m "feat(auto): update findsj.dta database"
+        git push
+        
+    - name: Push changes to Gitee
+      if: steps.git_status.outputs.changed > 0 || github.event.inputs.force_update == 'true'
+      uses: wearerequired/git-mirror-action@v1
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}
+      with:
+        source-repo: "git@github.com:${{ github.repository }}.git"
+        destination-repo: "git@gitee.com:ChuChengWan/findsj.git"
+
+    - name: Create Issue on Failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const output = require('fs').readFileSync('update_output.log', 'utf8');
+          const title = `❌ Auto Update Failed on ${{ github.run_id }}`;
+          const body = `
+            ### Workflow Run Failed!
+            **Run ID:** [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            **Error Log:**
+            \`\`\`
+            ${output}
+            \`\`\`
+          `;
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['bug', 'automated-issue']
+          });
       if: failure()
       run: |
         echo "❌ 更新脚本执行失败，请检查日志"
