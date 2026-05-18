@@ -152,18 +152,10 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
 	  Plain  ///
 	  TEXT   ///
 	  TXT    ///
-    NOBrowser ///
-	  NOPDF ///
-	  NOPkg ///
 	  NOCLip ///
     N(integer 10) ///
 	ALLresults ///
     GETDOI ///
-    Clear  ///
-	Debug  ///
-    OFFline ///
-    CHECKdb ///
-    INSTALLdb(string) ///
     SETPath(string) ///
 	  QUERYpath ///
 	  RESETpath ///
@@ -174,22 +166,6 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
     ]
 
 	
-* Check if getiref is installed (needed for online citation fetching and individual article buttons)
-* Note: With local database (findsj.dta), citations can be generated without getiref
-capture which getiref
-if _rc != 0 {
-    dis as text "{p}command getiref is unrecognized. Installing from SSC...{p_end}"
-    capture ssc install getiref
-    if _rc != 0 {
-        dis as error "{p}Failed to install getiref. Please check your internet connection or install manually: {stata ssc install getiref}{p_end}"
-    }
-    else {
-        dis as result "{p}getiref successfully installed!{p_end}"
-    }
-}
-
-
-
 * Check for updates (once per day)
 findsj_check_update
 
@@ -229,274 +205,6 @@ if "`updatesource'" != "" & "`source'" == "" {
 if "`updatesource'" != "" {
     * source parameter contains the source choice (empty = show menu)
     findsj_update_db "`source'"
-    exit
-}
-
-* Handle checkdb subcommand - show database location and status
-if "`checkdb'" != "" {
-    dis ""
-    dis as text "{hline 70}"
-    dis as result "  findsj Database Location Check"
-    dis as text "{hline 70}"
-    dis ""
-    
-    * Find findsj.ado location
-    local ado_path = ""
-    capture findfile findsj.ado
-    if _rc == 0 {
-        local ado_fullpath = r(fn)
-        dis as text "findsj.ado: " as result "`ado_fullpath'"
-        
-        * Extract directory
-        local rev_path = reverse("`ado_fullpath'")
-        local pos_slash = strpos("`rev_path'", "/")
-        local pos_backslash = strpos("`rev_path'", "\")
-        local last_sep = 0
-        if `pos_slash' > 0 & `pos_backslash' > 0 {
-            local last_sep = min(`pos_slash', `pos_backslash')
-        }
-        else if `pos_slash' > 0 {
-            local last_sep = `pos_slash'
-        }
-        else if `pos_backslash' > 0 {
-            local last_sep = `pos_backslash'
-        }
-        if `last_sep' > 0 {
-            local ado_path = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
-        }
-        
-        * List files in findsj.ado directory
-        dis ""
-        dis as text "Files in findsj.ado directory:"
-        if c(os) == "Windows" {
-            local clean_path = subinstr("`ado_path'", "/", "\", .)
-            shell dir /b "`clean_path'findsj*.*"
-        }
-        else {
-            shell ls -lh "`ado_path'"findsj* 2>/dev/null || echo "No files found or permission denied"
-        }
-    }
-    
-    * Build search paths using numbered locals (to handle paths with spaces)
-    local n_paths = 0
-    
-    if "`ado_path'" != "" {
-        local n_paths = `n_paths' + 1
-        local path`n_paths' `"`ado_path'"'
-    }
-    
-    local plus_f `"`c(sysdir_plus)'f`c(dirsep)'"'
-    local n_paths = `n_paths' + 1
-    local path`n_paths' `"`plus_f'"'
-    
-    local n_paths = `n_paths' + 1
-    local path`n_paths' `"`c(sysdir_plus)'"'
-    
-    local n_paths = `n_paths' + 1
-    local path`n_paths' `"`c(sysdir_personal)'"'
-    
-    local n_paths = `n_paths' + 1
-    local path`n_paths' `"`c(pwd)'"'
-    
-    dis ""
-    dis as text "Search paths:"
-    forvalues i = 1/`n_paths' {
-        dis as text "  - `path`i''"
-    }
-    
-    * Search for database
-    dis ""
-    dis as text "Searching for findsj.dta..."
-    dis ""
-    local found = 0
-    forvalues i = 1/`n_paths' {
-        local p `"`path`i''"'
-        local file_found = 0
-        local rc1 = .
-        local rc2 = .
-        
-        * Try with forward slash (use compound quotes for paths with spaces)
-        capture confirm file `"`p'/findsj.dta"'
-        local rc1 = _rc
-        if `rc1' == 0 {
-            local file_found = 1
-            local file_path `"`p'/findsj.dta"'
-        }
-        
-        * Try without separator
-        if `file_found' == 0 {
-            capture confirm file `"`p'findsj.dta"'
-            local rc2 = _rc
-            if `rc2' == 0 {
-                local file_found = 1
-                local file_path `"`p'findsj.dta"'
-            }
-        }
-        
-        * Debug: show what we tried
-        dis as text "  Checking: " as text `"`p'/findsj.dta"' _c
-        if `rc1' == 0 {
-            dis as result " ✓"
-        }
-        else {
-            dis as error " ✗ (rc=`rc1')"
-            if `rc2' != . {
-                dis as text "  Checking: " as text `"`p'findsj.dta"' _c
-                if `rc2' == 0 {
-                    dis as result " ✓"
-                }
-                else {
-                    dis as error " ✗ (rc=`rc2')"
-                }
-            }
-        }
-        
-        if `file_found' == 1 {
-            * Clean up display path (remove double slashes)
-            local display_path = subinstr(`"`file_path'"', "//", "/", .)
-            local display_path = subinstr(`"`display_path'"', "\\", "/", .)
-            
-            dis ""
-            dis as result "  [FOUND] " as text `"`display_path'"'
-            local found = 1
-            
-            * Get file info
-            capture {
-                use `"`file_path'"', clear
-                local n_records = _N
-                dis as text "          Records: " as result "`n_records'" as text " articles"
-                clear
-            }
-            
-            * Found in this path, skip remaining paths
-            continue, break
-        }
-    }
-    
-    if `found' == 0 {
-        dis as error "  [NOT FOUND] findsj.dta not found"
-        dis ""
-        dis as text "To download the database:"
-        dis as text "  {stata findsj, updatesource source(both):findsj, updatesource source(both)}"
-        dis ""
-        dis as text "If you have findsj.dta file, manually install it:"
-        dis as text "  1. Drag findsj.dta into Stata to get its full path"
-        dis as text "  2. Run: findsj, installdb(" as result "/full/path/to/findsj.dta" as text ")"
-    }
-    
-    dis ""
-    dis as text "{hline 70}"
-    exit
-}
-
-* Handle manual database installation
-if "`installdb'" != "" {
-    dis ""
-    dis as text "{hline 70}"
-    dis as result "  Manual Database Installation"
-    dis as text "{hline 70}"
-    dis ""
-    
-    * Check if source file exists
-    capture confirm file "`installdb'"
-    if _rc != 0 {
-        dis as error "Error: Cannot find file: `installdb'"
-        dis ""
-        dis as text "To get the full path:"
-        dis as text "  1. Drag findsj.dta file into Stata command window"
-        dis as text "  2. Copy the displayed path"
-        dis as text "  3. Use: findsj, installdb(" as result "paste-path-here" as text ")"
-        exit 601
-    }
-    
-    * Verify it's a valid .dta file
-    capture use "`installdb'", clear
-    if _rc != 0 {
-        dis as error "Error: File is not a valid Stata dataset"
-        exit 610
-    }
-    local n_records = _N
-    clear
-    
-    * Find findsj.ado location to install database alongside
-    local ado_path = ""
-    capture findfile findsj.ado
-    if _rc == 0 {
-        local ado_fullpath = r(fn)
-        
-        * Extract directory
-        local rev_path = reverse("`ado_fullpath'")
-        local pos_slash = strpos("`rev_path'", "/")
-        local pos_backslash = strpos("`rev_path'", "\")
-        local last_sep = 0
-        if `pos_slash' > 0 & `pos_backslash' > 0 {
-            local last_sep = min(`pos_slash', `pos_backslash')
-        }
-        else if `pos_slash' > 0 {
-            local last_sep = `pos_slash'
-        }
-        else if `pos_backslash' > 0 {
-            local last_sep = `pos_backslash'
-        }
-        if `last_sep' > 0 {
-            local ado_path = substr("`ado_fullpath'", 1, length("`ado_fullpath'") - `last_sep' + 1)
-        }
-    }
-    
-    if "`ado_path'" == "" {
-        dis as error "Error: Cannot locate findsj.ado directory"
-        exit 601
-    }
-    
-    * Copy file to ado directory
-    local dest_path "`ado_path'findsj.dta"
-    
-    * Check if source and destination are the same
-    local source_clean = subinstr("`installdb'", "\", "/", .)
-    local dest_clean = subinstr("`dest_path'", "\", "/", .)
-    local source_clean = subinstr("`source_clean'", "//", "/", .)
-    local dest_clean = subinstr("`dest_clean'", "//", "/", .)
-    
-    if "`source_clean'" == "`dest_clean'" {
-        dis as result "Database is already in the correct location!"
-        dis as text "Location: " as result "`dest_path'"
-        dis as text "Total articles: " as result "`n_records'"
-        dis ""
-        dis as text "Test offline mode:"
-        dis as text "  {stata findsj machine learning, offline n(3):findsj machine learning, offline n(3)}"
-        dis ""
-        dis as text "{hline 70}"
-        exit
-    }
-    
-    dis as text "Source: " as result "`installdb'"
-    dis as text "Destination: " as result "`dest_path'"
-    dis ""
-    dis as text "Installing..." _c
-    
-    capture copy "`installdb'" "`dest_path'", replace
-    if _rc != 0 {
-        dis as error " Failed! (rc=`_rc')"
-        dis ""
-        dis as error "Error: Cannot copy file. Possible reasons:"
-        dis as text "  - Permission denied"
-        dis as text "  - Destination path not writable"
-        dis as text "  - File in use"
-        exit `_rc'
-    }
-    
-    dis as result " Success!"
-    dis ""
-    dis as text "{hline 70}"
-    dis as result "  Installation Complete!"
-    dis as text "{hline 70}"
-    dis as text "Database installed: " as result "`dest_path'"
-    dis as text "Total articles: " as result "`n_records'"
-    dis ""
-    dis as text "Test offline mode:"
-    dis as text "  {stata findsj machine learning, offline n(3):findsj machine learning, offline n(3)}"
-    dis ""
-    dis as text "{hline 70}"
     exit
 }
 
@@ -560,8 +268,6 @@ if "`querypath'" != "" | "`resetpath'" != "" | "`setpath'" != "" {
         exit
     }
 }
-
-if "`debug'" != "" set trace on
 
 * Handle TEX as alias for latex
 if "`tex'" != "" local latex "latex"
@@ -677,14 +383,6 @@ local path`n_paths' `"`c(sysdir_personal)'"'
 local n_paths = `n_paths' + 1
 local path`n_paths' `"`c(pwd)'"'
 
-* Debug mode: show search paths
-if "`debug'" != "" {
-    dis as text _n "Debug: Searching for findsj.dta in the following paths:"
-    forvalues i = 1/`n_paths' {
-        dis as text "  - `path`i''"
-    }
-}
-
 forvalues i = 1/`n_paths' {
     local p `"`path`i''"'
     * Try both path separators for cross-platform compatibility
@@ -697,16 +395,6 @@ forvalues i = 1/`n_paths' {
         local dta_found = 1
         local dta_found_path `"`p'"'
         continue, break
-    }
-}
-
-* Debug: show result of dta search
-if "`debug'" != "" {
-    if `dta_found' == 1 {
-        dis as result "Debug: Found findsj.dta at: `dta_found_path'"
-    }
-    else {
-        dis as error "Debug: findsj.dta NOT found in any search path"
     }
 }
 
@@ -745,20 +433,8 @@ if `dta_found' == 1 {
     }
 }
 
-* Check if user explicitly requested offline mode
-if "`offline'" != "" {
-    if `dta_found' == 0 | `"`dta_path'"' == "" {
-        dis as error "Offline mode requested but findsj.dta not found."
-        dis as text "Please download the database first:"
-        dis as text "  {stata findsj, updatesource source(both):findsj, updatesource source(both)}"
-        dis ""
-        dis as text "Run " as result "findsj, checkdb" as text " to diagnose the issue"
-        exit 601
-    }
-    local use_offline = 1
-}
-else if `dta_found' == 1 & `"`dta_path'"' != "" {
-    * Auto-enable offline mode if database is available
+* Auto-enable offline mode if database is available
+if `dta_found' == 1 & `"`dta_path'"' != "" {
     local use_offline = 1
 }
 
@@ -1317,50 +993,43 @@ else {
         }
     }
     
-    if "`nobrowser'" == "" {
-        dis as text "    " _c
-        dis as text `"{browse "`url_html_i'":Web}"' _c
-        
-        * Display PDF link - use DOI-based URL (only if DOI is available)
-        if "`nopdf'" == "" & `has_doi' == 1 {
-            local url_pdf_i "https://journals.sagepub.com/doi/pdf/`doi_i'"
-            dis as text " | " _c
-            dis as text `"{browse "`url_pdf_i'":PDF}"' _c
-        }
-        
-        * Display Google Scholar link
-        local title_search = subinstr(`"`title_i'"', " ", "+", .)
-        local title_search = subinstr(`"`title_search'"', "&amp;", "%26", .)
-        local title_search = subinstr(`"`title_search'"', "&ndash;", "-", .)
-        local url_google "https://scholar.google.com/scholar?q=`title_search'"
+    dis as text "    " _c
+    dis as text `"{browse "`url_html_i'":Web}"' _c
+    
+    * Display PDF link - use DOI-based URL (only if DOI is available)
+    if `has_doi' == 1 {
+        local url_pdf_i "https://journals.sagepub.com/doi/pdf/`doi_i'"
         dis as text " | " _c
-        dis as text `"{browse "`url_google'":Google}"' _c
-        
-        * Add package search on same line
-        if "`nopkg'" == "" {
-            dis as text " | " _c
-            dis as text `"{stata "search `art_id_nobom'":Install}"' _c
-        }
-        
-        * Display .md .latex .txt buttons (citation formats) using getiref with DOI
-        if `has_doi' == 1 {
-            dis as text "  |  " _c
-            dis as text `"{stata "getiref `doi_i', md":.md}"' _c
-            dis as text " | " _c
-            dis as text `"{stata "getiref `doi_i', latex":.latex}"' _c
-            dis as text " | " _c
-            dis as text `"{stata "getiref `doi_i', text":.txt}"' _c
-        }
-        
-        * Display BibTeX and RIS buttons (on-demand download via helper program)
-        dis as text " | " _c
-        dis as text `"{stata "findsj `art_id_nobom', type(bib)":BibTeX}"' _c
-        dis as text " | " _c
-        dis as text `"{stata "findsj `art_id_nobom', type(ris)":RIS}"'
+        dis as text `"{browse "`url_pdf_i'":PDF}"' _c
     }
-    else {
-        dis ""  // End line if nobrowser
+    
+    * Display Google Scholar link
+    local title_search = subinstr(`"`title_i'"', " ", "+", .)
+    local title_search = subinstr(`"`title_search'"', "&amp;", "%26", .)
+    local title_search = subinstr(`"`title_search'"', "&ndash;", "-", .)
+    local url_google "https://scholar.google.com/scholar?q=`title_search'"
+    dis as text " | " _c
+    dis as text `"{browse "`url_google'":Google}"' _c
+    
+    * Add package search on same line
+    dis as text " | " _c
+    dis as text `"{stata "search `art_id_nobom'":Install}"' _c
+    
+    * Display .md .latex .txt buttons (citation formats) using getiref with DOI
+    if `has_doi' == 1 {
+        dis as text "  |  " _c
+        dis as text `"{stata "getiref `doi_i', md":.md}"' _c
+        dis as text " | " _c
+        dis as text `"{stata "getiref `doi_i', latex":.latex}"' _c
+        dis as text " | " _c
+        dis as text `"{stata "getiref `doi_i', text":.txt}"' _c
     }
+    
+    * Display BibTeX and RIS buttons (on-demand download via helper program)
+    dis as text " | " _c
+    dis as text `"{stata "findsj `art_id_nobom', type(bib)":BibTeX}"' _c
+    dis as text " | " _c
+    dis as text `"{stata "findsj `art_id_nobom', type(ris)":RIS}"'
     
     * ref option is deprecated - citation buttons are now directly available in main button row
     
@@ -1579,17 +1248,17 @@ if `num_export' > 0 {
                 * Use citation_apa from database
                 if "`md'" != "" {
                     gen cite_text = citation_apa + " [Link](" + url_html + ")"
-                    if "`nopdf'" == "" replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
+                    replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
                     replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
                 }
                 else if "`latex'" != "" {
                     gen cite_text = citation_apa + " \\href{" + url_html + "}{Link}"
-                    if "`nopdf'" == "" replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
+                    replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
                     replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
                 }
                 else if "`plain'" != "" {
                     gen cite_text = citation_apa + " Link: " + url_html
-                    if "`nopdf'" == "" replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
+                    replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
                     replace cite_text = cite_text + ", Google: " + url_google
                 }
             }
@@ -1599,19 +1268,19 @@ if `num_export' > 0 {
                 if "`md'" != "" {
                     gen cite_text = author + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str + ". "
                     replace cite_text = cite_text + "[Link](" + url_html + ")"
-                    if "`nopdf'" == "" replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
+                    replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
                     replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
                 }
                 else if "`latex'" != "" {
                     gen cite_text = author + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str + ". "
                     replace cite_text = cite_text + "\\href{" + url_html + "}{Link}"
-                    if "`nopdf'" == "" replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
+                    replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
                     replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
                 }
                 else if "`plain'" != "" {
                     gen cite_text = author + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str + ". "
                     replace cite_text = cite_text + "Link: " + url_html
-                    if "`nopdf'" == "" replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
+                    replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
                     replace cite_text = cite_text + ", Google: " + url_google
                 }
             }
@@ -1904,17 +1573,17 @@ if `num_export' > 0 {
                         * Use citation_apa from database with added links
                         if "`md'" != "" {
                             gen cite_text = citation_apa + " [Link](" + url_html + ")"
-                            if "`nopdf'" == "" replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
                             replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
                         }
                         else if "`latex'" != "" {
                             gen cite_text = citation_apa + " \\href{" + url_html + "}{Link}"
-                            if "`nopdf'" == "" replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
                             replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
                         }
                         else if "`plain'" != "" {
                             gen cite_text = citation_apa + " Link: " + url_html
-                            if "`nopdf'" == "" replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
                             replace cite_text = cite_text + ", Google: " + url_google
                         }
                     }
@@ -1925,7 +1594,7 @@ if `num_export' > 0 {
                             replace cite_text = cite_text + ", " + page if page != "" & page != "."
                             replace cite_text = cite_text + ". "
                             replace cite_text = cite_text + "[Link](" + url_html + ")"
-                            if "`nopdf'" == "" replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
                             replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
                         }
                         else if "`latex'" != "" {
@@ -1933,7 +1602,7 @@ if `num_export' > 0 {
                             replace cite_text = cite_text + ", " + page if page != "" & page != "."
                             replace cite_text = cite_text + ". "
                             replace cite_text = cite_text + "\\href{" + url_html + "}{Link}"
-                            if "`nopdf'" == "" replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
                             replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
                         }
                         else if "`plain'" != "" {
@@ -1941,7 +1610,7 @@ if `num_export' > 0 {
                             replace cite_text = cite_text + ", " + page if page != "" & page != "."
                             replace cite_text = cite_text + ". "
                             replace cite_text = cite_text + "Link: " + url_html
-                            if "`nopdf'" == "" replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
                             replace cite_text = cite_text + ", Google: " + url_google
                         }
                     }
@@ -2047,8 +1716,6 @@ if `num_export' > 0 {
     restore
     } // End of else (online export mode)
 } // End of if num_export > 0
-
-if "`debug'" != "" set trace off
 
 end
 

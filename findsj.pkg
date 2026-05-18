@@ -14,7 +14,7 @@ d KW: BibTeX
 d KW: RIS
 d KW: getiref
 d
-d Requires: Stata version 16 or higher, getiref
+d Requires: Stata version 16 or higher
 d
 d Distribution-Date: 20260201
 d version: 3.1
@@ -33,3 +33,5 @@ f findsj.sthlp
 f findsj.dta
 f findsj_version.dta
 f examples_findsj.do
+f getiref.ado
+f getiref.sthlp

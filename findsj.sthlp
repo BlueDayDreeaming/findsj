@@ -74,10 +74,6 @@ Configure download path
 {syntab:Display control}
 {synopt:{opt n(#)}}number of results to display; default is {cmd:n(10)}{p_end}
 {synopt:{opt allresults}}display all search results{p_end}
-{synopt:{opt offline}}force offline mode using local database{p_end}
-{synopt:{opt nobrowser}}suppress clickable buttons and links{p_end}
-{synopt:{opt nopdf}}hide PDF download buttons{p_end}
-{synopt:{opt nopkg}}hide package installation buttons{p_end}
 
 {syntab:Citation and export}
 {synopt:{opt ref}}enable citation buttons (.md, .latex, .txt) for each article{p_end}
@@ -98,9 +94,6 @@ Configure download path
 {synopt:{opt querypath}}display current download path{p_end}
 {synopt:{opt resetpath}}reset to default path (current directory){p_end}
 
-{syntab:Other}
-{synopt:{opt clear}}clear previous search results{p_end}
-{synopt:{opt debug}}enable debug mode with trace output{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -188,20 +181,6 @@ Use {cmd:allresults} to show all matches.
 {phang}
 {opt allresults} displays all search results without limit. Useful for comprehensive 
 reviews or when exporting complete citation lists.
-
-{phang}
-{opt nobrowser} suppresses all clickable buttons and links. Use when working in 
-batch mode or when buttons are not needed. By default, seven buttons appear 
-for each result: {bf:Web}, {bf:PDF}, {bf:Google}, {bf:Install}, {bf:Ref}, 
-{bf:BibTeX}, and {bf:RIS}.
-
-{phang}
-{opt nopdf} hides PDF download buttons. PDF links require DOI information from 
-the local database or online fetch.
-
-{phang}
-{opt nopkg} hides the {bf:Install} button. By default, this button executes 
-{cmd:search article_id} to find installable packages associated with the article.
 
 
 {dlgtab:Citation and export}
@@ -306,15 +285,6 @@ shows default (current working directory).
 {phang}
 {opt resetpath} resets download path to default by removing configuration file.
 
-
-{dlgtab:Other}
-
-{phang}
-{opt clear} clears previous search results before new search. Helps avoid confusion 
-with multiple searches.
-
-{phang}
-{opt debug} enables trace mode for troubleshooting. Use when reporting issues.
 
 {marker examples}{...}
 {title:Examples}
@@ -427,12 +397,6 @@ any blue underlined text or button with your mouse to execute the action.
 
     {hline}
 {pstd}{bf:Advanced Usage}{p_end}
-
-{phang2}{inp:.} {stata "findsj simulation monte carlo, nopdf nopkg":findsj simulation monte carlo, nopdf nopkg}{p_end}
-{pmore}→ Minimal output: hides PDF and Install buttons{p_end}
-
-{phang2}{inp:.} {stata "findsj bootstrap, nobrowser":findsj bootstrap, nobrowser}{p_end}
-{pmore}→ No clickable buttons (for batch scripts){p_end}
 
 {phang2}{inp:.} {stata "findsj survival analysis, md allresults getdoi":findsj survival analysis, md allresults getdoi}{p_end}
 {pmore}→ Export all results with complete DOI information{p_end}
