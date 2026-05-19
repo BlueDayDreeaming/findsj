@@ -1,7 +1,20 @@
-*! version 3.1  03Feb2026
+*! version 3.2  18May2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
+* v3.2: Option pruning and getiref bundling (in response to SJ peer review)
+*   - Bundled: getiref.ado/getiref.sthlp now ship with findsj; removed the
+*     runtime "ssc install getiref" auto-install block
+*   - Removed options: checkdb, installdb(), debug, clear, nobrowser,
+*     nopdf, nopkg, offline. Their behavior is either obsolete or now
+*     handled automatically (e.g. offline mode is auto-enabled when the
+*     local findsj.dta is present)
+*   - Aligned: ado syntax, findsj.sthlp option table, and the manuscript
+*     (myarticle_v3.tex) now list an identical, smaller option set
+*   - Docs: README/README_CN/findsj.sthlp recommend
+*     "ssc install findsj, all replace" so the ancillary findsj.dta is
+*     downloaded together with the program files
+* v3.1: Final pre-submission cleanup (interactive button row, citation export)
 * v2.1.2: Bug fix - hyphenated keywords now supported
 *   - Fixed: Keywords with hyphens (e.g., "difference-in-differences") now work correctly
 *   - Added: "everything" subitem to syntax to prevent "in" range misinterpretation

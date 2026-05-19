@@ -95,10 +95,10 @@ The Stata Journal website **does not provide direct download links** to companio
 ### SSC Install (Recommended)
 
 ```stata
-ssc install findsj, replace
+ssc install findsj, all replace
 ```
 
-⚠️ **Note:** `ssc install` with `replace` option will properly update both program and data files.
+⚠️ **Note:** The `all` option is required to download the ancillary database file (`findsj.dta`). Without it, only the program files (`.ado`, `.sthlp`) are installed and `findsj` will have to fetch DOIs online. The `replace` option lets you re-run the command to upgrade an existing installation.
 
 ### Install from GitHub/Gitee
 

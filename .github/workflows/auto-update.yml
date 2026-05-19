@@ -1,0 +1,158 @@
+name: Auto Update Stata Journal Database
+
+on:
+  # 每天凌晨1点 UTC (北京时间上午9点) 运行
+  schedule:
+    - cron: '0 1 * * *'
+
+  # 允许手动触发
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if no changes'
+        required: false
+        default: 'false'
+
+jobs:
+  update-database:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/auto_update.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas requests beautifulsoup4 pyreadstat lxml
+
+    - name: Run update script
+      id: update
+      run: |
+        echo "🚀 Starting Stata Journal database update..."
+        python auto_update.py 2>&1 | tee update_output.log
+
+    - name: Parse update log
+      id: parse_log
+      run: |
+        if [ -f update_log.json ]; then
+          echo "total_articles=$(jq -r '.total_articles' update_log.json)" >> $GITHUB_OUTPUT
+          echo "with_doi=$(jq -r '.articles_with_doi' update_log.json)"    >> $GITHUB_OUTPUT
+        fi
+
+    - name: Check for changes
+      id: changes
+      run: |
+        git add -A
+        if git diff --staged --quiet findsj.dta findsj_version.dta; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "ℹ️ 数据库无变化"
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "✅ 数据库已更新"
+        fi
+
+    - name: Commit and push to GitHub
+      if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add findsj.dta findsj_version.dta update_log.json
+        commit_msg="🤖 Auto update: Stata Journal database - $(date +'%Y-%m-%d')"
+        if [ -f update_log.json ]; then
+          total=$(jq -r '.total_articles' update_log.json)
+          git commit -m "$commit_msg" -m "📊 Total articles: $total"
+        else
+          git commit -m "$commit_msg"
+        fi
+        git push
+
+    - name: Sync to Gitee
+      if: steps.changes.outputs.changed == 'true' || github.event.inputs.force_update == 'true'
+      continue-on-error: true
+      run: |
+        echo "🔄 同步到 Gitee..."
+        mkdir -p ~/.ssh
+        echo "${{ secrets.GITEE_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+        git remote add gitee git@gitee.com:ChuChengWan/findsj.git || true
+        git push gitee main:main --force
+        echo "✅ 已同步到 Gitee"
+
+    - name: Create update summary
+      if: always()
+      run: |
+        echo "# 📊 Stata Journal 数据库更新报告" >> $GITHUB_STEP_SUMMARY
+        echo "- **更新时间**: $(date +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+        echo "- **触发方式**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        if [ -f update_log.json ]; then
+          echo "- **文章总数**: $(jq -r '.total_articles' update_log.json)"       >> $GITHUB_STEP_SUMMARY
+          echo "- **含DOI文章**: $(jq -r '.articles_with_doi' update_log.json)"   >> $GITHUB_STEP_SUMMARY
+          echo "- **含引文信息**: $(jq -r '.articles_with_citation' update_log.json)" >> $GITHUB_STEP_SUMMARY
+          echo "- **年份范围**: $(jq -r '.year_range[0]' update_log.json) - $(jq -r '.year_range[1]' update_log.json)" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: update-logs-${{ github.run_number }}
+        path: |
+          update_output.log
+          update_log.json
+        retention-days: 30
+
+    - name: Create issue on failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const title = `❌ 数据库自动更新失败 - ${new Date().toISOString().split('T')[0]}`;
+          const body = [
+            '## 错误信息',
+            '',
+            `数据库自动更新在 ${new Date().toISOString()} 失败。`,
+            '',
+            '**运行信息：**',
+            `- Workflow: ${context.workflow}`,
+            `- Run ID: ${context.runId}`,
+            `- Run Number: ${context.runNumber}`,
+            '',
+            '**请查看：**',
+            `- [Workflow 运行日志](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`,
+            '',
+            '**可能的原因：**',
+            '1. Stata Journal 网站结构变更',
+            '2. CrossRef API 访问失败',
+            '3. 网络连接问题',
+            '4. 数据格式错误',
+          ].join('\n');
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['bug', 'auto-update']
+          });

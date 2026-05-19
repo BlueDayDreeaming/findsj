@@ -1,9 +1,10 @@
 {smcl}
-{* *! version 3.1  03feb2026}{...}
+{* *! version 3.2  18may2026}{...}
 {vieweralsosee "[R] search" "help search"}{...}
 {vieweralsosee "[R] net" "help net"}{...}
 {viewerjumpto "Syntax" "findsj##syntax"}{...}
 {viewerjumpto "Description" "findsj##description"}{...}
+{viewerjumpto "Installation" "findsj##installation"}{...}
 {viewerjumpto "Options" "findsj##options"}{...}
 {viewerjumpto "Examples" "findsj##examples"}{...}
 {viewerjumpto "Stored results" "findsj##results"}{...}
@@ -154,6 +155,27 @@ with four access buttons:
 {phang2}
 {bf:6. Smart Database} - Local database (findsj.dta) enables offline DOI lookup and faster 
 citation generation. Updates available from GitHub or Gitee (China mirror).
+
+
+{marker installation}{...}
+{title:Installation}
+
+{pstd}
+Install {cmd:findsj} from SSC with the {cmd:all} option so that the bundled
+database ({cmd:findsj.dta}) is downloaded together with the program files:
+
+{phang2}{cmd:. ssc install findsj, all replace}{p_end}
+
+{pstd}
+The {cmd:all} option is required because {cmd:findsj.dta} is an ancillary file.
+Without it, only {cmd:findsj.ado}, {cmd:findsj.sthlp}, and {cmd:getiref} are
+installed, and {cmd:findsj} must fetch DOI information online for every search.
+The {cmd:replace} option lets you re-run the same command to upgrade an existing
+installation.
+
+{pstd}
+To refresh the database later without reinstalling the package, use
+{cmd:findsj, update} (see {it:Database management} below).
 
 
 {marker options}{...}
