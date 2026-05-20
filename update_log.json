@@ -1,0 +1,62 @@
+{
+  "update_datetime": "2026-05-20T05:06:02.510347",
+  "total_articles": 1263,
+  "articles_with_doi": 1263,
+  "articles_with_citation": 1263,
+  "year_range": [
+    2001,
+    2026
+  ],
+  "top_cited": [
+    {
+      "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
+      "cited_by_count": 7258,
+      "year": 2009
+    },
+    {
+      "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
+      "cited_by_count": 2389,
+      "year": 2007
+    },
+    {
+      "title": "Estimation of Average Treatment Effects Based on Propensity Scores",
+      "cited_by_count": 1779,
+      "year": 2002
+    },
+    {
+      "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
+      "cited_by_count": 1764,
+      "year": 2012
+    },
+    {
+      "title": "Multiple Imputation of Missing Values",
+      "cited_by_count": 1752,
+      "year": 2004
+    },
+    {
+      "title": "Instrumental Variables and GMM: Estimation and Testing",
+      "cited_by_count": 1704,
+      "year": 2003
+    },
+    {
+      "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
+      "cited_by_count": 1610,
+      "year": 2006
+    },
+    {
+      "title": "Cem: Coarsened Exact Matching in Stata",
+      "cited_by_count": 1442,
+      "year": 2009
+    },
+    {
+      "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
+      "cited_by_count": 1346,
+      "year": 2008
+    },
+    {
+      "title": "Computing Interaction Effects and Standard Errors in Logit and Probit Models",
+      "cited_by_count": 1322,
+      "year": 2004
+    }
+  ]
+}

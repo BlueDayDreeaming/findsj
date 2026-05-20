@@ -1,0 +1,64 @@
+2026-05-20 04:59:46,248 - INFO - ============================================================
+2026-05-20 04:59:46,248 - INFO - Starting Stata Journal Database Update
+2026-05-20 04:59:46,248 - INFO - ============================================================
+2026-05-20 04:59:46,248 - INFO - 
+Step 1: Fetching article list from Stata Journal website...
+2026-05-20 04:59:46,248 - INFO - Fetching all articles from search page...
+2026-05-20 04:59:46,980 - INFO - Found 1263 articles (skipped 97 non-article entries)
+2026-05-20 04:59:46,981 - INFO - 
+Step 2: Fetching citation information from CrossRef API...
+2026-05-20 04:59:46,981 - INFO - Total articles to process: 1263
+2026-05-20 04:59:47,977 - WARNING - Rate limit hit for DOI 10.1177/1536867x261425793. Waiting 60 seconds...
+2026-05-20 04:59:49,433 - WARNING - Rate limit hit for DOI 10.1177/1536867x251398324. Waiting 60 seconds...
+2026-05-20 05:00:08,109 - INFO - Progress: 50/1263 articles processed
+2026-05-20 05:00:27,330 - INFO - Progress: 100/1263 articles processed
+2026-05-20 05:00:47,020 - INFO - Progress: 150/1263 articles processed
+2026-05-20 05:00:50,738 - WARNING - Rate limit hit for DOI 10.1177/1536867x221106359. Waiting 60 seconds...
+2026-05-20 05:00:56,747 - INFO - Progress: 200/1263 articles processed
+2026-05-20 05:01:07,378 - INFO - Progress: 250/1263 articles processed
+2026-05-20 05:01:16,720 - INFO - Progress: 300/1263 articles processed
+2026-05-20 05:01:26,013 - INFO - Progress: 350/1263 articles processed
+2026-05-20 05:01:35,034 - INFO - Progress: 400/1263 articles processed
+2026-05-20 05:01:39,460 - WARNING - Rate limit hit for DOI 10.1177/1536867x1801700409. Waiting 60 seconds...
+2026-05-20 05:01:49,501 - INFO - Progress: 450/1263 articles processed
+2026-05-20 05:01:59,780 - INFO - Progress: 500/1263 articles processed
+2026-05-20 05:02:07,720 - WARNING - Rate limit hit for DOI 10.1177/1536867x1501500406. Waiting 60 seconds...
+2026-05-20 05:02:10,224 - INFO - Progress: 550/1263 articles processed
+2026-05-20 05:02:29,091 - INFO - Progress: 600/1263 articles processed
+2026-05-20 05:02:40,922 - WARNING - Rate limit hit for DOI 10.1177/1536867x1401400311. Waiting 60 seconds...
+2026-05-20 05:02:46,765 - INFO - Progress: 650/1263 articles processed
+2026-05-20 05:03:05,690 - INFO - Progress: 700/1263 articles processed
+2026-05-20 05:03:16,337 - INFO - Progress: 750/1263 articles processed
+2026-05-20 05:03:23,432 - WARNING - Rate limit hit for DOI 10.1177/1536867x1201100404. Waiting 60 seconds...
+2026-05-20 05:03:28,156 - INFO - Progress: 800/1263 articles processed
+2026-05-20 05:03:44,256 - WARNING - Rate limit hit for DOI 10.1177/1536867x1001000310. Waiting 60 seconds...
+2026-05-20 05:04:03,471 - INFO - Progress: 900/1263 articles processed
+2026-05-20 05:04:22,526 - INFO - Progress: 950/1263 articles processed
+2026-05-20 05:04:32,525 - INFO - Progress: 1000/1263 articles processed
+2026-05-20 05:04:42,284 - INFO - Progress: 1050/1263 articles processed
+2026-05-20 05:04:44,563 - INFO - Progress: 850/1263 articles processed
+2026-05-20 05:04:48,094 - WARNING - Rate limit hit for DOI 10.1177/1536867x0500500412. Waiting 60 seconds...
+2026-05-20 05:04:50,280 - INFO - Progress: 1100/1263 articles processed
+2026-05-20 05:04:59,700 - INFO - Progress: 1150/1263 articles processed
+2026-05-20 05:05:02,035 - WARNING - Rate limit hit for DOI 10.1177/1536867x0400400203. Waiting 60 seconds...
+2026-05-20 05:05:22,094 - INFO - Progress: 1200/1263 articles processed
+2026-05-20 05:05:41,915 - INFO - Progress: 1250/1263 articles processed
+2026-05-20 05:06:02,419 - INFO - 
+Step 3: Saving to database files...
+2026-05-20 05:06:02,502 - INFO - ✅ Main database saved: /home/runner/work/findsj/findsj/findsj.dta
+2026-05-20 05:06:02,508 - INFO - ✅ Version info saved: /home/runner/work/findsj/findsj/findsj_version.dta
+2026-05-20 05:06:02,508 - INFO - 
+============================================================
+2026-05-20 05:06:02,508 - INFO - Database Update Summary
+2026-05-20 05:06:02,508 - INFO - ============================================================
+2026-05-20 05:06:02,508 - INFO - Total articles: 1263
+2026-05-20 05:06:02,508 - INFO - Year range: 2001 - 2026
+2026-05-20 05:06:02,509 - INFO - Articles with DOI: 1263
+2026-05-20 05:06:02,509 - INFO - Articles with authors: 1262
+2026-05-20 05:06:02,510 - INFO - Articles with abstract: 1038
+2026-05-20 05:06:02,510 - INFO - Average citations: 72.2
+2026-05-20 05:06:02,510 - INFO - Total citations: 91184
+2026-05-20 05:06:02,510 - INFO - ============================================================
+2026-05-20 05:06:02,513 - INFO - 📋 Update log saved: /home/runner/work/findsj/findsj/update_log.json
+2026-05-20 05:06:02,513 - INFO - 
+✅ Database update completed successfully!
