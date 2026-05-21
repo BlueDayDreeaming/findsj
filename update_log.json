@@ -1,5 +1,5 @@
 {
-  "update_datetime": "2026-05-20T05:06:02.510347",
+  "update_datetime": "2026-05-21T05:11:23.489675",
   "total_articles": 1263,
   "articles_with_doi": 1263,
   "articles_with_citation": 1263,
@@ -10,12 +10,12 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7258,
+      "cited_by_count": 7267,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2389,
+      "cited_by_count": 2390,
       "year": 2007
     },
     {
@@ -35,17 +35,17 @@
     },
     {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1704,
+      "cited_by_count": 1706,
       "year": 2003
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1610,
+      "cited_by_count": 1611,
       "year": 2006
     },
     {
       "title": "Cem: Coarsened Exact Matching in Stata",
-      "cited_by_count": 1442,
+      "cited_by_count": 1444,
       "year": 2009
     },
     {
