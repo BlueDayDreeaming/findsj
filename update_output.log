@@ -1,65 +1,64 @@
-2026-05-31 05:14:58,813 - INFO - ============================================================
-2026-05-31 05:14:58,813 - INFO - Starting Stata Journal Database Update
-2026-05-31 05:14:58,813 - INFO - ============================================================
-2026-05-31 05:14:58,813 - INFO - 
+2026-06-01 05:56:41,017 - INFO - ============================================================
+2026-06-01 05:56:41,017 - INFO - Starting Stata Journal Database Update
+2026-06-01 05:56:41,017 - INFO - ============================================================
+2026-06-01 05:56:41,017 - INFO - 
 Step 1: Fetching article list from Stata Journal website...
-2026-05-31 05:14:58,813 - INFO - Fetching all articles from search page...
-2026-05-31 05:14:59,492 - INFO - Found 1269 articles (skipped 98 non-article entries)
-2026-05-31 05:14:59,493 - INFO - 
+2026-06-01 05:56:41,017 - INFO - Fetching all articles from search page...
+2026-06-01 05:56:41,663 - INFO - Found 1269 articles (skipped 98 non-article entries)
+2026-06-01 05:56:41,664 - INFO - 
 Step 2: Fetching citation information from CrossRef API...
-2026-05-31 05:14:59,494 - INFO - Total articles to process: 1269
-2026-05-31 05:15:00,139 - WARNING - Rate limit hit for DOI 10.1177/1536867x261449932. Waiting 60 seconds...
-2026-05-31 05:15:00,708 - WARNING - Rate limit hit for DOI 10.1177/1536867x261449935. Waiting 60 seconds...
-2026-05-31 05:15:21,695 - INFO - Progress: 50/1269 articles processed
-2026-05-31 05:15:41,256 - INFO - Progress: 100/1269 articles processed
-2026-05-31 05:16:00,102 - INFO - Progress: 150/1269 articles processed
-2026-05-31 05:16:00,434 - WARNING - Rate limit hit for DOI 10.1177/1536867x221140944. Waiting 60 seconds...
-2026-05-31 05:16:04,933 - WARNING - Rate limit hit for DOI 10.1177/1536867x221124553. Waiting 60 seconds...
-2026-05-31 05:16:15,228 - INFO - Progress: 200/1269 articles processed
-2026-05-31 05:16:33,906 - INFO - Progress: 250/1269 articles processed
-2026-05-31 05:16:52,836 - INFO - Progress: 300/1269 articles processed
-2026-05-31 05:17:06,255 - INFO - Progress: 350/1269 articles processed
-2026-05-31 05:17:10,975 - WARNING - Rate limit hit for DOI 10.1177/1536867x1801800308. Waiting 60 seconds...
-2026-05-31 05:17:13,131 - INFO - Progress: 400/1269 articles processed
-2026-05-31 05:17:21,698 - WARNING - Rate limit hit for DOI 10.1177/1536867x1701700310. Waiting 60 seconds...
-2026-05-31 05:17:23,186 - INFO - Progress: 450/1269 articles processed
-2026-05-31 05:17:42,344 - INFO - Progress: 500/1269 articles processed
-2026-05-31 05:18:01,947 - INFO - Progress: 550/1269 articles processed
-2026-05-31 05:18:11,271 - WARNING - Rate limit hit for DOI 10.1177/1536867x1501500202. Waiting 60 seconds...
-2026-05-31 05:18:21,043 - INFO - Progress: 600/1269 articles processed
-2026-05-31 05:18:31,009 - INFO - Progress: 650/1269 articles processed
-2026-05-31 05:18:35,170 - WARNING - Rate limit hit for DOI 10.1177/1536867x1401400113. Waiting 60 seconds...
-2026-05-31 05:18:45,245 - INFO - Progress: 700/1269 articles processed
-2026-05-31 05:19:04,274 - INFO - Progress: 750/1269 articles processed
-2026-05-31 05:19:17,569 - INFO - Progress: 800/1269 articles processed
-2026-05-31 05:19:26,858 - INFO - Progress: 850/1269 articles processed
-2026-05-31 05:19:35,959 - INFO - Progress: 900/1269 articles processed
-2026-05-31 05:19:39,928 - WARNING - Rate limit hit for DOI 10.1177/1536867x0900900111. Waiting 60 seconds...
-2026-05-31 05:19:42,948 - INFO - Progress: 950/1269 articles processed
-2026-05-31 05:19:52,093 - INFO - Progress: 1000/1269 articles processed
-2026-05-31 05:19:58,652 - WARNING - Rate limit hit for DOI 10.1177/1536867x0600600403. Waiting 60 seconds...
-2026-05-31 05:20:03,928 - INFO - Progress: 1050/1269 articles processed
-2026-05-31 05:20:30,338 - INFO - Progress: 1100/1269 articles processed
-2026-05-31 05:20:44,736 - INFO - Progress: 1150/1269 articles processed
-2026-05-31 05:20:46,211 - WARNING - Rate limit hit for DOI 10.1177/1536867x0400400304. Waiting 60 seconds...
-2026-05-31 05:21:00,502 - INFO - Progress: 1200/1269 articles processed
-2026-05-31 05:21:09,782 - INFO - Progress: 1250/1269 articles processed
-2026-05-31 05:21:46,524 - INFO - 
+2026-06-01 05:56:41,664 - INFO - Total articles to process: 1269
+2026-06-01 05:56:42,269 - WARNING - Rate limit hit for DOI 10.1177/1536867x261449932. Waiting 60 seconds...
+2026-06-01 05:56:53,653 - INFO - Progress: 50/1269 articles processed
+2026-06-01 05:57:02,200 - WARNING - Rate limit hit for DOI 10.1177/1536867x241233642. Waiting 60 seconds...
+2026-06-01 05:57:08,918 - INFO - Progress: 100/1269 articles processed
+2026-06-01 05:57:32,894 - INFO - Progress: 150/1269 articles processed
+2026-06-01 05:57:49,941 - INFO - Progress: 200/1269 articles processed
+2026-06-01 05:58:01,914 - INFO - Progress: 250/1269 articles processed
+2026-06-01 05:58:10,115 - INFO - Progress: 300/1269 articles processed
+2026-06-01 05:58:17,579 - WARNING - Rate limit hit for DOI 10.1177/1536867x19874261. Waiting 60 seconds...
+2026-06-01 05:58:19,217 - INFO - Progress: 350/1269 articles processed
+2026-06-01 05:58:31,284 - INFO - Progress: 400/1269 articles processed
+2026-06-01 05:58:32,249 - WARNING - Rate limit hit for DOI 10.1177/1536867x1801800212. Waiting 60 seconds...
+2026-06-01 05:58:54,559 - INFO - Progress: 450/1269 articles processed
+2026-06-01 05:59:23,301 - INFO - Progress: 500/1269 articles processed
+2026-06-01 05:59:41,134 - INFO - Progress: 550/1269 articles processed
+2026-06-01 05:59:48,968 - INFO - Progress: 600/1269 articles processed
+2026-06-01 05:59:56,922 - INFO - Progress: 650/1269 articles processed
+2026-06-01 06:00:04,671 - WARNING - Rate limit hit for DOI 10.1177/1536867x1301300301. Waiting 60 seconds...
+2026-06-01 06:00:07,473 - INFO - Progress: 700/1269 articles processed
+2026-06-01 06:00:11,074 - WARNING - Rate limit hit for DOI 10.1177/1536867x1301300214. Waiting 60 seconds...
+2026-06-01 06:00:27,976 - INFO - Progress: 750/1269 articles processed
+2026-06-01 06:00:52,657 - INFO - Progress: 800/1269 articles processed
+2026-06-01 06:01:11,517 - INFO - Progress: 850/1269 articles processed
+2026-06-01 06:01:19,411 - INFO - Progress: 900/1269 articles processed
+2026-06-01 06:01:27,374 - INFO - Progress: 950/1269 articles processed
+2026-06-01 06:01:36,296 - INFO - Progress: 1000/1269 articles processed
+2026-06-01 06:01:42,686 - WARNING - Rate limit hit for DOI 10.1177/1536867x0600600406. Waiting 60 seconds...
+2026-06-01 06:01:45,812 - INFO - Progress: 1050/1269 articles processed
+2026-06-01 06:01:49,845 - WARNING - Rate limit hit for DOI 10.1177/1536867x0600600208. Waiting 60 seconds...
+2026-06-01 06:02:06,657 - INFO - Progress: 1100/1269 articles processed
+2026-06-01 06:02:32,221 - INFO - Progress: 1150/1269 articles processed
+2026-06-01 06:02:49,535 - INFO - Progress: 1200/1269 articles processed
+2026-06-01 06:02:50,681 - WARNING - Rate limit hit for DOI 10.1177/1536867x0300300303. Waiting 60 seconds...
+2026-06-01 06:02:59,966 - WARNING - Rate limit hit for DOI 10.1177/1536867x0200200201. Waiting 60 seconds...
+2026-06-01 06:03:02,896 - INFO - Progress: 1250/1269 articles processed
+2026-06-01 06:04:00,343 - INFO - 
 Step 3: Saving to database files...
-2026-05-31 05:21:46,604 - INFO - ✅ Main database saved: /home/runner/work/findsj/findsj/findsj.dta
-2026-05-31 05:21:46,610 - INFO - ✅ Version info saved: /home/runner/work/findsj/findsj/findsj_version.dta
-2026-05-31 05:21:46,610 - INFO - 
+2026-06-01 06:04:00,430 - INFO - ✅ Main database saved: /home/runner/work/findsj/findsj/findsj.dta
+2026-06-01 06:04:00,436 - INFO - ✅ Version info saved: /home/runner/work/findsj/findsj/findsj_version.dta
+2026-06-01 06:04:00,436 - INFO - 
 ============================================================
-2026-05-31 05:21:46,610 - INFO - Database Update Summary
-2026-05-31 05:21:46,610 - INFO - ============================================================
-2026-05-31 05:21:46,610 - INFO - Total articles: 1269
-2026-05-31 05:21:46,610 - INFO - Year range: 2001 - 2026
-2026-05-31 05:21:46,611 - INFO - Articles with DOI: 1269
-2026-05-31 05:21:46,611 - INFO - Articles with authors: 1268
-2026-05-31 05:21:46,611 - INFO - Articles with abstract: 1044
-2026-05-31 05:21:46,612 - INFO - Average citations: 72.0
-2026-05-31 05:21:46,612 - INFO - Total citations: 91416
-2026-05-31 05:21:46,612 - INFO - ============================================================
-2026-05-31 05:21:46,615 - INFO - 📋 Update log saved: /home/runner/work/findsj/findsj/update_log.json
-2026-05-31 05:21:46,615 - INFO - 
+2026-06-01 06:04:00,436 - INFO - Database Update Summary
+2026-06-01 06:04:00,436 - INFO - ============================================================
+2026-06-01 06:04:00,436 - INFO - Total articles: 1269
+2026-06-01 06:04:00,436 - INFO - Year range: 0 - 2026
+2026-06-01 06:04:00,437 - INFO - Articles with DOI: 1266
+2026-06-01 06:04:00,437 - INFO - Articles with authors: 1265
+2026-06-01 06:04:00,437 - INFO - Articles with abstract: 1041
+2026-06-01 06:04:00,437 - INFO - Average citations: 71.9
+2026-06-01 06:04:00,437 - INFO - Total citations: 91264
+2026-06-01 06:04:00,437 - INFO - ============================================================
+2026-06-01 06:04:00,440 - INFO - 📋 Update log saved: /home/runner/work/findsj/findsj/update_log.json
+2026-06-01 06:04:00,440 - INFO - 
 ✅ Database update completed successfully!

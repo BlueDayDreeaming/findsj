@@ -1,10 +1,10 @@
 {
-  "update_datetime": "2026-05-31T05:21:46.612382",
+  "update_datetime": "2026-06-01T06:04:00.437905",
   "total_articles": 1269,
-  "articles_with_doi": 1269,
-  "articles_with_citation": 1269,
+  "articles_with_doi": 1266,
+  "articles_with_citation": 1266,
   "year_range": [
-    2001,
+    0,
     2026
   ],
   "top_cited": [
