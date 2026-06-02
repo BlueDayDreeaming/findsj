@@ -1,31 +1,31 @@
 {
-  "update_datetime": "2026-06-01T06:04:00.437905",
+  "update_datetime": "2026-06-02T05:33:44.894813",
   "total_articles": 1269,
-  "articles_with_doi": 1266,
-  "articles_with_citation": 1266,
+  "articles_with_doi": 1269,
+  "articles_with_citation": 1269,
   "year_range": [
-    0,
+    2001,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7286,
+      "cited_by_count": 7293,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2397,
+      "cited_by_count": 2401,
       "year": 2007
     },
     {
       "title": "Estimation of Average Treatment Effects Based on Propensity Scores",
-      "cited_by_count": 1782,
+      "cited_by_count": 1783,
       "year": 2002
     },
     {
       "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
-      "cited_by_count": 1769,
+      "cited_by_count": 1771,
       "year": 2012
     },
     {
@@ -45,7 +45,7 @@
     },
     {
       "title": "Cem: Coarsened Exact Matching in Stata",
-      "cited_by_count": 1444,
+      "cited_by_count": 1446,
       "year": 2009
     },
     {
