@@ -1,5 +1,5 @@
 {
-  "update_datetime": "2026-06-02T05:33:44.894813",
+  "update_datetime": "2026-06-03T06:07:12.738349",
   "total_articles": 1269,
   "articles_with_doi": 1269,
   "articles_with_citation": 1269,
@@ -10,12 +10,12 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7293,
+      "cited_by_count": 7299,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2401,
+      "cited_by_count": 2413,
       "year": 2007
     },
     {
@@ -25,7 +25,7 @@
     },
     {
       "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
-      "cited_by_count": 1771,
+      "cited_by_count": 1772,
       "year": 2012
     },
     {
@@ -35,17 +35,17 @@
     },
     {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1707,
+      "cited_by_count": 1710,
       "year": 2003
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1612,
+      "cited_by_count": 1613,
       "year": 2006
     },
     {
       "title": "Cem: Coarsened Exact Matching in Stata",
-      "cited_by_count": 1446,
+      "cited_by_count": 1447,
       "year": 2009
     },
     {
@@ -55,7 +55,7 @@
     },
     {
       "title": "Computing Interaction Effects and Standard Errors in Logit and Probit Models",
-      "cited_by_count": 1323,
+      "cited_by_count": 1324,
       "year": 2004
     }
   ]
