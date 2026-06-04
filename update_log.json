@@ -1,5 +1,5 @@
 {
-  "update_datetime": "2026-06-03T06:07:12.738349",
+  "update_datetime": "2026-06-04T05:59:26.669924",
   "total_articles": 1269,
   "articles_with_doi": 1269,
   "articles_with_citation": 1269,
@@ -10,12 +10,12 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7299,
+      "cited_by_count": 7306,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2413,
+      "cited_by_count": 2417,
       "year": 2007
     },
     {
@@ -45,12 +45,12 @@
     },
     {
       "title": "Cem: Coarsened Exact Matching in Stata",
-      "cited_by_count": 1447,
+      "cited_by_count": 1452,
       "year": 2009
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1350,
+      "cited_by_count": 1353,
       "year": 2008
     },
     {
