@@ -1,16 +1,16 @@
 {
-  "update_datetime": "2026-06-07T05:25:27.477265",
+  "update_datetime": "2026-06-08T05:34:16.742665",
   "total_articles": 1269,
-  "articles_with_doi": 1268,
-  "articles_with_citation": 1268,
+  "articles_with_doi": 1269,
+  "articles_with_citation": 1269,
   "year_range": [
-    0,
+    2001,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7330,
+      "cited_by_count": 7332,
       "year": 2009
     },
     {
