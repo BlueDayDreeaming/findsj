@@ -1,21 +1,21 @@
 {
-  "update_datetime": "2026-06-08T05:34:16.742665",
+  "update_datetime": "2026-06-09T05:08:11.814601",
   "total_articles": 1269,
-  "articles_with_doi": 1269,
-  "articles_with_citation": 1269,
+  "articles_with_doi": 1267,
+  "articles_with_citation": 1267,
   "year_range": [
-    2001,
+    0,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7332,
+      "cited_by_count": 7335,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2427,
+      "cited_by_count": 2428,
       "year": 2007
     },
     {
@@ -30,7 +30,7 @@
     },
     {
       "title": "Multiple Imputation of Missing Values",
-      "cited_by_count": 1752,
+      "cited_by_count": 1753,
       "year": 2004
     },
     {
@@ -40,7 +40,7 @@
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1615,
+      "cited_by_count": 1616,
       "year": 2006
     },
     {
@@ -50,7 +50,7 @@
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1353,
+      "cited_by_count": 1354,
       "year": 2008
     },
     {
