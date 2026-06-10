@@ -1,5 +1,5 @@
 {
-  "update_datetime": "2026-06-09T05:08:11.814601",
+  "update_datetime": "2026-06-10T05:18:16.686942",
   "total_articles": 1269,
   "articles_with_doi": 1267,
   "articles_with_citation": 1267,
@@ -10,17 +10,17 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7335,
+      "cited_by_count": 7338,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2428,
+      "cited_by_count": 2431,
       "year": 2007
     },
     {
       "title": "Estimation of Average Treatment Effects Based on Propensity Scores",
-      "cited_by_count": 1783,
+      "cited_by_count": 1784,
       "year": 2002
     },
     {
@@ -35,7 +35,7 @@
     },
     {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1711,
+      "cited_by_count": 1712,
       "year": 2003
     },
     {
