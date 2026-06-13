@@ -1,21 +1,21 @@
 {
-  "update_datetime": "2026-06-12T05:34:37.989622",
+  "update_datetime": "2026-06-13T05:25:12.855603",
   "total_articles": 1269,
-  "articles_with_doi": 1269,
-  "articles_with_citation": 1269,
+  "articles_with_doi": 1262,
+  "articles_with_citation": 1262,
   "year_range": [
-    2001,
+    0,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7352,
+      "cited_by_count": 7358,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2436,
+      "cited_by_count": 2440,
       "year": 2007
     },
     {
@@ -25,7 +25,7 @@
     },
     {
       "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
-      "cited_by_count": 1777,
+      "cited_by_count": 1779,
       "year": 2012
     },
     {
@@ -35,7 +35,7 @@
     },
     {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1713,
+      "cited_by_count": 1714,
       "year": 2003
     },
     {
