@@ -1,5 +1,5 @@
 {
-  "update_datetime": "2026-06-14T05:33:56.533546",
+  "update_datetime": "2026-06-15T06:24:36.819278",
   "total_articles": 1269,
   "articles_with_doi": 1269,
   "articles_with_citation": 1269,
@@ -50,7 +50,7 @@
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1354,
+      "cited_by_count": 1355,
       "year": 2008
     },
     {
