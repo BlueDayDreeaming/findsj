@@ -1,16 +1,16 @@
 {
-  "update_datetime": "2026-06-16T06:37:23.672705",
+  "update_datetime": "2026-06-17T06:12:53.714390",
   "total_articles": 1269,
   "articles_with_doi": 1269,
-  "articles_with_citation": 1269,
+  "articles_with_citation": 1268,
   "year_range": [
-    2001,
+    0,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7369,
+      "cited_by_count": 7371,
       "year": 2009
     },
     {
@@ -25,7 +25,7 @@
     },
     {
       "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
-      "cited_by_count": 1782,
+      "cited_by_count": 1783,
       "year": 2012
     },
     {
@@ -45,12 +45,12 @@
     },
     {
       "title": "Cem: Coarsened Exact Matching in Stata",
-      "cited_by_count": 1454,
+      "cited_by_count": 1457,
       "year": 2009
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1355,
+      "cited_by_count": 1356,
       "year": 2008
     },
     {
