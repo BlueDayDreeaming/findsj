@@ -1,16 +1,16 @@
 {
-  "update_datetime": "2026-06-18T05:57:37.134383",
+  "update_datetime": "2026-06-19T06:18:47.807202",
   "total_articles": 1269,
-  "articles_with_doi": 1269,
-  "articles_with_citation": 1269,
+  "articles_with_doi": 1268,
+  "articles_with_citation": 1268,
   "year_range": [
-    2001,
+    0,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7378,
+      "cited_by_count": 7380,
       "year": 2009
     },
     {
@@ -20,7 +20,7 @@
     },
     {
       "title": "Estimation of Average Treatment Effects Based on Propensity Scores",
-      "cited_by_count": 1786,
+      "cited_by_count": 1788,
       "year": 2002
     },
     {
@@ -35,12 +35,12 @@
     },
     {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1715,
+      "cited_by_count": 1717,
       "year": 2003
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1618,
+      "cited_by_count": 1619,
       "year": 2006
     },
     {
@@ -50,7 +50,7 @@
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1356,
+      "cited_by_count": 1357,
       "year": 2008
     },
     {
