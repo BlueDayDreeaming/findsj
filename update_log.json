@@ -1,5 +1,5 @@
 {
-  "update_datetime": "2026-06-19T06:18:47.807202",
+  "update_datetime": "2026-06-20T05:14:46.323874",
   "total_articles": 1269,
   "articles_with_doi": 1268,
   "articles_with_citation": 1268,
@@ -10,12 +10,12 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7380,
+      "cited_by_count": 7385,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2444,
+      "cited_by_count": 2447,
       "year": 2007
     },
     {
@@ -25,12 +25,12 @@
     },
     {
       "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
-      "cited_by_count": 1783,
+      "cited_by_count": 1784,
       "year": 2012
     },
     {
       "title": "Multiple Imputation of Missing Values",
-      "cited_by_count": 1753,
+      "cited_by_count": 1754,
       "year": 2004
     },
     {
@@ -50,7 +50,7 @@
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1357,
+      "cited_by_count": 1358,
       "year": 2008
     },
     {
