@@ -1,16 +1,16 @@
 {
-  "update_datetime": "2026-06-20T05:14:46.323874",
+  "update_datetime": "2026-06-21T06:03:02.466980",
   "total_articles": 1269,
-  "articles_with_doi": 1268,
-  "articles_with_citation": 1268,
+  "articles_with_doi": 1269,
+  "articles_with_citation": 1269,
   "year_range": [
-    0,
+    2001,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7385,
+      "cited_by_count": 7389,
       "year": 2009
     },
     {
@@ -40,7 +40,7 @@
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1619,
+      "cited_by_count": 1620,
       "year": 2006
     },
     {
@@ -50,7 +50,7 @@
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1358,
+      "cited_by_count": 1359,
       "year": 2008
     },
     {
