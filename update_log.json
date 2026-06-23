@@ -1,8 +1,8 @@
 {
-  "update_datetime": "2026-06-22T06:30:48.088239",
+  "update_datetime": "2026-06-23T05:03:10.963814",
   "total_articles": 1269,
-  "articles_with_doi": 1266,
-  "articles_with_citation": 1266,
+  "articles_with_doi": 1268,
+  "articles_with_citation": 1268,
   "year_range": [
     0,
     2026
@@ -10,12 +10,12 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7390,
+      "cited_by_count": 7393,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2447,
+      "cited_by_count": 2450,
       "year": 2007
     },
     {
@@ -35,7 +35,7 @@
     },
     {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1717,
+      "cited_by_count": 1719,
       "year": 2003
     },
     {
@@ -55,7 +55,7 @@
     },
     {
       "title": "Computing Interaction Effects and Standard Errors in Logit and Probit Models",
-      "cited_by_count": 1328,
+      "cited_by_count": 1329,
       "year": 2004
     }
   ]
