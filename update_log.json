@@ -1,26 +1,26 @@
 {
-  "update_datetime": "2026-06-23T05:03:10.963814",
+  "update_datetime": "2026-06-24T05:07:10.534262",
   "total_articles": 1269,
-  "articles_with_doi": 1268,
-  "articles_with_citation": 1268,
+  "articles_with_doi": 1269,
+  "articles_with_citation": 1269,
   "year_range": [
-    0,
+    2001,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7393,
+      "cited_by_count": 7401,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2450,
+      "cited_by_count": 2454,
       "year": 2007
     },
     {
       "title": "Estimation of Average Treatment Effects Based on Propensity Scores",
-      "cited_by_count": 1788,
+      "cited_by_count": 1789,
       "year": 2002
     },
     {
@@ -40,7 +40,7 @@
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1620,
+      "cited_by_count": 1622,
       "year": 2006
     },
     {
