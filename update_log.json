@@ -1,21 +1,21 @@
 {
-  "update_datetime": "2026-06-24T05:07:10.534262",
+  "update_datetime": "2026-06-25T05:07:16.903578",
   "total_articles": 1269,
-  "articles_with_doi": 1269,
-  "articles_with_citation": 1269,
+  "articles_with_doi": 1266,
+  "articles_with_citation": 1266,
   "year_range": [
-    2001,
+    0,
     2026
   ],
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7401,
+      "cited_by_count": 7405,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2454,
+      "cited_by_count": 2455,
       "year": 2007
     },
     {
@@ -40,7 +40,7 @@
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1622,
+      "cited_by_count": 1623,
       "year": 2006
     },
     {
@@ -50,7 +50,7 @@
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1359,
+      "cited_by_count": 1360,
       "year": 2008
     },
     {
