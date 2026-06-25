@@ -166,7 +166,7 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
 	  TEXT   ///
 	  TXT    ///
 	  NOCLip ///
-    N(integer 10) ///
+    N(integer 9999) ///
 	ALLresults ///
     GETDOI ///
     SETPath(string) ///
@@ -1058,7 +1058,7 @@ global findsj_n_display `n_display'
 if `total_results' > `n_display' {
     dis _n as text "Showing " as result "`n_display'" as text " of " _c
     dis as text `"{stata "findsj `keywords', allresults":`total_results'}"' as text " results. " _c
-    dis as text "(" `"{browse "`url_sj'":web}"' as text ")"
+    dis as text "(" `"{browse "`url_sj'":all}"' as text ")"
 }
 
 * Note: Batch clipboard copy removed. Users can click individual "Ref" buttons to copy citations.
@@ -1090,8 +1090,8 @@ restore    //==================preserve over=================
 * Simplified: removed redundant messages per user request
 if `num_export' == 0 & `total_results' <= `n_display' {
     * Only show summary when all results are displayed
-    dis _n as text "Showing " as result "`n_display'" as text " of " as result "`total_results'" as text " results. " _c
-    dis as text "(" `"{browse "`url_sj'":web}"' as text ")"
+    dis _n as text "Showing " as result "`total_results'" as text " of " as result "`total_results'" as text " results. " _c
+    dis as text "(" `"{browse "`url_sj'":all}"' as text ")"
 }
 
 * Generate formatted citations if export format specified

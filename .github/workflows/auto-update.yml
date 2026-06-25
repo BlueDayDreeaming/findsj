@@ -1,9 +1,9 @@
 name: Auto Update Stata Journal Database
 
 on:
-  # 每天凌晨1点 UTC (北京时间上午9点) 运行
+  # 每月1日凌晨1点 UTC (北京时间上午9点) 运行
   schedule:
-    - cron: '0 1 * * *'
+    - cron: '0 1 1 * *'
 
   # 允许手动触发
   workflow_dispatch:
@@ -26,6 +26,15 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Keep workflow active (prevent GitHub auto-disable)
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        date -u > .github/last_run.txt
+        git add .github/last_run.txt
+        git diff --staged --quiet || git commit -m "chore: keep workflow active [skip ci]"
+        git push
 
     - name: Set up Python 3.10
       uses: actions/setup-python@v5
