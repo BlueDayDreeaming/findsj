@@ -18,48 +18,28 @@ Citing \emph{Stata Journal} (SJ) articles and installing their companion package
 \sloppy
 \frenchspacing
 
-\section{Introduction}
-\label{sec:intro}
+\section{Introduction} 
 
 The \emph{Stata Journal} (SJ) is a primary outlet for new commands, methods, and tutorials in the Stata ecosystem. For many users, working with this literature involves three related tasks: locating relevant articles, producing correctly formatted citations, and installing any companion software. At present, each task typically requires a different tool: a web browser for searching, a reference manager or manual formatting for citations, and Stata's \stcmd{ssc install} or \stcmd{net install} for packages.
 
-Although Stata provides commands that support parts of this workflow, none offers an integrated interface tailored specifically to the SJ corpus. Stata's built-in \stcmd{search} can return links to Stata Journal articles and other resources, but it is a general keyword search rather than an interface dedicated to systematically searching and citing the SJ corpus. For package installation, \stcmd{ssc install} and \stcmd{findit} are robust, but they require users to know (or guess) package names and do not address citation management. The companion command \stcmd{getiref} \citep{getiref} formats a citation from a DOI but presupposes that the user already knows that DOI; it offers no search and no package-install hint. As a result, searching the SJ archive is usually done in a web browser, outside Stata, followed by copying links and reformatting citations by hand---a sequence that introduces transcription errors in DOIs, author initials, and page ranges at every handoff. The contribution of \stcmd{findsj} is to combine, in a single command, four features that no existing tool provides together: SJ-specific search over a locally indexed metadata file, SMCL clickable links for article, PDF, Google Scholar and package installation, one-call batch citation export in Markdown, \LaTeX{} or plain text with automatic clipboard copying, and an online fallback that scrapes the SJ website when the local index is missing or stale.
+Although Stata provides commands that support parts of this workflow, none offers an integrated interface tailored specifically to the SJ corpus. Stata's built-in \stcmd{search} can return links to Stata Journal articles and other resources, but it is a general keyword search rather than an interface dedicated to systematically searching and citing the SJ corpus. For package installation, \stcmd{ssc install} and \stcmd{findit} are robust, but they require users to know (or guess) package names and do not address citation management. As a result, searching the SJ archive is usually done in a web browser, outside Stata, followed by copying links and reformatting citations by hand.
 
-We therefore introduce \stcmd{findsj}, a Stata command that searches the SJ archive by keyword or author name and displays results as clickable SMCL links. Each result includes links for opening the article's webpage, downloading the PDF\footnote{The PDF link points to the article record on the \emph{Stata Journal} / Sage website. Articles published outside the current paywall window are openly accessible, but recent issues typically require a Sage subscription or institutional access; in those cases the click opens the publisher's gated landing page rather than the full text. \stcmd{findsj} does not bypass these access controls.}, running a Google Scholar search, and installing the associated package.\footnote{\stcmd{findsj} provides package installation links based solely on the package name listed in the article metadata at the time of publication. It does not track subsequent package updates, name changes, or dependency requirements. Users should verify current package availability and dependencies using \stcmd{findit} or SSC when needed.} Users click a link to perform the action; no additional typing is required.
+We therefore introduce \stcmd{findsj}, a Stata command that searches the SJ archive by keyword or author name and displays results as clickable SMCL links. Each result includes links for opening the article's webpage, downloading the PDF, running a Google Scholar search, and installing the associated package.\footnote{\stcmd{findsj} provides package installation links based solely on the package name listed in the article metadata at the time of publication. It does not track subsequent package updates, name changes, or dependency requirements. Users should verify current package availability and dependencies using \stcmd{findit} or SSC when needed.} Users click a link to perform the action; no additional typing is required.
 
 We chose clickable links over command-line flags because most citation tasks are one-off: a user finds an article, clicks to copy the citation, and pastes it into a document. Typing \texttt{findsj <article\_id>, md} would require remembering (or looking up) article identifiers. The trade-off is that batch operations---such as exporting citations for 50 articles---are better handled via the \texttt{md} or \texttt{latex} options rather than through individual clicks.
 
-\stcmd{findsj} also provides citation export. For each matching article, the output includes download links for BibTeX and RIS files and a {\tt Ref} link that invokes \stcmd{getiref}\footnote{\stcmd{getiref} \citep{getiref} retrieves bibliographic metadata from a DOI. For example, {\tt getiref \textit{DOI}, md} produces a Markdown-formatted reference. \stcmd{getiref} is bundled with the \stcmd{findsj} package and installed automatically by {\tt ssc install findsj, all}, so no separate download or install prompt is required.} to produce formatted references in Markdown, \LaTeX, or plain text. The listing below shows a typical example: {\tt findsj did} returns matching SJ articles with links for viewing, downloading, citing, and installing. Each result block displays the article title, authors, year, journal volume/issue and page range, followed by a row of clickable SMCL items rendered here as plain words ({\tt Web}, {\tt PDF}, {\tt Google}, {\tt Install}) and the citation-format items ({\tt .md}, {\tt .latex}, {\tt .txt}, {\tt BibTeX}, {\tt RIS}).
+\stcmd{findsj} also provides citation export. For each matching article, the output includes download links for BibTeX and RIS files and a {\tt Ref} link that invokes \stcmd{getiref}\footnote{\stcmd{getiref} \citep{getiref} retrieves bibliographic metadata from a DOI. For example, {\tt getiref \textit{DOI}, md} produces a Markdown-formatted reference. \stcmd{getiref} is bundled with \stcmd{findsj} and is installed automatically when users install the package.} to produce formatted references in Markdown, \LaTeX, or plain text. Figure~\ref{fig:findsj_did} shows a typical example: {\tt findsj did} returns matching SJ articles with links for viewing, downloading, citing, and installing.
 
-\begin{stlog}
-. findsj did
-[1] On synthetic difference-in-differences and related estimation methods in Stata
-    Clarke, Damian; Pailañir, Daniel; Athey, Susan; Imbens, Guido
-    (2024). Stata Journal 24(4): 557-598
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[2] Fuzzy differences-in-differences with Stata
-    de Chaisemartin, Clément; D'Haultfœuille, Xavier; Guyonvarch, Yannick
-    (2019). Stata Journal 19(2): 435-458
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] Abadie's Semiparametric Difference-in-differences Estimator
-    Houngbedji, Kenneth (2016). Stata Journal 16(2): 482-490
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-   (output omitted)
-
-Showing 10 of 49 results.
-\end{stlog}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figure1.png}
+\caption{Example output from {\tt findsj did}. Each result includes clickable links for accessing the article webpage, PDF, Google Scholar, package installation, and citation tools (BibTeX, RIS, and formatted references).}
+\label{fig:findsj_did}
+\end{figure}
 
 The command relies on a local database of article metadata (including DOIs), which enables fast searches and allows the core search functionality to operate offline. Article metadata is updated monthly via a scheduled GitHub Action that scrapes the SJ website and commits changes to the repository.
 
-\stcmd{findsj} can be installed from SSC with
-
-\begin{stlog}
-. ssc install findsj, all
-\end{stlog}
-
-The {\tt all} option is required: a plain {\tt ssc install findsj} copies only the {\tt .ado} and {\tt .sthlp} files, whereas {\tt all} additionally installs the bundled metadata file {\tt findsj.dta} (which carries the article index used for offline search) and the helper command \stcmd{getiref} (used for citation formatting).
-
-The remainder of this article is organized as follows. Section~\ref{sec:syntax} describes the syntax and options and presents examples that progress from basic search to batch citation generation. Section~\ref{sec:example} works through a concrete example that quantifies the time \stcmd{findsj} saves. Section~\ref{sec:getiref} explains the integration with \stcmd{getiref}, which \stcmd{findsj} uses to generate formatted references. Section~\ref{sec:advanced} discusses database maintenance and download-path management. Section~\ref{sec:conclusion} concludes and outlines directions for future work.
+The remainder of this article is organized as follows. Section~\ref{sec:syntax} describes the syntax and options and presents examples that progress from basic search to batch citation generation. Section~\ref{sec:getiref} explains the integration with \stcmd{getiref}, which \stcmd{findsj} uses to generate formatted references. Section~\ref{sec:advanced} discusses database maintenance and download-path management. Section~\ref{sec:conclusion} concludes and outlines directions for future work.
 
 
 \section{Syntax and usage}\label{sec:syntax}
@@ -74,25 +54,15 @@ The remainder of this article is organized as follows. Section~\ref{sec:syntax} 
     \optional{,
         \underbar{a}uthor
         \underbar{t}itle
-        \underbar{k}eyword
         \underbar{n}(\#)
         allresults
         ref
         md
         markdown
         latex
-        tex
         plain
-        text
-        txt
         noclip
         getdoi}
-\end{stsyntax}
-
-\begin{stsyntax}
-    findsj
-    {\it art\_id},
-    \underbar{t}ype({\tt bib}$|${\tt ris})
 \end{stsyntax}
 
 \begin{stsyntax}
@@ -115,8 +85,6 @@ The remainder of this article is organized as follows. Section~\ref{sec:syntax} 
 
 \hangpara {\tt \underbar{t}itle} restricts the search to article titles only.
 
-\hangpara {\tt \underbar{k}eyword} is the default search scope and matches the query against article titles, author lists, and abstracts.
-
 \hangpara {\tt \underbar{n}(\#)} specifies the maximum number of results to display. The default is {\tt n(10)}.
 
 \hangpara {\tt allresults} displays all matching articles, overriding the {\tt n()} limit.
@@ -125,15 +93,13 @@ The remainder of this article is organized as follows. Section~\ref{sec:syntax} 
 
 \hangpara {\tt md} $|$ {\tt markdown} exports references in Markdown format. The text is written to {\tt \_findsj\_temp\_out\_.md} and copied to the clipboard.
 
-\hangpara {\tt latex} $|$ {\tt tex} exports references in \LaTeX\ format with {\tt \textbackslash href} links.
+\hangpara {\tt latex} exports references in \LaTeX\ format with {\tt \textbackslash href} links.
 
-\hangpara {\tt plain} $|$ {\tt text} $|$ {\tt txt} exports references in plain text format with full URLs.
+\hangpara {\tt plain} exports references in plain text format with full URLs.
 
 \hangpara {\tt noclip} suppresses automatic copying of exported references to the clipboard. This option only affects batch export operations when {\tt md}, {\tt latex}, or {\tt plain} is specified.
 
 \hangpara {\tt getdoi} displays DOI information directly in the search results. This option is invoked automatically when {\tt ref} is specified.
-
-\hangpara {\tt \underbar{t}ype({\tt bib}$|${\tt ris})} downloads the BibTeX ({\tt bib}) or RIS reference file for the article whose identifier is given as the first argument. This form takes an article identifier rather than a search query, so it is used as {\tt findsj st0377, type(bib)} when the user already knows the {\tt art\_id}; it is also the action invoked by clicking the {\tt BibTeX} or {\tt RIS} link in the results table.
 
 \hangpara {\tt update} is a shortcut for {\tt updatesource source(both)}. It updates the local article database ({\tt findsj.dta}) using intelligent source selection based on the user's language setting.
 
@@ -151,7 +117,7 @@ The remainder of this article is organized as follows. Section~\ref{sec:syntax} 
 
 In its simplest form, \stcmd{findsj} searches the SJ archive using the keywords supplied after the command. By default, \stcmd{findsj} performs case-insensitive substring matching against article titles, abstracts, and keywords. 
 
-Each result reports the article title, authors, and publication information and provides a row of clickable links for opening the article page, downloading the PDF, running a Google Scholar search, installing any associated package, and accessing citation tools, as illustrated by the {\tt findsj did} listing shown earlier in Section~\ref{sec:intro}.
+Each result reports the article title, authors, and publication information and provides a row of clickable links for opening the article page, downloading the PDF, running a Google Scholar search, installing any associated package, and accessing citation tools. Figure~\ref{fig:findsj_did} shows an example of the output format.
 
 To search author names only, specify the {\tt author} option; to search titles only, specify {\tt title}:
 
@@ -163,9 +129,6 @@ To search author names only, specify the {\tt author} option; to search titles o
   {\it (searching for "panel data" in titles only)}
 \end{stlog}
 
-\paragraph{Multi-word search semantics.}
-Multi-word queries use \textbf{AND} semantics with case-insensitive substring matching: \stcmd{findsj} treats the query as a list of whitespace-separated tokens and keeps an article only if every token appears as a substring of one of the searched fields. Order, adjacency, and word boundaries are not enforced. The query {\tt findsj panel data, title} therefore returns every article whose title contains both {\tt panel} and {\tt data} somewhere, including titles such as \emph{``Panel methods for longitudinal data''}; it is not interpreted as the exact phrase {\tt "panel data"}, and the two tokens need not be adjacent or in order. The default keyword scope additionally searches the abstract and the author list, while the {\tt author} scope matches only the first query token against the author list. Section~\ref{sec:search_procedure} documents the full search procedure---including how the local and online paths are selected, how common abbreviations are expanded, and how results are ranked---step by step.
-
 By default, \stcmd{findsj} displays up to 10 matches. Use {\tt n(\#)} to change this limit or {\tt allresults} to display all matches:
 
 \begin{stlog}
@@ -176,44 +139,6 @@ By default, \stcmd{findsj} displays up to 10 matches. Use {\tt n(\#)} to change 
   {\it (show all matches)}
 \end{stlog}
 
-\subsection{How \stcmd{findsj} resolves a query}
-\label{sec:search_procedure}
-
-Because search quality is central to the value of \stcmd{findsj}, we document here, step by step, how a query is turned into the displayed result set. \stcmd{findsj} follows two distinct paths depending on whether the local metadata file is available, and the matching rules differ between them.
-
-\paragraph{Local-first, online fallback.}
-\stcmd{findsj} first checks whether the local metadata file {\tt findsj.dta} is present (it is installed by {\tt ssc install findsj, all} and refreshed by {\tt findsj, update}). If the file is available, the search runs entirely against this local index and requires no network access. Only when {\tt findsj.dta} is absent---for example, when the {\tt all} option was omitted at install time---does \stcmd{findsj} fall back to an online search that queries the \emph{Stata Journal} website directly. The two paths produce results in the same display format; they differ in where the metadata comes from and, consequently, in which matching rules are feasible.
-
-\paragraph{Local search.}
-When {\tt findsj.dta} is available, the search executes in four steps.
-
-\begin{itemize}
-\item[] \emph{Step 1 (field normalization).} The {\tt title}, {\tt authors}, and {\tt abstract} fields are converted to lowercase so that all matching is case-insensitive.
-
-\item[] \emph{Step 2 (abbreviation expansion).} \stcmd{findsj} recognizes six common econometric abbreviations and prepares expanded forms for them: {\tt PSM}~$\rightarrow$~{\tt propensity score}, {\tt IV}~$\rightarrow$~{\tt instrumental variable}, {\tt DID}/{\tt DD}~$\rightarrow$~{\tt difference in differences}, {\tt RDD}/{\tt RD}~$\rightarrow$~{\tt regression discontinuity}, {\tt GMM}~$\rightarrow$~{\tt generalized method of moments}, and {\tt VAR}~$\rightarrow$~{\tt vector autoregression}.
-
-\item[] \emph{Step 3 (two-channel matching with priorities).} The first channel (priority~1) matches the original query tokens, with rules that depend on the search scope:
-the {\tt author} scope uses only the first query token and matches it as a substring of the author field;
-the {\tt title} scope requires every query token to appear as a substring of the title (AND across tokens);
-the {\tt keyword} scope (the default) requires every query token to appear in at least one of the title, author, or abstract fields (OR across fields, AND across tokens).
-The second channel (priority~2) runs only when an abbreviation was detected \emph{and} the scope is {\tt keyword}: the expanded phrase is matched across the same three fields, and any additional articles it finds are added to the result set at a lower priority, below the exact matches.
-
-\item[] \emph{Step 4 (sorting).} Results are sorted by match priority (exact matches first), then by publication year (newest first), and finally by volume and issue number in descending order.
-\end{itemize}
-
-\paragraph{Online search.}
-When {\tt findsj.dta} is not available, \stcmd{findsj} queries the \emph{Stata Journal} website directly in three steps.
-
-\begin{itemize}
-\item[] \emph{Step 1 (request).} \stcmd{findsj} builds the search URL from two parameters---{\tt choice} (the scope: {\tt keyword}, {\tt title}, or {\tt author}) and {\tt q} (the query)---and downloads the resulting HTML page to a temporary file with Stata's {\tt copy} command.
-
-\item[] \emph{Step 2 (parsing).} The HTML is read into Stata; only the result-entry lines (those carrying {\tt <dt>}/{\tt <td>} tags) are retained, and {\tt art\_id}, {\tt title}, {\tt author}, {\tt year}, {\tt volume}, and {\tt number} are extracted field by field with regular expressions. The DOI and page range are not parsed at this stage; they are initialized to a placeholder and fetched on demand only when the user clicks the corresponding link.
-
-\item[] \emph{Step 3 (display).} The extracted {\tt art\_id} is used to construct the article and PDF links, after which the online path joins the same display code used by the local path.
-\end{itemize}
-
-In the online path, matching and ranking are delegated to the \emph{Stata Journal} website's own search engine; the multi-word and abbreviation behavior described above for the local path therefore applies only when the search runs against {\tt findsj.dta}.
-
 \subsection{Citation management}
 \label{sec:citation}
 
@@ -221,66 +146,35 @@ Many users work across multiple writing and reference-management environments: m
 
 First, the {\tt BibTeX} and {\tt RIS} links in the results table download the corresponding citation files from the \emph{Stata Journal} website. The downloaded files are saved in the directory specified by {\tt setpath(\emph{path})} if the user has set a custom path; otherwise, they are saved in the current working directory {\tt c(pwd)} (see Section~\ref{sec:download_path}).
 
-Second, specifying the {\tt ref} option adds per-article format links (for example, {\tt .md}, {\tt .latex}, and {\tt .txt}). Clicking one of these links invokes \stcmd{getiref}, which queries the article's DOI and returns a formatted reference. For example, to cite the SJ article that introduces the \stcmd{wwwhelp} command \citep{wwwhelp}, we can run {\tt findsj wwwhelp, ref}; the listing below shows the resulting output. Adding {\tt ref} both displays the DOI and adds per-article citation-format items ({\tt .md}, {\tt .latex}, {\tt .txt}) that invoke \stcmd{getiref} to generate formatted references.
+Second, specifying the {\tt ref} option adds per-article format links (for example, {\tt .md}, {\tt .latex}, and {\tt .txt}). Clicking one of these links invokes \stcmd{getiref}, which queries the article's DOI and returns a formatted reference. For example, to cite the SJ article that introduces the \stcmd{wwwhelp} command \citep{wwwhelp}, we can run {\tt findsj wwwhelp, ref}; Figure~\ref{fig:findsj_ref} shows the resulting output.
 
-\begin{stlog}
-. findsj wwwhelp, ref
-[1] Browse and cite Stata manuals easily: The wwwhelp command
-    Chen, Yongli; Lian, Yujun (2024). Stata Journal 24(1): 161-168
-    DOI: 10.1177/1536867x241233676
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figure2.png}
+\caption{Example output from {\tt findsj wwwhelp, ref}. The {\tt ref} option adds per-article citation format links ({\tt .md}, {\tt .latex}, {\tt .txt}) that invoke \stcmd{getiref} to generate formatted references.}
+\label{fig:findsj_ref}
+\end{figure}
 
-Showing 1 of 1 results.
-\end{stlog}
+Clicking the {\tt .md} link calls \stcmd{getiref} to produce a Markdown-formatted reference; by default, the formatted text is also copied to the system clipboard. Figure~\ref{fig:getiref_md} shows an example.
 
-Clicking the {\tt .md} link calls \stcmd{getiref} to produce a Markdown-formatted reference; by default, the formatted text is also copied to the system clipboard. The output is shown below: the first block is the rendered citation with SMCL clickable items (rendered here as plain words {\tt Link}, {\tt PDF}, {\tt Google}), and the second block is the Markdown source---identical to what \stcmd{getiref} places on the clipboard.
-
-\begin{stlog}
-. getiref 10.1177/1536867X241233676, md
-
-Chen, Y., \& Lian, Y. (2024). Browse and cite Stata manuals easily: The wwwhelp
-> command. The Stata Journal, 24(1), 161--168.
-    Link    PDF    Google
-
-Chen, Y., \& Lian, Y. (2024). Browse and cite Stata manuals easily: The wwwhelp
-> command. The Stata Journal, 24(1), 161--168. [Link](https://journals.sagepub
-> .com/doi/10.1177/1536867X241233676), [PDF](https://journals.sagepub.com/doi/
-> pdf/10.1177/1536867X241233676), [Google](<https://scholar.google.com/scholar
-> ?q=Browse and cite Stata manuals easily: The wwwhelp command>).
-
-Tips: Text is on clipboard.
-\end{stlog}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figure3.png}
+\caption{Example output from {\tt getiref, md}. The formatted citation is displayed in the Results window and automatically copied to the clipboard.}
+\label{fig:getiref_md}
+\end{figure}
 
 \paragraph{Batch export.}
-\stcmd{findsj} can also export references for all search results in a chosen format. The {\tt md} (synonym {\tt markdown}) option writes Markdown-formatted references to the Results window and also saves them to {\tt \_findsj\_temp\_out\_.md}.\footnote{This file is written to Stata's current working directory and is overwritten by subsequent export operations.} By default, the exported text is also copied to the clipboard. The output additionally includes clickable links for opening the exported file and its directory. An example with {\tt n(2)} (limiting the search to two results) is shown below.
+\stcmd{findsj} can also export references for all search results in a chosen format. The {\tt md} (synonym {\tt markdown}) option writes Markdown-formatted references to the Results window and also saves them to {\tt \_findsj\_temp\_out\_.md}.\footnote{This file is written to Stata's current working directory and is overwritten by subsequent export operations.} By default, the exported text is also copied to the clipboard. Figure~\ref{fig:findsj_md} shows an example. The output additionally includes clickable links for opening the exported file and its directory.
 
 The {\tt latex} option exports \LaTeX\ format (including \verb|\href| links), and {\tt plain} exports plain text with full URLs.
 
-\begin{stlog}
-. findsj causal inference, md n(2)
-
-------------------------------------------------------------
-  Markdown format:
-------------------------------------------------------------
-
-1. Yan, Guanpeng; Chen, Qiang; Xiao, Zhijie (2025) Quantile control method:
-> Causal inference with one treated unit via random forest. The Stata Journal:
-> Promoting communications on statistics and Stata, 25(2): 407-437.
-> [Link](https://www.stata-journal.com/article.html?article=st0777),
-> [PDF](https://journals.sagepub.com/doi/pdf/10.1177/1536867x251341181),
-> [Google](https://scholar.google.com/scholar?q=Quantile\%20control\%20method)
-2. Estrada, Pablo; Estrada, Juan; Huynh, Kim P.; Jacho-Chávez, David;
-> Sánchez-Aragón, Leonardo (2025) netivreg: Estimation of peer effects in
-> endogenous social networks. The Stata Journal: Promoting communications on
-> statistics and Stata, 25(2): 344-373.
-> [Link](https://www.stata-journal.com/article.html?article=st0775),
-> [PDF](https://journals.sagepub.com/doi/pdf/10.1177/1536867x251341145),
-> [Google](https://scholar.google.com/scholar?q=netivreg)
-
-----------------------------------------------------------
-  View        Open_Mac       Open_Win          dir
-----------------------------------------------------------
-\end{stlog}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figure4.png}
+\caption{Example output from {\tt findsj causal inference, md n(2)}. Batch export writes all matching references to a file and copies them to the clipboard.}
+\label{fig:findsj_md}
+\end{figure}
 
 \paragraph{Clipboard support.}
 By default, \stcmd{findsj} copies exported references to the clipboard when batch export formats ({\tt md}, {\tt latex}, or {\tt plain}) are used. Operating-system-specific helper scripts handle this functionality (PowerShell on Windows and {\tt pbcopy} on macOS). These scripts also manage file downloads when users click BibTeX or RIS download links. Users can disable clipboard copying with the {\tt noclip} option.
@@ -288,66 +182,31 @@ By default, \stcmd{findsj} copies exported references to the clipboard when batc
 \paragraph{DOI retrieval.}
 The {\tt getdoi} option displays DOI information directly in the search results, which is useful for quickly identifying articles by their DOIs. This option is invoked automatically when {\tt ref} is specified.
 
-\section{A worked example: citing ten articles}
-\label{sec:example}
-
-To make the work savings concrete, consider a representative task: assembling a formatted reference list for the ten articles returned by a single search. The gain over a fully manual workflow is both structural and quantitative. Table~\ref{tab:time_comparison} contrasts the two approaches.\footnote{The times are illustrative approximations timed informally on a typical broadband connection; they exclude the time spent reading results and deciding which articles to keep. The manual total grows roughly linearly with the number of articles, whereas the \stcmd{findsj} total is essentially constant.} Working in a browser, the user repeats, for every article, a sequence of open-page, open-export, copy, and paste actions, and must separately run a {\tt findit} or {\tt ssc} query whenever a companion package is also needed; the same task with \stcmd{findsj} is a single command that lists all ten references, saves them to a file, and copies them to the clipboard. For ten articles this is on the order of two minutes of manual clicking versus around two seconds---roughly a fiftyfold reduction that widens as the list grows.
-
-\begin{table}[htbp]
-\centering
-\caption{Illustrative time to assemble a formatted reference list for 10 \emph{Stata Journal} articles}
-\label{tab:time_comparison}
-\begin{tabularx}{\textwidth}{@{}rXr@{}}
-\hline
- & Step & Time \\
-\hline
-\multicolumn{3}{@{}l}{\emph{Manual browser workflow}} \\
-1 & Open the web browser & 2~s \\
-2 & Open the \emph{Stata Journal} website & 2~s \\
-3 & Run the search & 2~s \\
-4 & For each of the 10 articles: open the article page, open its citation-export page, copy the citation, and paste it into the notes file ($\sim$11~s $\times$ 10) & 110~s \\
-5 & If a companion package is needed, return to Stata and run {\tt findit} or {\tt ssc install} & +10~s each \\
- & \textbf{Total} & \textbf{$\sim$116~s} \\
-\hline
-\multicolumn{3}{@{}l}{\emph{\stcmd{findsj} workflow}} \\
-1 & {\tt findsj causal inference, txt}---all 10 formatted references are listed, saved to a file, and copied to the clipboard in one call & 2~s \\
- & \textbf{Total} & \textbf{$\sim$2~s} \\
-\hline
-\end{tabularx}
-\end{table}
-
-Beyond the reduction in step count, every transition in the manual sequence is a potential transcription-error site---DOIs, author initials, page ranges, and package names are precisely the fields that are easy to corrupt by hand---whereas the \stcmd{findsj} path emits the same metadata that fed the search, so transcription errors are eliminated by construction.
-
 
 \section{Integration with getiref}
 \label{sec:getiref}
 
-The citation functionality in \stcmd{findsj} relies on \stcmd{getiref} \citep{getiref}, a general-purpose command---also written by the first author---that retrieves citation metadata from DOIs. When users click the {\tt .md}, {\tt .latex}, or {\tt .txt} links in search results, \stcmd{findsj} invokes \stcmd{getiref} behind the scenes. \stcmd{getiref} is distributed together with \stcmd{findsj}, so it is available immediately after installation; no separate download is required.
+The citation functionality in \stcmd{findsj} relies on \stcmd{getiref} \citep{getiref}, a general-purpose command that retrieves citation metadata from DOIs. When users click the {\tt .md}, {\tt .latex}, or {\tt .txt} links in search results, \stcmd{findsj} invokes \stcmd{getiref} behind the scenes. \stcmd{getiref} is distributed together with \stcmd{findsj}, so it is available immediately after installation; no separate download is required.
 
 We integrated with \stcmd{getiref} rather than implementing custom citation formatting because \stcmd{getiref} already handles DOI lookups and multiple output formats; reusing it avoids duplicating code and ensures consistent output across tools.
 
-Beyond its role in \stcmd{findsj}, \stcmd{getiref} can be used independently with any academic article having a DOI. Given a DOI, it returns a formatted citation with clickable links to the article page, PDF, and Google Scholar, as illustrated below.
+Beyond its role in \stcmd{findsj}, \stcmd{getiref} can be used independently with any academic article having a DOI. Given a DOI, it returns a formatted citation with clickable links to the article page, PDF, and Google Scholar, as shown in Figure~\ref{fig:getiref}.
 
-\begin{stlog}
-. getiref 10.1177/1536867X20976325
-
-Schwab, B., Janzen, S., Magnan, N. P., \& Thompson, W. M. (2020). Constructing
-> a summary index using the standardized inverse-covariance weighted average
-> of indicators. The Stata Journal, 20(4), 952--964.
-    Link    PDF    Google
-
-Tips: Text is on clipboard.
-\end{stlog}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figure5.png}
+\caption{Basic usage of \stcmd{getiref}. The command accepts a DOI and returns a formatted citation with clickable links to the article, PDF, and Google Scholar.}
+\label{fig:getiref}
+\end{figure}
 
 The {\tt md}, {\tt latex}, and {\tt txt} options produce Markdown, \LaTeX, and plain text formats respectively. For detailed documentation and batch processing examples, see the package repository at \url{https://github.com/arlionn/getiref}.
 
 
 \section{Database maintenance and configuration}\label{sec:advanced}
 
-This section describes three aspects of \stcmd{findsj} that affect its long-term usability. Section~\ref{sec:db_updates} explains how the article database is maintained and updated. Section~\ref{sec:download_path} discusses options for managing where downloaded citation files are stored. Section~\ref{sec:maintenance} addresses long-term maintainability, including the online fallback that keeps \stcmd{findsj} operational when the local database is missing or stale, the monthly synchronization between the GitHub repository and the SSC distribution, and the failure modes that follow from depending on web scraping and OS-specific helper scripts.
+This section describes two aspects of \stcmd{findsj}'s configuration that affect its long-term usability. Section~\ref{sec:advanced} explains how the article database is maintained and updated, and Section~\ref{sec:download_path} discusses options for managing where downloaded citation files are stored.
 
 \subsection{Database structure and updates}
-\label{sec:db_updates}
 
 \stcmd{findsj} maintains a local Stata dataset ({\tt findsj.dta}) containing metadata for all \emph{Stata Journal} articles. Table~\ref{tab:database_structure} shows the database structure. The dataset includes article identifiers, title, author information, volume, issue, page range, publication year, DOI, URLs, abstract, and citation metrics.
 
@@ -382,24 +241,14 @@ Variable & Type & Description \\
 
 A scheduled GitHub Action scrapes the SJ website monthly and commits any changes to the repository; users obtain updates by running {\tt findsj, update}. The local database is designed to accelerate searches and enable offline functionality; however, the command remains operational even when the database does not include the most recent articles. When an article is not found in the local database, \stcmd{findsj} can retrieve the required metadata directly from the internet.
 
-Running {\tt findsj, updatesource} without arguments displays an interactive menu of download sources, shown in the listing below. Users can click a source link or specify {\tt source(github)}, {\tt source(gitee)}, or {\tt source(both)} to download the latest {\tt findsj.dta}. The {\tt source(both)} option uses intelligent language detection based on Stata's {\tt c(locale\_ui)} setting: for Chinese users ({\tt zh\_CN}), it tries Gitee first; for other users, it tries GitHub first.\footnote{Gitee is a code hosting platform based in China. This ordering ensures optimal download speed for users in different regions.} If the first source succeeds, the update completes immediately; if it fails (for example, due to a network timeout), the command automatically falls back to the alternative source. The shortcut {\tt findsj, update} is equivalent to {\tt findsj, updatesource source(both)}.
+Running {\tt findsj, updatesource} without arguments displays an interactive menu of download sources (Figure~\ref{fig:findsj_update}). Users can click a source link or specify {\tt source(github)}, {\tt source(gitee)}, or {\tt source(both)} to download the latest {\tt findsj.dta}. The {\tt source(both)} option uses intelligent language detection based on Stata's {\tt c(locale\_ui)} setting: for Chinese users ({\tt zh\_CN}), it tries Gitee first; for other users, it tries GitHub first.\footnote{Gitee is a code hosting platform based in China. This ordering ensures optimal download speed for users in different regions.} If the first source succeeds, the update completes immediately; if it fails (for example, due to a network timeout), the command automatically falls back to the alternative source. The shortcut {\tt findsj, update} is equivalent to {\tt findsj, updatesource source(both)}.
 
-\begin{stlog}
-. findsj, updatesource
-----------------------------------------------------------------------
-  Stata Journal Database Update
-----------------------------------------------------------------------
-
-Database location: /Applications/Stata/plus/f/findsj.dta
-
-Download source options:
-  github = GitHub
-  gitee  = Gitee (Fallback when GitHub is unavailable)
-  both   = Try both (auto-detect language)
-
-Click on a source above to download.
-----------------------------------------------------------------------
-\end{stlog}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figure6.png}
+\caption{Output of {\tt findsj, updatesource}. The command displays an interactive menu with clickable links for downloading the latest database from available sources.}
+\label{fig:findsj_update}
+\end{figure}
 
 If the network is unavailable or both sources fail, \stcmd{findsj} displays an error message (for example, ``Download failed. Please check your network connection.'') and leaves the existing database unchanged. Users can continue searching with the older data; only newly published articles will be missing.
 
@@ -433,20 +282,6 @@ The {\tt (default)} label indicates that no custom path has been set, and downlo
 . findsj, resetpath
 Download path reset to default (current working directory)
 \end{stlog}
-
-\subsection{Long-term maintenance and limitations}
-\label{sec:maintenance}
-
-\stcmd{findsj} relies on several external mechanisms---web scraping of the \emph{Stata Journal} website, OS-specific helper scripts for downloading and clipboard handling, the {\tt shell} command, and the bundled \stcmd{getiref}. Each of these is a potential point of failure if the SJ site is restructured, if a security policy disables {\tt shell}, or if a future Stata release changes the helper-script interface. We disclose these dependencies explicitly and discuss how the command degrades when they break.
-
-\paragraph{Online fallback when the local database is missing or stale.}
-The local {\tt findsj.dta} is an optimization, not a hard requirement. When an article is absent from the local database (for example, because the user has not run {\tt findsj, update} since a new issue was published, or because the {\tt all} option was omitted at install time and only the {\tt .ado} file is present), \stcmd{findsj} retrieves the required metadata directly from the SJ website. Search and citation export therefore continue to function, with a small latency penalty, even when the local index is empty. Operations that intrinsically require connectivity---live PDF downloads, BibTeX/RIS file retrieval, and database updates---return a clear error message rather than failing silently when the network is unavailable, and they leave the existing local state untouched.
-
-\paragraph{Monthly synchronization with SSC.}
-A scheduled GitHub Actions workflow ({\tt .github/workflows/auto-update.yml}) re-scrapes the SJ archive every month, regenerates {\tt findsj.dta} and {\tt findsj\_version.dta}, and commits the updated files to both the GitHub and Gitee mirrors. When the workflow detects that the regenerated dataset differs materially from the previous version, it opens a tracking issue in the repository and notifies Prof.\ Christopher F.\ Baum so that the SSC distribution can be refreshed in step. This keeps the SSC copy of {\tt findsj.dta} aligned with the live SJ archive without requiring users to migrate to a non-SSC source. If the workflow itself fails (for example, because the SJ site has been restructured), the same automation files an issue against the repository so that maintainers are alerted before the failure reaches end users.
-
-\paragraph{Disclosed fragility and failure modes.}
-We acknowledge the following limitations. First, the metadata pipeline depends on the HTML structure of the SJ website; substantial changes to that structure require a corresponding update to {\tt auto\_update.py}. Second, the clipboard and download helpers are OS-specific (PowerShell on Windows, {\tt curl} and {\tt pbcopy} on macOS, {\tt curl} and {\tt xclip} or {\tt xsel} on Linux); environments that disable {\tt shell} execution lose clipboard auto-copy and direct file download but retain search, in-Results-window display, and formatted reference output (equivalent to running with {\tt noclip}). Third, the package bundles \stcmd{getiref}, so a breaking change to \stcmd{getiref}'s public interface would also affect \stcmd{findsj}; pinning the bundled copy to the version shipped with each \stcmd{findsj} release insulates users from upstream changes between releases. Fourth, the target user base is researchers who routinely cite SJ articles in their writing; the contribution is the integrated SMCL workflow over that corpus, not a general-purpose bibliographic engine.
 
 
 \section{Conclusion}
