@@ -2383,26 +2383,26 @@ program define findsj_check_update
             exit
         }
         
-        * Check last_update date from version file
+        * Check update_date from version file
         preserve
         quietly use "`version_file_path'", clear
         
-        * Get last_update variable (format: YYYY-MM-DD or similar)
-        capture confirm variable last_update
+        * Get update_date variable (format: YYYY-MM-DD or similar)
+        capture confirm variable update_date
         if _rc {
             restore
             exit
         }
         
-        local last_update_str = last_update[1]
+        local update_date_str = update_date[1]
         restore
         
-        * Parse last_update date and compare with today
+        * Parse update_date and compare with today
         * Format expected: "2025-12-08" or similar
-        if strlen("`last_update_str'") >= 10 {
-            local update_year = substr("`last_update_str'", 1, 4)
-            local update_month = substr("`last_update_str'", 6, 2)
-            local update_day = substr("`last_update_str'", 9, 2)
+        if strlen("`update_date_str'") >= 10 {
+            local update_year = substr("`update_date_str'", 1, 4)
+            local update_month = substr("`update_date_str'", 6, 2)
+            local update_day = substr("`update_date_str'", 9, 2)
             
             * Calculate days difference
             local update_date_num = mdy(real("`update_month'"), real("`update_day'"), real("`update_year'"))
@@ -2415,7 +2415,7 @@ program define findsj_check_update
                 noi dis as text "{hline 70}"
                 noi dis as result "  📢 Database may need updating"
                 noi dis as text "{hline 70}"
-                noi dis as text "Last updated: " as result "`last_update_str'" as text " (" as result "`days_diff'" as text " days ago)"
+                noi dis as text "Last updated: " as result "`update_date_str'" as text " (" as result "`days_diff'" as text " days ago)"
                 noi dis as text "Update: " `"{stata "findsj, updatesource source(both)":findsj, updatesource source(both)}"`
                 noi dis as text "{hline 70}"
                 noi dis ""
