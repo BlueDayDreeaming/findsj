@@ -1,7 +1,10 @@
-*! version 3.2  18May2026
+*! version 3.2.1  21Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
+* v3.2.1: Fix author searches by matching complete name tokens instead of
+*   arbitrary substrings; replace the generic type() download interface with
+*   explicit bib/ris options; validate article IDs before downloads
 * v3.2: Option pruning and getiref bundling (in response to SJ peer review)
 *   - Bundled: getiref.ado/getiref.sthlp now ship with findsj; removed the
 *     runtime "ssc install getiref" auto-install block
@@ -36,6 +39,34 @@
 * v1.1.0: Removed local data file dependency, all info fetched online
 
 *===============================================================================
+* Helper program: findsj_author_match
+* Match the first query term as a complete author-name token.  This prevents a
+* search for "lian" from matching names such as Iliana, Julian, or Galiani.
+*===============================================================================
+program define findsj_author_match
+    version 14
+    syntax varname, Generate(name) Query(string)
+
+    confirm new variable `generate'
+
+    local query_clean = ustrlower(ustrregexra(`"`query'"', "[^\p{L}\p{N}_]+", " "))
+    local query_clean = strtrim(stritrim(`"`query_clean'"'))
+    local first_word = word(`"`query_clean'"', 1)
+
+    if `"`first_word'"' == "" {
+        gen byte `generate' = 0
+        exit
+    }
+
+    tempvar author_tokens
+    gen strL `author_tokens' = ustrlower(`varlist')
+    replace `author_tokens' = ustrregexra(`author_tokens', "[^\p{L}\p{N}_]+", " ")
+    replace `author_tokens' = " " + strtrim(stritrim(`author_tokens')) + " "
+    gen byte `generate' = strpos(`author_tokens', " `first_word' ") > 0
+end
+
+
+*===============================================================================
 * Helper program: findsj_download (defined first to be available for buttons)
 * Download BibTeX or RIS file on-demand when user clicks the button
 *===============================================================================
@@ -43,6 +74,13 @@
 program define findsj_download
     version 14
     syntax anything(name=artid), Type(string) [DOWNloadpath(string)]
+
+    * Article IDs are used in URLs, filenames, and shell commands.  Accept only
+    * the alphanumeric/underscore form used by the SJ archive.
+    if !regexm("`artid'", "^[A-Za-z0-9_]+$") {
+        dis as error "Invalid Stata Journal article ID: `artid'"
+        exit 198
+    }
     
     * Set download path (read from config file, use global if set, otherwise current directory)
     if "`downloadpath'" == "" {
@@ -175,7 +213,8 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
     UPdate ///
     UPdatesource ///
     SOUrce(string) ///
-    Type(string) ///
+    BIB ///
+    RIS ///
     ]
 
 	
@@ -183,13 +222,18 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
 findsj_check_update
 
 
-* Handle download subcommand (findsj artid, type(bib|ris))
-if "`type'" != "" {
-    if "`type'" != "bib" & "`type'" != "ris" {
-        dis as error "Error: type must be 'bib' or 'ris'"
+* Handle citation-file download subcommands (findsj artid, bib|ris)
+if "`bib'" != "" | "`ris'" != "" {
+    if "`bib'" != "" & "`ris'" != "" {
+        dis as error "Options bib and ris may not be combined"
         exit 198
     }
-    findsj_download `keywords', type(`type')
+    if strtrim(`"`keywords'"') == "" {
+        dis as error "An article ID is required with the bib or ris option"
+        exit 198
+    }
+    local download_type = cond("`bib'" != "", "bib", "ris")
+    findsj_download `keywords', type(`download_type')
     exit
 }
 
@@ -479,7 +523,7 @@ if `use_offline' == 1 {
         * ========================================
         * Search Logic (matches Stata Journal website):
         * 1. Case-insensitive (convert all to lowercase)
-        * 2. Substring matching (strpos > 0)
+        * 2. Substring matching for titles/keywords; token matching for authors
         * 3. Multiple words use AND logic (all words must appear)
         * 4. Author search: only first word is used
         * 5. Keyword search: searches in title, author, AND abstract
@@ -535,10 +579,11 @@ if `use_offline' == 1 {
         
         * First pass: exact match with original keywords
         if "`scope'" == "author" {
-            * Author search: only first word matters
-            local first_word = word(`"`keywords_clean'"', 1)
-            replace matched = 1 if strpos(author_lower, "`first_word'") > 0
+            * Author search: first query term must be a complete name token
+            findsj_author_match author, generate(author_match) query(`"`keywords_clean'"')
+            replace matched = author_match
             replace match_priority = 1 if matched == 1
+            drop author_match
         }
         else if "`scope'" == "keyword" {
             * Keyword search: ALL words must appear somewhere (title/author/abstract)
@@ -764,6 +809,14 @@ else {
     cap confirm variable author
     if _rc == 0 {
         drop if missing(author) | author == "" | author == "."
+
+        * The SJ website may return substring matches (for example, "lian"
+        * inside "Iliana").  Apply the same token filter as local search.
+        if "`scope'" == "author" {
+            findsj_author_match author, generate(author_match) query(`"`keywords'"')
+            keep if author_match == 1
+            drop author_match
+        }
     }
     else {
         * If author is missing, create placeholder
@@ -1042,9 +1095,9 @@ else {
     
     * Display BibTeX and RIS buttons (on-demand download via helper program)
     dis as text " | " _c
-    dis as text `"{stata "findsj `art_id_nobom', type(bib)":BibTeX}"' _c
+    dis as text `"{stata "findsj `art_id_nobom', bib":BibTeX}"' _c
     dis as text " | " _c
-    dis as text `"{stata "findsj `art_id_nobom', type(ris)":RIS}"'
+    dis as text `"{stata "findsj `art_id_nobom', ris":RIS}"'
     
     * ref option is deprecated - citation buttons are now directly available in main button row
     
@@ -1164,9 +1217,10 @@ if `num_export' > 0 {
             
             * First pass: exact match
             if "`scope'" == "author" {
-                local first_word = word(`"`keywords_clean'"', 1)
-                replace matched = 1 if strpos(author_lower, "`first_word'") > 0
+                findsj_author_match author, generate(author_match) query(`"`keywords_clean'"')
+                replace matched = author_match
                 replace match_priority = 1 if matched == 1
+                drop author_match
             }
             else if "`scope'" == "keyword" {
                 gen temp_match = 1

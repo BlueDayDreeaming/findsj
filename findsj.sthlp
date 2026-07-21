@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.2  18may2026}{...}
+{* *! version 3.2.1  21jul2026}{...}
 {vieweralsosee "[R] search" "help search"}{...}
 {vieweralsosee "[R] net" "help net"}{...}
 {viewerjumpto "Syntax" "findsj##syntax"}{...}
@@ -45,7 +45,7 @@ Download BibTeX or RIS file
 {p 8 16 2}
 {cmd:findsj}
 {it:article_id}
-{cmd:,} {opt type(bib|ris)}
+{cmd:,} {opt bib} | {opt ris}
 
 
 {pstd}
@@ -78,6 +78,8 @@ Configure download path
 
 {syntab:Citation and export}
 {synopt:{opt ref}}enable citation buttons (.md, .latex, .txt) for each article{p_end}
+{synopt:{opt bib}}download the selected article's BibTeX file{p_end}
+{synopt:{opt ris}}download the selected article's RIS file{p_end}
 {synopt:{opt md}}export all results in Markdown format{p_end}
 {synopt:{opt markdown}}same as {cmd:md}{p_end}
 {synopt:{opt latex}}export all results in LaTeX format{p_end}
@@ -377,11 +379,11 @@ any blue underlined text or button with your mouse to execute the action.
     {hline}
 {pstd}{bf:Reference File Download}{p_end}
 
-{phang2}{inp:.} {stata "findsj st0377, type(bib)":findsj st0377, type(bib)}{p_end}
+{phang2}{inp:.} {stata "findsj st0377, bib":findsj st0377, bib}{p_end}
 {pmore}→ Downloads BibTeX file for article st0377{p_end}
 {pmore}→ File saved to configured path and auto-opened{p_end}
 
-{phang2}{inp:.} {stata "findsj dm0065, type(ris)":findsj dm0065, type(ris)}{p_end}
+{phang2}{inp:.} {stata "findsj dm0065, ris":findsj dm0065, ris}{p_end}
 {pmore}→ Downloads RIS file for EndNote/Zotero/Mendeley{p_end}
 
 {phang2}{bf:Tip}: You can also click {bf:BibTeX} or {bf:RIS} buttons in search results{p_end}
