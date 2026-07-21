@@ -1,7 +1,9 @@
-*! version 3.2.2  21Jul2026
+*! version 3.2.3  21Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
+* v3.2.3: Create Stata's PERSONAL ado directory before saving setpath()
+*   configuration on installations where that directory does not yet exist
 * v3.2.2: Make BibTeX/RIS downloads synchronous and validate the returned
 *   payload; normalize the malformed opening brace returned by the SJ BibTeX
 *   endpoint
@@ -341,8 +343,14 @@ if "`querypath'" != "" | "`resetpath'" != "" | "`setpath'" != "" {
         quietly cd "`current_dir'"
         
         * Save path to config file
+        capture mkdir "`c(sysdir_personal)'"
         tempname fh
-        file open `fh' using "`config_file'", write replace
+        capture file open `fh' using "`config_file'", write replace
+        if _rc != 0 {
+            dis as error "Could not create the download-path configuration file:"
+            dis as error "`config_file'"
+            exit 603
+        }
         file write `fh' "`setpath'"
         file close `fh'
         
