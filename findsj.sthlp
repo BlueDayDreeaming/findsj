@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.2.1  21jul2026}{...}
+{* *! version 3.2.2  21jul2026}{...}
 {vieweralsosee "[R] search" "help search"}{...}
 {vieweralsosee "[R] net" "help net"}{...}
 {viewerjumpto "Syntax" "findsj##syntax"}{...}
@@ -381,7 +381,7 @@ any blue underlined text or button with your mouse to execute the action.
 
 {phang2}{inp:.} {stata "findsj st0377, bib":findsj st0377, bib}{p_end}
 {pmore}→ Downloads BibTeX file for article st0377{p_end}
-{pmore}→ File saved to configured path and auto-opened{p_end}
+{pmore}→ File saved to the configured path{p_end}
 
 {phang2}{inp:.} {stata "findsj dm0065, ris":findsj dm0065, ris}{p_end}
 {pmore}→ Downloads RIS file for EndNote/Zotero/Mendeley{p_end}

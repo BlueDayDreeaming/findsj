@@ -1,7 +1,10 @@
-*! version 3.2.1  21Jul2026
+*! version 3.2.2  21Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
+* v3.2.2: Make BibTeX/RIS downloads synchronous and validate the returned
+*   payload; normalize the malformed opening brace returned by the SJ BibTeX
+*   endpoint
 * v3.2.1: Fix author searches by matching complete name tokens instead of
 *   arbitrary substrings; replace the generic type() download interface with
 *   explicit bib/ris options; validate article IDs before downloads
@@ -67,15 +70,46 @@ end
 
 
 *===============================================================================
+* Helper program: findsj_fix_bibtex
+* The SJ export endpoint currently returns "@article \{key,".  Normalize that
+* first line so the downloaded file can be imported by BibTeX tools.
+*===============================================================================
+program define findsj_fix_bibtex
+    version 14
+    args filename
+
+    tempname source target
+    tempfile cleaned
+
+    file open `source' using `"`filename'"', read text
+    file open `target' using `"`cleaned'"', write text replace
+
+    file read `source' line
+    local first_line = 1
+    while r(eof) == 0 {
+        if `first_line' {
+            local line = subinstr(`"`line'"', " \{", "{", 1)
+            local first_line = 0
+        }
+        file write `target' `"`line'"' _n
+        file read `source' line
+    }
+
+    file close `source'
+    file close `target'
+    copy `"`cleaned'"' `"`filename'"', replace
+end
+
+
+*===============================================================================
 * Helper program: findsj_download (defined first to be available for buttons)
 * Download BibTeX or RIS file on-demand when user clicks the button
 *===============================================================================
-// cap program drop findsj_download
 program define findsj_download
     version 14
     syntax anything(name=artid), Type(string) [DOWNloadpath(string)]
 
-    * Article IDs are used in URLs, filenames, and shell commands.  Accept only
+    * Article IDs are used in URLs and filenames.  Accept only
     * the alphanumeric/underscore form used by the SJ archive.
     if !regexm("`artid'", "^[A-Za-z0-9_]+$") {
         dis as error "Invalid Stata Journal article ID: `artid'"
@@ -128,57 +162,52 @@ program define findsj_download
         local full_file = "`downloadpath'" + "/" + "`file_name'"
     }
     local url_article "https://www.stata-journal.com/article.html?article=`artid'"
-    
-    * Generate unique temp script file name in system temp directory
-    local script_file "`c(tmpdir)'_findsj_dl_`artid'_`type'.`=cond("`c(os)'"=="Windows","ps1","sh")'"
-    
-    * Create and execute download script
-    quietly {
-        tempname fh
-        
-        if "`c(os)'" == "MacOSX" | "`c(os)'" == "Unix" {
-            * Unix/Mac shell script with curl
-            local full_file_esc = subinstr("`full_file'", `"""', `"\""', .)
-            local full_file_esc = subinstr("`full_file_esc'", "$", "\$", .)
-            local full_file_esc = subinstr("`full_file_esc'", "`", "\`", .)
-            
-            file open `fh' using "`script_file'", write replace
-            file write `fh' "#!/bin/bash" _n
-            file write `fh' "OUTPUT_FILE=" `"""' "`full_file_esc'" `"""' _n
-            file write `fh' "curl -sSL -H 'Referer: `url_article'' -H 'User-Agent: Mozilla/5.0' -o " `"""' "$" "{OUTPUT_FILE}" `"""' " '`url'' > /dev/null 2>&1" _n
-            file write `fh' "if [ -f " `"""' "$" "{OUTPUT_FILE}" `"""' " ] && [ -s " `"""' "$" "{OUTPUT_FILE}" `"""' " ]; then" _n
-            file write `fh' "    echo " `"""' "Downloaded: $" "{OUTPUT_FILE}" `"""' _n
-            file write `fh' "    open " `"""' "$" "{OUTPUT_FILE}" `"""' " > /dev/null 2>&1" _n
-            file write `fh' "else" _n
-            file write `fh' "    echo " `"""' "Download failed" `"""' " >&2" _n
-            file write `fh' "fi" _n
-            file write `fh' "rm -f " `"""' "`script_file'" `"""' " > /dev/null 2>&1" _n
-            file close `fh'
-            
-            shell chmod +x "`script_file'" > /dev/null 2>&1
-            shell bash "`script_file'" &
-        }
-        else {
-            * Windows PowerShell: use -Command instead of -File for better encoding support
-            * Escape single quotes and backslashes in paths
-            local full_file_ps = subinstr("`full_file'", "'", "''", .)
-            local script_ps = subinstr("`script_file'", "'", "''", .)
-            
-            local ps_command = "try { " + ///
-                "Invoke-WebRequest -Uri '`url'' " + ///
-                "-Headers @{'Referer'='`url_article'';'User-Agent'='Mozilla/5.0'} " + ///
-                "-OutFile '`full_file_ps''; " + ///
-                "if (Test-Path '`full_file_ps'') { " + ///
-                "Write-Host 'Downloaded: `full_file_ps'' -ForegroundColor Green; " + ///
-                "Start-Process '`full_file_ps'' } " + ///
-                "else { Write-Host 'Download failed!' -ForegroundColor Red } " + ///
-                "} catch { Write-Host " + char(36) + "_.Exception.Message -ForegroundColor Red }"
-            
-            shell powershell -ExecutionPolicy Bypass -Command "`ps_command'"
-        }
+
+    dis as text "Downloading `file_ext' file for `artid'..." _c
+
+    if "`c(os)'" == "MacOSX" | "`c(os)'" == "Unix" {
+        local full_file_esc = subinstr("`full_file'", `"""', `"\""', .)
+        local full_file_esc = subinstr("`full_file_esc'", "$", "\$", .)
+        local full_file_esc = subinstr("`full_file_esc'", "`", "\`", .)
+        capture shell curl -fsSL -H "Referer: `url_article'" -H "User-Agent: Mozilla/5.0" -o "`full_file_esc'" "`url'"
     }
-    
-    dis as text "Downloading `file_ext' file for `artid'..."
+    else {
+        local full_file_ps = subinstr("`full_file'", "'", "''", .)
+        local ps_command = "try { " + ///
+            char(36) + "ProgressPreference='SilentlyContinue'; " + ///
+            "Invoke-WebRequest -Uri '`url'' " + ///
+            "-Headers @{'Referer'='`url_article'';'User-Agent'='Mozilla/5.0'} " + ///
+            "-OutFile '`full_file_ps''; exit 0 " + ///
+            "} catch { Write-Host " + char(36) + "_.Exception.Message; exit 1 }"
+        capture shell powershell -NoProfile -ExecutionPolicy Bypass -Command "`ps_command'"
+    }
+
+    capture confirm file `"`full_file'"'
+    if _rc != 0 {
+        dis as error " failed."
+        dis as error "Could not download the citation file; check the connection and download path."
+        exit 631
+    }
+
+    * A headerless request to this endpoint can return an HTML page with a
+    * successful transport status.  Reject that response before reporting
+    * completion.
+    tempname payload
+    file open `payload' using `"`full_file'"', read text
+    file read `payload' first_line
+    file close `payload'
+    if substr(strtrim(`"`first_line'"'), 1, 1) == "<" {
+        capture erase `"`full_file'"'
+        dis as error " failed."
+        dis as error "The Stata Journal server returned HTML instead of a citation file."
+        exit 677
+    }
+
+    if "`type'" == "bib" {
+        quietly findsj_fix_bibtex `"`full_file'"'
+    }
+
+    dis as result " done."
     dis as result `"Save to: {browse "`full_file'"}"'
 end
 
