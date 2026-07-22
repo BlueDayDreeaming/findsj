@@ -16,7 +16,7 @@ d KW: getiref
 d
 d Requires: Stata version 16 or higher
 d
-d Distribution-Date: 20260721
+d Distribution-Date: 20260722
 d version: 3.2.3
 d License: MIT
 d
@@ -32,6 +32,7 @@ f findsj.ado
 f findsj.sthlp
 f findsj.dta
 f findsj_version.dta
-f examples_findsj.do
+f findsj_examples.do
+f findsj_examples.log
 f getiref.ado
 f getiref.sthlp
