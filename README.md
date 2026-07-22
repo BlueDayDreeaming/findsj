@@ -1,339 +1,247 @@
 # findsj
 
-**One-click access to Stata Journal articles and their companion packages**
+**Search, read, and cite Stata Journal articles from Stata**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Stata](https://img.shields.io/badge/Stata-14%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-2.1.0-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
+[![Version](https://img.shields.io/badge/version-3.2.4-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
----
+Current release: **3.2.4 (22Jul2026)**.
 
-## 🎯 Problem Solved
+`findsj` searches Stata Journal (SJ) and Stata Technical Bulletin (STB)
+articles by keyword, author, or title. Each result includes clickable links for
+the article page, a DOI-based publisher PDF link (when available), Google Scholar, package search,
+citation generation, and BibTeX/RIS download.
 
-**The Pain Point:**  
-The Stata Journal website **does not provide direct download links** to companion software packages (ado files or Stata programs) alongside published articles. Researchers must:
-1. Read the article to find the package name
-2. Manually search for the package using `findit` or `ssc`
-3. Hope the package is still available and properly indexed
+The bundled database currently contains **1,269 records**. Searches use the
+local database first for fast, offline access and fall back to the official
+Stata Journal website when the database is unavailable. DOI lookup also uses
+the local database first and then attempts an online lookup when necessary.
 
-**Our Solution:**  
-`findsj` provides **instant, clickable access** to both articles AND their companion packages from a single search, saving you time and frustration.
+## Key features
 
----
+- Local-first keyword, author, and title search
+- Complete-token author matching: all name tokens in a multiword query must match
+- Clickable article, PDF, Google Scholar, and package-search links
+- Citation buttons in Markdown, LaTeX, and plain-text formats by default
+- Batch citation export in Markdown, LaTeX, or plain text
+- Direct BibTeX and RIS download by article ID
+- Persistent download-path configuration
+- Monthly database checks through GitHub Actions
 
-## ✨ Key Features
+## Requirements
 
-- 🔍 **Unified Search**: Search 1,255 Stata Journal articles by keyword, author, or title
-- 📦 **Direct Package Access**: One-click installation links for companion packages
-- 📄 **Citation Management**: Download BibTeX/RIS files for all your references
-- 🌐 **Multi-Platform**: Works seamlessly on Windows and Mac
-- ⚡ **Fast & Local**: Built-in database for instant offline search
-- 🔗 **Rich Integration**: Links to PDF, Google Scholar, and article pages
+- Stata 16 or later
+- Internet access for online fallback, database updates, and external links
+- Windows, macOS, or Linux
 
----
+Batch exports are copied automatically to the clipboard on **Windows and
+macOS**. Automatic clipboard copying is **not supported on Linux**; the export
+file is still created normally.
 
-## 📸 Quick Examples
+## Installation
 
-### Example 1: Find panel data methods and install packages
-```stata
-. findsj panel, n(3)
-  Searching ... Showing 3 of 103 articles
-[1] Weighted-average least squares:  Beyond the classical linear regression model
-    G. De Luca and J. R. Magnus. (2025). Stata Journal 25(4)
-    Web | PDF | Google | Install | Ref | BibTeX | RIS
-[2] Testing for slope heterogeneity bias in the fixed-effects estimator
-    J. Alejo, A. F. Galvao, and G. Montes-Rojas. (2025). Stata Journal 25(4)
-    Web | PDF | Google | Install | Ref | BibTeX | RIS
-[3] Testing and estimating structural breaks in time series and panel data in Stata
-    J. Ditzen, Y. Karavias, and J. Westerlund. (2025). Stata Journal 25(3)
-    Web | PDF | Google | Install | BibTeX | RIS
-```
-👆 Click **Install** to directly install the companion package!
+### SSC
 
-### Example 2: Search by author name
-```stata
-. findsj Baum, author n(2)
-  Searching ... Showing 2 of 25 articles
-[1] Stata tip 166: Changing the axis scale with marginsplot
-    C. F. Baum. (2025). Stata Journal 25(4)
-    Web | PDF | Google | Install | Ref | BibTeX | RIS
-[2] Estimating treatment effects when program participation is misreported
-    C. F. Baum, D. Tommasi, and L. Zhang. (2024). Stata Journal 24(4)
-    Web | PDF | Google | Install | BibTeX | RIS
-```
-
-### Example 3: Find machine learning tools
-```stata
-. findsj machine learning, n(2)
-  Searching ... Showing 2 of 10 articles
-[1] Optimal policy learning using Stata
-    G. Cerulli. (2025). Stata Journal 25(2)
-    Web | PDF | Google | Install | BibTeX | RIS
-[2] ddml: Double/debiased machine learning in Stata
-    A. Ahrens, C. B. Hansen, M. E. Schaffer, and T. Wiemann. (2024). Stata Journal 24(1)
-    Web | PDF | Google | Install | BibTeX | RIS
-```
-
-### Example 4: Search within article titles
-```stata
-. findsj differences, title n(2)
-  Searching ... Showing 2 of 10 articles
-[1] Avoiding the eyeballing fallacy: Visualizing statistical differences between estimates using the pheatplot command
-    E. Brini, S. T. Borgen, and N. T. Borgen. (2025). Stata Journal 25(1)
-    Web | PDF | Google | Install | Ref | BibTeX | RIS
-[2] On synthetic difference-in-differences and related estimation methods in Stata
-    D. Clarke, D. Pailañir, S. Athey, and G. Imbens. (2024). Stata Journal 24(4)
-    Web | PDF | Google | Install | BibTeX | RIS
-```
-
----
-
-## 📥 Installation
-
-### SSC Install (Recommended)
+Install the program and its ancillary database together:
 
 ```stata
 ssc install findsj, all replace
 ```
 
-⚠️ **Note:** The `all` option is required to download the ancillary database file (`findsj.dta`). Without it, only the program files (`.ado`, `.sthlp`) are installed and `findsj` will have to fetch DOIs online. The `replace` option lets you re-run the command to upgrade an existing installation.
+The `all` option installs `findsj.dta` together with the program files. Without
+the database, `findsj` can still use its online fallback, but searches and DOI
+lookups may be slower.
 
-### Install from GitHub/Gitee
+### GitHub
 
-**International users (GitHub):**
+The canonical repository is
+[BlueDayDreeaming/findsj](https://github.com/BlueDayDreeaming/findsj).
+
 ```stata
-* Step 1: Install program files (.ado, .sthlp)
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
-
-* Step 2: Download database (REQUIRED - choose one method)
-findsj, updatesource source(github)   // Recommended: auto-installs to correct location
+findsj, updatesource source(github)
 ```
 
-**China users (Gitee mirror - faster):**
+For users who prefer the Gitee mirror:
+
 ```stata
-* Step 1: Install program files
 net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) replace
-
-* Step 2: Download database (REQUIRED)
-findsj, updatesource source(gitee)    // Recommended for China users
+findsj, updatesource source(gitee)
 ```
 
-**⚠️ Important Note:** Stata's `net install` only downloads program files (`.ado`, `.sthlp`). The database file `findsj.dta` must be downloaded separately using the built-in `updatesource` command, which automatically installs to the correct location.
+## Quick start
 
-> **Alternative:** You can use `net get findsj, from(...)` to download database files, but they will be saved to your **current working directory**, not the ado path. The `updatesource` command is recommended as it handles the file location automatically.
+Keyword search is the default:
 
-### Update Database
-
-The easiest way to update to the latest article database:
 ```stata
-findsj, update                      // Auto-selects best source based on language
-findsj, updatesource source(github) // Force GitHub (international)
-findsj, updatesource source(gitee)  // Force Gitee (China)
-findsj, updatesource source(both)   // Try both with fallback
-```
-
----
-
-## 🚀 Quick Start
-
-### 1. Basic Search
-
-Search by keyword (default):
-```stata
-findsj machine learning
+findsj did, n(3)
+findsj panel data, n(3)
 ```
 
 Search by author:
-```stata
-findsj Baum, author
-```
-
-Search by title:
-```stata
-findsj treatment effects, title
-```
-
-Show more results:
-```stata
-findsj regression, n(20)        // Show 20 results
-findsj panel, allresults        // Show all matching results
-```
-
-### 2. Download Citations
-
-Click **BibTeX** or **RIS** buttons in search results to download citation files.
-
-Configure download location:
-```stata
-findsj, setpath(D:/References)    // Set custom path
-findsj, querypath                  // Check current path
-findsj, resetpath                  // Reset to default
-```
-
-### 3. Export to Clipboard
-
-Export citations in different formats:
-```stata
-findsj propensity score, markdown    // Markdown format
-findsj panel data, latex             // LaTeX format
-findsj regression, plain             // Plain text
-```
-
-The results are automatically copied to clipboard for pasting into your document.
-
----
-
-## 📚 Complete Syntax
 
 ```stata
-findsj [keyword(s)] [, options]
-```
-
-### Search Options
-- `author` - Search by author name
-- `title` - Search by article title
-- `keyword` - Search by keyword (default, can be omitted)
-
-### Display Options
-- `n(#)` - Number of results to display (default: 10)
-- `allresults` - Show all matching results
-- `nobrowser` - Hide clickable links
-- `nopdf` - Hide PDF links
-- `nopkg` - Hide package installation links
-
-### Export Options
-- `markdown` - Export citations in Markdown format
-- `latex` (or `tex`) - Export citations in LaTeX format
-- `plain` - Export citations in plain text format
-- `noclip` - Don't copy to clipboard (display only)
-
-### Path Management
-- `setpath(path)` - Set custom download directory
-- `querypath` - Display current download path
-- `resetpath` - Reset to default path
-
-### Database Management
-- `update` - Update article database (requires `source()`)
-- `source(source)` - Specify update source:
-  - `github` - Download from GitHub (international)
-  - `gitee` - Download from Gitee (China, faster)
-  - `both` - Try GitHub first, fallback to Gitee
-
-### Advanced Options
-- `getdoi` - Display DOI information for each article in search results
-- `debug` - Show debugging information
-
----
-
-## 💡 Advanced Examples
-
-### Example 1: Find and Install a Package
-
-Search for difference-in-differences methods, then click **Install**:
-```stata
-findsj difference, n(5)
-```
-
-### Example 2: Download All Citations for Your Literature Review
-
-Search and download BibTeX files for all matching articles:
-```stata
-findsj, setpath(D:/MyPaper/References)
-findsj causal inference
-```
-Click **BibTeX** buttons to download citations to your references folder.
-
-### Example 3: Export Citation List for Your Manuscript
-
-Export formatted citations for your paper:
-```stata
-findsj instrumental variable, latex allresults
-```
-Paste the output directly into your LaTeX document.
-
-### Example 4: Author Bibliography
-
-Get all publications by a specific author:
-```stata
+findsj cox, author
 findsj "Christopher F. Baum", author allresults
 ```
 
-### Example 5: Update Database Periodically
+Author queries are case-insensitive and match complete name tokens. A search
+for `lian` therefore does not match names such as `Iliana`. In a multiword query,
+all tokens are required: `Christopher F. Baum` requires the complete tokens
+`Christopher`, `F`, and `Baum` to occur in the author field.
 
-Keep your local database up-to-date:
+Search within article titles:
+
 ```stata
-findsj, update source(both)
+findsj panel data, title
 ```
 
----
+Display all matches:
 
-## 🛠️ System Requirements
+```stata
+findsj regression, allresults
+```
 
-- **Stata**: Version 14.0 or later
-- **Internet**: Required for database updates and real-time features
-- **Operating System**: Windows, macOS, or Linux
-- **Tools**:
-  - Windows: PowerShell (built-in)
-  - Mac/Linux: curl (pre-installed on most systems)
+## Citation tools
 
----
+When a DOI is available, every standard search result already contains `.md`,
+`.latex`, and `.txt` citation buttons. The `ref` option is not required to show
+these buttons; on a regular search it adds DOI information to the output:
 
-## 🔄 Database Coverage
+```stata
+findsj did, ref n(1)
+```
 
-The `findsj` database includes:
-- **Stata Journal (SJ)**: All volumes and issues (2001-present)
-- **Total**: 1,255 articles with full metadata
-- **Updates**: Manual updates via `findsj, update` command, or weekly auto-update via GitHub Actions
+When an article ID is supplied, `ref` displays the citation formats for that
+specific article:
 
-Last database update: February 2026 (Volume 25, Issue 4)
+```stata
+findsj st0001, ref
+```
 
----
+Export a batch of results:
 
-## 📖 How It Works
+```stata
+findsj causal inference, md n(2)
+findsj panel data, latex
+findsj regression, text noclip
+```
 
-1. **Local Database**: `findsj` uses a local `.dta` database containing article metadata
-2. **Fast Search**: All searches are performed locally for instant results
-3. **Smart Links**: Package names are extracted and linked to installation sources
-4. **Cross-Platform**: Native file operations for each OS ensure compatibility
+Supported aliases are:
 
----
+- Markdown: `md`, `markdown`
+- LaTeX: `latex`, `tex`
+- Plain text: `plain`, `text`, `txt`
 
-## 🤝 Contributing
+The `noclip` option prevents automatic clipboard copying. On Linux, clipboard
+copying is skipped regardless, while the export file is still saved.
 
-Contributions are welcome! Please feel free to:
-- Report bugs or request features via [GitHub Issues](https://github.com/BlueDayDreeaming/findsj/issues)
-- Submit pull requests for improvements
-- Share your use cases and feedback
+## BibTeX and RIS downloads
 
----
+Download a reference file directly when the article ID is known:
 
-## 📄 License
+```stata
+findsj st0377, bib
+findsj dm0065, ris
+```
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
+The same actions are available through the **BibTeX** and **RIS** buttons in
+search results.
 
----
+Configure where these files are saved:
 
-## 🙏 Acknowledgments
+```stata
+findsj, setpath(D:/References)
+findsj, querypath
+findsj, resetpath
+```
 
-- Data source: [Stata Journal](https://www.stata-journal.com/)
-- Inspired by the needs of empirical researchers worldwide
-- Built with ❤️ for the Stata community
+## Syntax and options
 
----
+```stata
+findsj [keywords] [, options]
+findsj article_id, ref
+findsj article_id, bib
+findsj article_id, ris
+findsj, update
+findsj, updatesource [source(github|gitee|both)]
+findsj, setpath(path)
+findsj, querypath
+findsj, resetpath
+```
 
-## 📮 Contact
+### Search scope
 
-**Authors:**
-- **Yujun Lian** - [arlionn@163.com](mailto:arlionn@163.com)
-- **Chucheng Wan** - [chucheng.wan@outlook.com](mailto:chucheng.wan@outlook.com)
+- `author` — search the author field using complete name tokens and AND logic
+- `title` — search article titles
+- `keyword` — search by keyword (default)
 
-**Project Links:**
-- **GitHub**: [BlueDayDreeaming/findsj](https://github.com/BlueDayDreeaming/findsj)
-- **Gitee Mirror**: [ChuChengWan/findsj](https://gitee.com/ChuChengWan/findsj)
-- **Issues**: Report bugs or request features on GitHub
+### Display
 
----
+- `n(#)` — maximum number of results to display; default is 10
+- `allresults` — display all matching results
 
-**Happy researching! 🎉**
+### Citation and export
+
+- `ref` — display DOI information for search results; with an article ID, show
+  its citation formats
+- `getdoi` — display DOI information
+- `md`, `markdown` — export results in Markdown format
+- `latex`, `tex` — export results in LaTeX format
+- `plain`, `text`, `txt` — export results in plain-text format
+- `noclip` — do not copy a batch export to the clipboard
+- `bib` — download a BibTeX file for the specified article ID
+- `ris` — download a RIS file for the specified article ID
+
+### Download path
+
+- `setpath(path)` — set the persistent BibTeX/RIS download directory
+- `querypath` — show the current download directory
+- `resetpath` — reset the download directory to the current working directory
+
+### Database management
+
+- `update` — update using the language-dependent two-source fallback in `source(both)`
+- `updatesource` — without `source()`, display a clickable source menu
+- `updatesource source(github)` — update from GitHub only
+- `updatesource source(gitee)` — update from Gitee only
+- `updatesource source(both)` — try Gitee first in a Chinese locale and GitHub first otherwise, then use the alternate source if needed
+
+In particular, `findsj, update` is equivalent to:
+
+```stata
+findsj, updatesource source(both)
+```
+
+## Database coverage and maintenance
+
+- Stata Technical Bulletin: 1991–2000
+- Stata Journal: 2001–present
+- Bundled records: 1,269 as of 22 July 2026
+- Repository database check: monthly through GitHub Actions
+
+You can refresh an installed database at any time with:
+
+```stata
+findsj, update
+```
+
+## Citation
+
+If you use `findsj` in research, please cite the accompanying Stata Journal
+article after publication.
+
+## Contact and links
+
+- Yujun Lian: [arlionn@163.com](mailto:arlionn@163.com)
+- Chucheng Wan: [chucheng.wan@outlook.com](mailto:chucheng.wan@outlook.com)
+- Repository: [BlueDayDreeaming/findsj](https://github.com/BlueDayDreeaming/findsj)
+- Issues: [GitHub Issues](https://github.com/BlueDayDreeaming/findsj/issues)
+- Gitee mirror: [ChuChengWan/findsj](https://gitee.com/ChuChengWan/findsj)
+
+## License
+
+This project is released under the MIT License. See [LICENSE](LICENSE).

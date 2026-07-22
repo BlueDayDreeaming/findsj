@@ -1,13 +1,12 @@
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
       name:  <unnamed>
-       log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.lo
-> g
+       log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.log
   log type:  text
- opened on:  21 Jul 2026, 20:25:06
+ opened on:  22 Jul 2026, 19:37:31
 
 . which findsj
 /Users/ronald/Desktop/paper/statajournal/findsj/findsj.ado
-*! version 3.2.3  21Jul2026
+*! version 3.2.4  22Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 . which getiref
@@ -16,76 +15,108 @@
 *! version 1.1 2023/9/26
 *! Yujun Lian, arlionn@163.com
 
-. 
-. *----------------------------------------------------------------------------
-> ---
-. * Section 1: Basic Search Functionality
-. * Reference: Page 2 (Figure 1) and Page 4 (Section 2.2)
-. *----------------------------------------------------------------------------
-> ---
-. 
-. display as result "--- Example 1: Basic keyword search (Figure 1) ---"
---- Example 1: Basic keyword search (Figure 1) ---
+.
+. * Verify that an author command returns exactly the records whose author field
+. * contains every query term as a complete name token.
+. capture program drop verify_author_count
 
-. // Searches for "did" (difference-in-differences) in titles, abstracts, and k
-> eywords
-. findsj did
-[1] On synthetic difference-in-differences and related estimation methods in Stata
-    Clarke, Damian; Pailañir, Daniel; Athey, Susan; Imbens, Guido (2024). Stata Journal 24(4): 557-598
+. program define verify_author_count
+  1.     version 16
+  2.     syntax, Query(string) Returned(integer)
+  3.
+.     preserve
+  4.     quietly use "findsj.dta", clear
+  5.     capture confirm variable authors
+  6.     if !_rc rename authors author
+  7.
+.     tempvar author_tokens matched
+  8.     quietly gen strL `author_tokens' = ustrlower(author)
+  9.     quietly replace `author_tokens' = ///
+>         ustrregexra(`author_tokens', "[^\p{L}\p{N}_]+", " ")
+ 10.     quietly replace `author_tokens' = ///
+>         " " + strtrim(stritrim(`author_tokens')) + " "
+ 11.
+.     local query_clean = ///
+>         ustrlower(ustrregexra(`"`query'"', "[^\p{L}\p{N}_]+", " "))
+ 12.     local query_clean = strtrim(stritrim(`"`query_clean'"'))
+ 13.     local n_words = wordcount(`"`query_clean'"')
+ 14.
+.     quietly gen byte `matched' = 1
+ 15.     forvalues i = 1/`n_words' {
+ 16.         local query_word = word(`"`query_clean'"', `i')
+ 17.         quietly replace `matched' = 0 if ///
+>             strpos(`author_tokens', " `query_word' ") == 0
+ 18.     }
+ 19.
+.     quietly count if `matched'
+ 20.     local expected = r(N)
+ 21.     restore
+ 22.
+.     if `returned' != `expected' {
+ 23.         display as error "Author-search regression test failed for: `query'
+> "
+ 24.         display as error "Command returned `returned'; expected `expected'.
+> "
+ 25.         exit 9
+ 26.     }
+ 27.     display as result ///
+>         "PASS: `query' returned all `returned' complete-token matches."
+ 28. end
+
+.
+.
+. *-----------------------------------------------------------------------------
+> --
+. * Section 1: Basic search functionality
+. * Manuscript: Introduction and Syntax and usage
+. *-----------------------------------------------------------------------------
+> --
+.
+. display as result "--- Example 1: Basic keyword search ---"
+--- Example 1: Basic keyword search ---
+
+. findsj did, n(3)
+[1] On synthetic difference-in-differences and related estimation methods in
+Stata
+    Clarke, Damian; Pailañir, Daniel; Athey, Susan; Imbens, Guido (2024).
+    Stata Journal 24(4): 557-598
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [2] Fuzzy differences-in-differences with Stata
-    de Chaisemartin, Clément; D’Haultfœuille, Xavier; Guyonvarch, Yannick (2019). Stata Journal 19(2): 435-458
+    de Chaisemartin, Clément; D’Haultfœuille, Xavier; Guyonvarch, Yannick
+    (2019). Stata Journal 19(2): 435-458
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] Abadie's Semiparametric Difference-in-differences Estimator
-    Houngbedji, Kenneth (2016). Stata Journal 16(2): 482-490
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[4] Implementing Weighted-average Estimation of Substance Concentration Using Multiple Dilutions
-    Xu, Ying; Milligan, Paul; Remarque, Edmond J.; Cheung, Yin Bun (2016). Stata Journal 16(2): 316-330
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[5] Diff: Simplifying the Estimation of Difference-in-differences Treatment Effects
-    Villa, Juan M. (2016). Stata Journal 16(1): 52-71
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Best Subsets Variable Selection in Nonnormal Regression Models
-    Lindsey, Charles; Sheather, Simon (2015). Stata Journal 15(4): 1046-1059
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[7] Didq: A Command for Treatment-effect Estimation under Alternative Assumptions
-    Mora, Ricardo; Reggio, Iliana (2015). Stata Journal 15(3): 796-808
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[8] Stata Tip 116: Where did My P-Values Go? (Part 3)
-    Buis, Maarten L. (2014). Stata Journal 14(1): 218-220
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[9] Stata Tip 112: Where did My P-Values Go? (Part 2)
-    Buis, Maarten L. (2012). Stata Journal 12(4): 759-760
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[10] Nonparametric Bounds for the Causal Effect in a Binary Instrumental-Variable Model
-    Palmer, Tom M.; Ramsahai, Roland R.; Didelez, Vanessa; Sheehan, Nuala A. (2011). Stata Journal 11(3): 345-367
+[3] Implementing Weighted-average Estimation of Substance Concentration Using
+Multiple Dilutions
+    Xu, Ying; Milligan, Paul; Remarque, Edmond J.; Cheung, Yin Bun (2016).
+    Stata Journal 16(2): 316-330
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
-Showing 10 of 49 results. (all)
+Showing 3 of 49 results. (all)
 
-. 
-. display as result "--- Example 2: Search by Author (Section 2.2) ---"
---- Example 2: Search by Author (Section 2.2) ---
+.
+. display as result "--- Example 2: Search by author ---"
+--- Example 2: Search by author ---
 
-. // Restrict search to author names containing "cox"
 . findsj cox, author
 [1] Speaking Stata: Three commands for data reduction
     Cox, Nicholas J. (2026). Stata Journal 26(2): 291-322
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[2] Announcement of the Stata Journal Editors’ Prize 2026
-    Cox, Nicholas J.; Jenkins, Stephen P. (2026). Stata Journal 26(1): 5-6
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] Speaking Stata: How to debug, part I
+[2] Speaking Stata: How to debug, part I
     Cox, Nicholas J. (2026). Stata Journal 26(1): 132-143
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[4] Speaking Stata: Some notes on quadratic fits
+[3] Announcement of the Stata Journal Editors’ Prize 2026
+    Cox, Nicholas J.; Jenkins, Stephen P. (2026). Stata Journal 26(1): 5-6
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[4] Stata tip 165: Marginal titles for graph bar, graph dot, graph box, and
+beyond
+    Cox, Nicholas J. (2025). Stata Journal 25(4): 865-871
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[5] Speaking Stata: Some notes on quadratic fits
     Cox, Nicholas J. (2025). Stata Journal 25(4): 847-864
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[5] The Stata Journal Editors’ Prize 2025: Michael J. Crowther
-    Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(4): 696-698
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Stata tip 165: Marginal titles for graph bar, graph dot, graph box, and beyond
-    Cox, Nicholas J. (2025). Stata Journal 25(4): 865-871
+[6] The Stata Journal Editors’ Prize 2025: Michael J. Crowther
+    Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(4):
+    696-698
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [7] Stata tip 162: Add marginal rugs using marker symbols or axis ticks
     Cox, Nicholas J. (2025). Stata Journal 25(2): 491-497
@@ -102,855 +133,95 @@ Showing 10 of 49 results. (all)
 
 Showing 10 of 188 results. (all)
 
-. 
-. display as result "--- Example 3: Search by Title (Section 2.2) ---"
---- Example 3: Search by Title (Section 2.2) ---
+.
+. display as result "--- Example 3: Multiword title search ---"
+--- Example 3: Multiword title search ---
 
-. // Restrict search to titles containing "panel data"
 . findsj panel data, title
-[1] Testing and estimating structural breaks in time series and panel data in Stata
-    Ditzen, Jan; Karavias, Yiannis; Westerlund, Joakim (2025). Stata Journal 25(3): 526-560
+[1] Testing and estimating structural breaks in time series and panel data in
+Stata
+    Ditzen, Jan; Karavias, Yiannis; Westerlund, Joakim (2025). Stata Journal
+    25(3): 526-560
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [2] Identify latent group structures in panel data: The classifylasso command
-    Huang, Wenxin; Wang, Yiru; Zhou, Lingyun (2024). Stata Journal 24(1): 46-71
+    Huang, Wenxin; Wang, Yiru; Zhou, Lingyun (2024). Stata Journal 24(1):
+    46-71
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] A Lagrange multiplier test for the mean stationarity assumption in dynamic panel-data models
-    Magazzini, Laura; Calzolari, Giorgio (2023). Stata Journal 23(2): 418-437
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[4] xtnumfac: A battery of estimators for the number of common factors in time series and panel-data models
+[3] xtnumfac: A battery of estimators for the number of common factors in time
+series and panel-data models
     Ditzen, Jan; Reese, Simon (2023). Stata Journal 23(2): 438-454
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[4] A Lagrange multiplier test for the mean stationarity assumption in dynamic
+panel-data models
+    Magazzini, Laura; Calzolari, Giorgio (2023). Stata Journal 23(2):
+    418-437
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [5] Improved tests for Granger noncausality in panel data
-    Xiao, Jiaqi; Karavias, Yiannis; Juodis, Artūras; Sarafidis, Vasilis; Ditzen, Jan (2023). Stata Journal 23(1): 230-242
+    Xiao, Jiaqi; Karavias, Yiannis; Juodis, Artūras; Sarafidis, Vasilis;
+    Ditzen, Jan (2023). Stata Journal 23(1): 230-242
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Uniform nonparametric inference for spatially dependent panel data: The xtnpsreg command
-    Li, Jia; Liao, Zhipeng; Zhou, Wenyu (2023). Stata Journal 23(1): 243-264
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[7] Stata tip 150: When is it appropriate to xtset a panel dataset with panelvar only?
+[6] Stata tip 150: When is it appropriate to xtset a panel dataset with panelvar
+only?
     Lazzaro, Carlo (2023). Stata Journal 23(1): 281-292
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[8] Instrumental-variable estimation of large-T panel-data models with common factors
-    Kripfganz, Sebastian; Sarafidis, Vasilis (2021). Stata Journal 21(3): 659-686
+[7] Uniform nonparametric inference for spatially dependent panel data: The
+xtnpsreg command
+    Li, Jia; Liao, Zhipeng; Zhou, Wenyu (2023). Stata Journal 23(1): 243-264
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[8] Instrumental-variable estimation of large-T panel-data models with common
+factors
+    Kripfganz, Sebastian; Sarafidis, Vasilis (2021). Stata Journal 21(3):
+    659-686
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [9] Extending the Kitagawa–Oaxaca–Blinder decomposition approach to panel data
     Kröger, Hannes; Hartmann, Jörg (2021). Stata Journal 21(2): 360-410
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[10] Fitting partially linear functional-coefficient panel-data models with Stata
-    Du, Kerui; Zhang, Yonghui; Zhou, Qiankun (2020). Stata Journal 20(4): 976-998
+[10] Fitting partially linear functional-coefficient panel-data models with
+Stata
+    Du, Kerui; Zhang, Yonghui; Zhou, Qiankun (2020). Stata Journal 20(4):
+    976-998
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
 Showing 10 of 25 results. (all)
 
-. 
-. display as result "--- Example 4: Limiting Results (Section 2.2) ---"
---- Example 4: Limiting Results (Section 2.2) ---
+.
+. display as result "--- Example 4: Limiting displayed results ---"
+--- Example 4: Limiting displayed results ---
 
-. // Show only the first 3 matches for "panel data"
 . findsj panel data, n(3)
 [1] Estimation of quantile regressions with fixed effects
-    Rios-Avila, Fernando; Ramos, Andrey; Canavire-Bacarreza, Gustavo; Siles, Leonardo (2026). Stata Journal 26(1): 111-131
+    Rios-Avila, Fernando; Ramos, Andrey; Canavire-Bacarreza, Gustavo; Siles,
+    Leonardo (2026). Stata Journal 26(1): 111-131
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[2] Weighted-average least squares: Beyond the classical linear regression model
-    Luca, Giuseppe De; Magnus, Jan R. (2025). Stata Journal 25(4): 772-811
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] Testing for slope heterogeneity bias in the fixed-effects estimator
-    Alejo, Javier; Galvao, Antonio F.; Montes-Rojas, Gabriel (2025). Stata Journal 25(4): 836-846
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-
-Showing 3 of 78 results. (all)
-
-. 
-. display as result "--- Example 5: Show All Results (Section 2.2) ---"
---- Example 5: Show All Results (Section 2.2) ---
-
-. // Show all matches for "regression" (overriding the default limit of 10)
-. // Note: This may produce a long output list
-. findsj regression, allresults
-[1] Testing and correcting for spatial unit roots in regression analysis
-    Becker, Sascha O.; David Boll, P.; Voth, Hans-Joachim (2026). Stata Journal 26(2): 177-202
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[2] Estimation of quantile regressions with fixed effects
-    Rios-Avila, Fernando; Ramos, Andrey; Canavire-Bacarreza, Gustavo; Siles, Leonardo (2026). Stata Journal 26(1): 111-131
+[2] Testing for slope heterogeneity bias in the fixed-effects estimator
+    Alejo, Javier; Galvao, Antonio F.; Montes-Rojas, Gabriel (2025). Stata
+    Journal 25(4): 836-846
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [3] Weighted-average least squares: Beyond the classical linear regression model
     Luca, Giuseppe De; Magnus, Jan R. (2025). Stata Journal 25(4): 772-811
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[4] Speaking Stata: Some notes on quadratic fits
-    Cox, Nicholas J. (2025). Stata Journal 25(4): 847-864
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[5] Quantile control method: Causal inference with one treated unit via random forest
-    Yan, Guanpeng; Chen, Qiang; Xiao, Zhijie (2025). Stata Journal 25(2): 407-437
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Julia as a universal platform for statistical software development
-    Roodman, David (2025). Stata Journal 25(2): 255-284
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[7] A cautionary note on goodness-of-fit statistics for models estimated by pseudo maximum likelihood
-    Green, Nick; Santos Silva, J. M. C. (2025). Stata Journal 25(2): 458-465
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[8] Avoiding the eyeballing fallacy: Visualizing statistical differences between estimates using the pheatplot command
-    Brini, Elisa; Borgen, Solveig Topstad; Borgen, Nicolai T. (2025). Stata Journal 25(1): 77-96
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[9] Maximum agreement regression with magreg
-    Bottai, Matteo (2025). Stata Journal 25(1): 237-243
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[10] The beyondpareto command for optimal extreme-value index estimation
-    König, Johannes; Schluter, Christian; Schröder, Carsten; Retter, Isabella; Beckmannshagen, Mattis (2025). Stata Journal 25(1): 169-188
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[11] Binscatter regressions
-    Cattaneo, Matias D.; Crump, Richard K.; Farrell, Max H.; Feng, Yingjie (2025). Stata Journal 25(1): 3-50
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[12] Cluster-weighted models using Stata
-    Spinelli, Daniele; Ingrassia, Salvatore; Vittadini, Giorgio (2024). Stata Journal 24(4): 711-745
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[13] Getting away from the cutoff in regression discontinuity designs
-    Palomba, Filippo (2024). Stata Journal 24(3): 371-401
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[14] First-stage analysis for instrumental-variables quantile regression
-    Alejo, Javier; Galvao, Antonio F.; Montes-Rojas, Gabriel (2024). Stata Journal 24(2): 273-286
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[15] Estimating Skellam distribution and regression parameters in Stata
-    Verardi, Vincenzo; Vermandele, Catherine (2024). Stata Journal 24(2): 287-300
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[16] Two-step analysis of hierarchical data
-    Giesecke, Johannes; Kohler, Ulrich (2024). Stata Journal 24(2): 213-249
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[17] Multivariate random-effects meta-analysis for sparse data using smvmeta
-    Rose, Christopher James (2024). Stata Journal 24(2): 301-328
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[18] Leverage, influence, and the jackknife in clustered regression models: Reliable inference using summclust
-    MacKinnon, James G.; Nielsen, Morten Ørregaard; Webb, Matthew D. (2023). Stata Journal 23(4): 942-982
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[19] pystacked: Stacking generalization and machine learning in Stata
-    Ahrens, Achim; Hansen, Christian B.; Schaffer, Mark E. (2023). Stata Journal 23(4): 909-931
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[20] ardl: Estimating autoregressive distributed lag and equilibrium correction models
-    Kripfganz, Sebastian; Schneider, Daniel C. (2023). Stata Journal 23(4): 983-1019
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[21] ebct: Using entropy balancing for continuous treatments to estimate dose–response functions and their derivatives
-    Tübbicke, Stefan (2023). Stata Journal 23(3): 709-729
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[22] Estimating text regressions using txtreg_train
-    Schwarz, Carlo (2023). Stata Journal 23(3): 799-812
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[23] Robit regression in Stata
-    Newson, Roger B.; Falcaro, Milena (2023). Stata Journal 23(3): 658-682
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[24] Pseudo-observations in a multistate setting
-    Overgaard, Morten; Andersen, Per Kragh; Parner, Erik Thorlund (2023). Stata Journal 23(2): 491-517
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[25] Reporting empirical results to .docx files
-    Xue, Yuan; Li, Chuntao; Si, Haitao (2023). Stata Journal 23(2): 545-577
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[26] acreg: Arbitrary correlation regression
-    Colella, Fabrizio; Lalive, Rafael; Sakalli, Seyhun Orcan; Thoenig, Mathias (2023). Stata Journal 23(1): 119-147
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[27] rcm: A command for the regression control method
-    Yan, Guanpeng; Chen, Qiang (2022). Stata Journal 22(4): 842-883
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[28] Machine learning using Stata/Python
-    Cerulli, Giovanni (2022). Stata Journal 22(4): 772-810
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[29] ivcrc: An instrumental-variables estimator for the correlated random-coefficients model
-    Benson, David; Masten, Matthew A.; Torgovitsky, Alexander (2022). Stata Journal 22(3): 469-495
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[30] The inverse hyperbolic sine transformation and retransformed marginal effects
-    Norton, Edward C. (2022). Stata Journal 22(3): 702-712
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[31] xtusreg: Software for dynamic panel regression under irregular time spacing
-    Sasaki, Yuya; Xin, Yi (2022). Stata Journal 22(3): 713-724
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[32] Stata tip 146: Using margins after a Poisson regression model to estimate the number of events prevented by an intervention
-    Falcaro, Milena; Newson, Roger B.; Sasieni, Peter (2022). Stata Journal 22(2): 460-464
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[33] Binned scatterplots with marginal histograms: binscatterhist
-    Pinna, Matteo (2022). Stata Journal 22(2): 430-445
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[34] Smoothed instrumental variables quantile regression
-    Kaplan, David M. (2022). Stata Journal 22(2): 379-403
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[35] uirt: A command for unidimensional IRT modeling
-    Kondratek, Bartosz (2022). Stata Journal 22(2): 243-268
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[36] Fitting spatial autoregressive logit and probit models using Stata: The spatbinary command
-    Spinelli, Daniele (2022). Stata Journal 22(2): 293-318
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[37] Interpreting logit models
-    Uberti, Luca J. (2022). Stata Journal 22(1): 60-76
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[38] Binary contrasts for unordered polytomous regressors
-    Freese, Jeremy; Johfre, Sasha (2022). Stata Journal 22(1): 125-133
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[39] Review of Michael N. Mitchell’s Interpreting and Visualizing Regression Models Using Stata, Second Edition
-    MacIsaac, Angela; Weaver, Bruce (2021). Stata Journal 21(4): 1034-1046
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[40] Unit-root tests for explosive behavior
-    Baum, Christopher F.; Otero, Jesús (2021). Stata Journal 21(4): 999-1020
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[41] Implementing quantile selection models in Stata
-    Muñoz, Ercio; Siravegna, Mariel (2021). Stata Journal 21(4): 952-971
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[42] A regression-with-residuals method for analyzing causal mediation: The rwrmed package
-    Linden, Ariel; Huber, Chuck; Wodtke, Geoffrey T. (2021). Stata Journal 21(3): 559-574
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[43] Instrumental-variable estimation of large-T panel-data models with common factors
-    Kripfganz, Sebastian; Sarafidis, Vasilis (2021). Stata Journal 21(3): 659-686
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[44] arhomme: An implementation of the Arellano and Bonhomme (2017) estimator for quantile regression with selection correction
-    Biewen, Martin; Erhardt, Pascal (2021). Stata Journal 21(3): 602-625
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[45] kinkyreg: Instrument-free inference for linear regression models with endogenous regressors
-    Kripfganz, Sebastian; Kiviet, Jan F. (2021). Stata Journal 21(3): 772-813
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[46] Bootstrap internal validation command for predictive logistic regression models
-    Fernandez-Felix, B. M.; García-Esquinas, E.; Muriel, A.; Royuela, A.; Zamora, J. (2021). Stata Journal 21(2): 498-509
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[47] Weighted mixed-effects dose–response models for tables of correlated contrasts
-    Orsini, Nicola (2021). Stata Journal 21(2): 320-347
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[48] Maximum likelihood estimation of an across-regime correlation parameter
-    Calzolari, Giorgio; Campolo, Maria Gabriella; Di Pino, Antonino; Magazzini, Laura (2021). Stata Journal 21(2): 430-461
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[49] Extending the Kitagawa–Oaxaca–Blinder decomposition approach to panel data
-    Kröger, Hannes; Hartmann, Jörg (2021). Stata Journal 21(2): 360-410
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[50] Stacked linear regression analysis to facilitate testing of hypotheses across OLS regressions
-    Oberfichtner, Michael; Tauchmann, Harald (2021). Stata Journal 21(2): 411-429
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[51] msreg: A command for consistent estimation of linear regression models using matched data
-    Hirukawa, Masayuki; Liu, Di; Prokhorov, Artem (2021). Stata Journal 21(1): 123-140
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[52] merlin—A unified modeling framework for data analysis and methods development in Stata
-    Crowther, Michael J. (2020). Stata Journal 20(4): 763-784
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[53] Analysis of regression-discontinuity designs with multiple cutoffs or multiple scores
-    Cattaneo, Matias D.; Titiunik, Rocío; Vazquez-Bare, Gonzalo (2020). Stata Journal 20(4): 866-891
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[54] Using information from singletons in fixed-effects estimation: xtfesing
-    Magazzini, Laura; Bruno, Randolph Luca; Stampini, Marco (2020). Stata Journal 20(4): 965-975
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[55] Causal mediation analysis in instrumental-variables regressions
-    Dippel, Christian; Ferrara, Andreas; Heblich, Stephan (2020). Stata Journal 20(3): 613-626
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[56] sfcount: Command for count-data stochastic frontiers and underreported and overreported counts
-    Fé, Eduardo; Hofler, Richard (2020). Stata Journal 20(3): 532-547
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[57] Endogenous switching regression model and treatment effects of count-data outcome
-    Hasebe, Takuya (2020). Stata Journal 20(3): 627-646
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[58] Smooth varying-coefficient models in Stata
-    Rios-Avila, Fernando (2020). Stata Journal 20(3): 647-679
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[59] Estimating selection models without an instrument with Stata
-    D’Haultfœuille, Xavier; Maurel, Arnaud; Qiu, Xiaoyun; Zhang, Yichong (2020). Stata Journal 20(2): 297-308
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[60] Visualization strategies for regression estimates with randomization inference
-    Taylor, Marshall A. (2020). Stata Journal 20(2): 309-335
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[61] Testing for the presence of measurement error in Stata
-    Lee, Young Jun; Wilhelm, Daniel (2020). Stata Journal 20(2): 382-404
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[62] Fitting exponential regression models with two-way fixed effects
-    Jochmans, Koen; Verardi, Vincenzo (2020). Stata Journal 20(2): 468-480
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[63] vgets: A command to estimate general-to-specific VARs, Granger causality, steady-state effects, and cumulative impulse–responses
-    Asali, Muhammad (2020). Stata Journal 20(2): 426-434
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[64] A portmanteau test for serial correlation in a linear panel model
-    Jochmans, Koen; Verardi, Vincenzo (2020). Stata Journal 20(1): 149-161
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[65] lassopack: Model selection and prediction with regularized regression in Stata
-    Ahrens, Achim; Hansen, Christian B.; Schaffer, Mark E. (2020). Stata Journal 20(1): 176-235
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[66] Added-variable plots for panel-data estimation
-    Gallup, John Luke (2020). Stata Journal 20(1): 30-50
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[67] Recommendations about estimating errors-in-variables regression in Stata
-    Lockwood, J. R.; McCaffrey, Daniel F. (2020). Stata Journal 20(1): 116-130
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[68] The random forest algorithm for statistical learning
-    Schonlau, Matthias; Zou, Rosie Yuyan (2020). Stata Journal 20(1): 3-29
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[69] Fast Poisson estimation with high-dimensional fixed effects
-    Correia, Sergio; Guimarães, Paulo; Zylkin, Tom (2020). Stata Journal 20(1): 95-115
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[70] Recentered influence functions (RIFs) in Stata: RIF regression and RIF decomposition
-    Rios-Avila, Fernando (2020). Stata Journal 20(1): 51-94
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[71] distcomp: Comparing distributions
-    Kaplan, David M. (2019). Stata Journal 19(4): 832-848
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[72] Advice on using heteroskedasticity-based identification
-    Baum, Christopher F.; Lewbel, Arthur (2019). Stata Journal 19(4): 757-767
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[73] Performance simulations for categorical mediation: Analyzing khb estimates of mediation in ordinal regression models
-    Smith, E. Keith; Lacy, Michael G.; Mayer, Adam (2019). Stata Journal 19(4): 913-930
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[74] Many instruments: Implementation in Stata
-    Anatolyev, Stanislav; Skolkova, Alena (2019). Stata Journal 19(4): 849-866
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[75] Two-sample instrumental-variables regression with potentially weak instruments
-    Choi, Jaerim; Shen, Shu (2019). Stata Journal 19(3): 581-597
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[76] Visualizing effect modification on contrasts
-    Bruun, Niels Henrik (2019). Stata Journal 19(3): 566-580
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[77] Added-variable plots with confidence intervals
-    Gallup, John Luke (2019). Stata Journal 19(3): 598-614
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[78] cvauroc: Command to compute cross-validated area under the curve for ROC analysis after predictive modeling for binary outcomes
-    Luque-Fernandez, Miguel Angel; Redondo-Sánchez, Daniel; Maringe, Camille (2019). Stata Journal 19(3): 615-625
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[79] intcount: A command for fitting count-data models from interval data
-    Pudney, Stephen (2019). Stata Journal 19(3): 645-666
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[80] Generalized two-part fractional regression with cmp
-    Wulff, Jesper N. (2019). Stata Journal 19(2): 375-389
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[81] xtspj: A command for split-panel jackknife estimation
-    Sun, Yutao; Dhaene, Geert (2019). Stata Journal 19(2): 335-374
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[82] qmodel: A command for fitting parametric quantile models
-    Bottai, Matteo; Orsini, Nicola (2019). Stata Journal 19(2): 261-293
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[83] piaactools: A program for data analysis with PIAAC data
-    Jakubowski, Maciej; Pokropek, Artur (2019). Stata Journal 19(1): 112-128
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[84] Power calculations for regression-discontinuity designs
-    Cattaneo, Matias D.; Titiunik, Rocío; Vazquez-Bare, Gonzalo (2019). Stata Journal 19(1): 210-245
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[85] Fast and wild: Bootstrap inference in Stata using boottest
-    Roodman, David; Nielsen, Morten Ørregaard; MacKinnon, James G.; Webb, Matthew D. (2019). Stata Journal 19(1): 4-60
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[86] Implementing Valid Two-Step Identification-Robust Confidence Sets for Linear Instrumental-Variables Models
-    Sun, Liyang (2018). Stata Journal 18(4): 803-825
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[87] Heteroskedasticity- and Autocorrelation-robust F and t Tests in Stata
-    Ye, Xiaoqing; Sun, Yixiao (2018). Stata Journal 18(4): 951-980
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[88] Gencrm: A New Command for Generalized Continuation-Ratio Models
-    Bauldry, Shawn; Xu, Jun; Fullerton, Andrew S. (2018). Stata Journal 18(4): 924-936
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[89] Power and Sample-Size Analysis for the Royston–Parmar Combined Test in Clinical Trials with a Time-to-Event Outcome: Correction and Program Update
-    Royston, Patrick (2018). Stata Journal 18(4): 995-996
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[90] Estimating Dynamic Common-Correlated Effects in Stata
-    Ditzen, Jan (2018). Stata Journal 18(3): 585-617
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[91] Eq5Dmap: A Command for Mapping between EQ-5D-3L and EQ-5D-5L
-    Hernández-Alava, Mónica; Pudney, Stephen (2018). Stata Journal 18(2): 395-415
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[92] Unit-root Tests Based on Forward and Reverse Dickey–Fuller Regressions
-    Otero, Jesús; Baum, Christopher F. (2018). Stata Journal 18(1): 22-28
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[93] A Command for Fitting Mixture Regression Models for Bounded Dependent Variables Using the Beta Distribution
-    Gray, Laura A.; Alava, Mónica Hernández (2018). Stata Journal 18(1): 51-75
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[94] Two-stage Residual Inclusion Estimation: A Practitioners Guide to Stata Implementation
-    Terza, Joseph V. (2017). Stata Journal 17(4): 916-938
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[95] Assessing the Calibration of Dichotomous Outcome Models with the Calibration Belt
-    Nattino, Giovanni; Lemeshow, Stanley; Phillips, Gary; Finazzi, Stefano; Bertolini, Guido (2017). Stata Journal 17(4): 1003-1014
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[96] Causal Effect Estimation and Inference Using Stata
-    Terza, Joseph V. (2017). Stata Journal 17(4): 939-961
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[97] Response Surface Models for the Elliott, Rothenberg, and Stock Unit-root Test
-    Otero, Jesús; Baum, Christopher F. (2017). Stata Journal 17(4): 985-1002
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[98] Econometric Convergence Test and Club Clustering Using Stata
-    Du, Kerui (2017). Stata Journal 17(4): 882-900
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[99] How to Test for Goodness of Fit in Ordinal Logistic Regression Models
-    Fagerland, Morten W.; Hosmer, David W. (2017). Stata Journal 17(3): 668-686
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[100] Model Selection for Univariable Fractional Polynomials
-    Royston, Patrick (2017). Stata Journal 17(3): 619-629
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[101] Stata Tip 128: Marginal Effects in Log-transformed Models: A Trade Application
-    Uberti, Luca J. (2017). Stata Journal 17(3): 774-778
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[102] Response Surface Models for OLS and GLS Detrending-based Unit-root Tests in Nonlinear ESTAR Models
-    Otero, Jesús; Smith, Jeremy (2017). Stata Journal 17(3): 704-722
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[103] Regression Clustering for Panel-data Models with Fixed Effects
-    Christodoulou, Demetris; Sarafidis, Vasilis (2017). Stata Journal 17(2): 314-329
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[104] Rdrobust: Software for Regression-discontinuity Designs
-    Calonico, Sebastian; Cattaneo, Matias D.; Farrell, Max H.; Titiunik, Rocío (2017). Stata Journal 17(2): 372-404
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[105] Estimating Inverse-probability Weights for Longitudinal Data with Dropout or Truncation: The Xtrccipw Command
-    Daza, Eric J.; Hudgens, Michael G.; Herring, Amy H. (2017). Stata Journal 17(2): 253-278
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[106] Estimating Responsiveness Scores Using Rscore
-    Cerulli, Giovanni (2017). Stata Journal 17(2): 422-441
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[107] Fitting the Errors-in-variables Model Using High-order Cumulants and Moments
-    Erickson, Timothy; Parham, Robert; Whited, Toni M. (2017). Stata Journal 17(1): 116-129
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[108] Support Vector Machines
-    Guenther, Nick; Schonlau, Matthias (2016). Stata Journal 16(4): 917-937
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[109] A Generalized Regression-adjustment Estimator for Average Treatment Effects from Panel Data
-    Drukker, David M. (2016). Stata Journal 16(4): 826-836
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[110] Estimation of Panel Vector Autoregression in Stata
-    Abrigo, Michael R. M.; Love, Inessa (2016). Stata Journal 16(3): 778-804
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[111] The Lag-length Selection and Detrending Methods for HEGY Seasonal Unit-root Tests Using Stata
-    Del Barrio Castro, Tomás; Bodnar, Andrii; Sansó, Andreu (2016). Stata Journal 16(3): 740-760
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[112] Regression Models for Bivariate Count Outcomes
-    Xu, Xinling; Hardin, James W. (2016). Stata Journal 16(2): 301-315
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[113] Inference in Regression Discontinuity Designs under Local Randomization
-    Cattaneo, Matias D.; Titiunik, Rocío; Vazquez-Bare, Gonzalo (2016). Stata Journal 16(2): 331-367
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[114] Simpler Standard Errors for Two-stage Optimization Estimators
-    Terza, Joseph V. (2016). Stata Journal 16(2): 368-385
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[115] Fixed Effects in Unconditional Quantile Regression
-    Borgen, Nicolai T. (2016). Stata Journal 16(2): 403-415
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[116] Regressions are Commonly Misinterpreted
-    Hoaglin, David C. (2016). Stata Journal 16(1): 5-22
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[117] Regressions are Commonly Misinterpreted: Comments on the Article
-    Long, J. Scott; Drukker, David M. (2016). Stata Journal 16(1): 25-29
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[118] Bicop: A Command for Fitting Bivariate Ordinal Regressions with Residual Dependence Characterized by a Copula Function and Normal Mixture Marginals
-    Hernández-Alava, Mónica; Pudney, Stephen (2016). Stata Journal 16(1): 159-184
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[119] Regressions are Commonly Misinterpreted: Comments on the Article
-    Hardin, James W. (2016). Stata Journal 16(1): 23-24
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[120] Regressions are Commonly Misinterpreted: A Rejoinder
-    Hoaglin, David C. (2016). Stata Journal 16(1): 30-36
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[121] Network Meta-analysis
-    White, Ian R. (2015). Stata Journal 15(4): 951-985
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[122] Best Subsets Variable Selection in Nonnormal Regression Models
-    Lindsey, Charles; Sheather, Simon (2015). Stata Journal 15(4): 1046-1059
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[123] Tests for Normality in Linear Panel-data Models
-    Alejo, Javier; Galvao, Antonio; Montes-Rojas, Gabriel; Sosa-Escudero, Walter (2015). Stata Journal 15(3): 822-832
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[124] Regression Analysis of Censored Data Using Pseudo-observations: An Update
-    Overgaard, Morten; Andersen, Per K.; Parner, Erik T. (2015). Stata Journal 15(3): 809-821
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[125] Approximate Bayesian Logistic Regression via Penalized Likelihood by Data Augmentation
-    Discacciati, Andrea; Orsini, Nicola; Greenland, Sander (2015). Stata Journal 15(3): 712-736
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[126] Fitting Fixed- and Random-effects Meta-analysis Models Using Structural Equation Modeling with the Sem and Gsem Commands
-    Palmer, Tom M.; Sterne, Jonathan A. C. (2015). Stata Journal 15(3): 645-671
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[127] Modeling Heaped Count Data
-    Cummings, Tammy H.; Hardin, James W.; McLain, Alexander C.; Hussey, James R.; Bennett, Kevin J.; Wingood, Gina M. (2015). Stata Journal 15(2): 457-479
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[128] Stata Tip 125: Binned Residual Plots for Assessing the Fit of Regression Models for Binary Outcomes
-    Kasza, Jessica (2015). Stata Journal 15(2): 599-604
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[129] Global Search Regression: A New Automatic Model-selection Technique for Cross-section, Time-series, and Panel-data Regressions
-    Gluzmann, Pablo; Panigo, Demian (2015). Stata Journal 15(2): 325-349
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[130] A General-purpose Nomogram Generator for Predictive Logistic Regression Models
-    Zlotnik, Alexander; Abraira, Víctor (2015). Stata Journal 15(2): 537-546
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[131] Multiple Imputation of Covariates by Substantive-model Compatible Fully Conditional Specification
-    Bartlett, Jonathan W.; Morris, Tim P. (2015). Stata Journal 15(2): 437-456
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[132] Regression Models for Count Data from Truncated Distributions
-    Hardin, James W.; Hilbe, Joseph M. (2015). Stata Journal 15(1): 226-246
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[133] Frailty Models and Frailty-Mixture Models for Recurrent Event Times
-    Xu, Ying; Cheung, Yin Bun (2015). Stata Journal 15(1): 135-154
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[134] A Robust Test for Weak Instruments in Stata
-    Pflueger, Carolin E.; Wang, Su (2015). Stata Journal 15(1): 216-225
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[135] Twopm: Two-Part Models
-    Belotti, Federico; Deb, Partha; Manning, Willard G.; Norton, Edward C. (2015). Stata Journal 15(1): 3-20
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[136] Estimating and Modeling Relative Survival
-    Dickman, Paul W.; Coviello, Enzo (2015). Stata Journal 15(1): 186-215
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[137] Robust Data-Driven Inference in the Regression-Discontinuity Design
-    Calonico, Sebastian; Cattaneo, Matias D.; Titiunik, Rocío (2014). Stata Journal 14(4): 909-946
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[138] Femlogit—Implementation of the Multinomial Logit Model with Fixed Effects
-    Pforr, Klaus (2014). Stata Journal 14(4): 847-862
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[139] General-to-Specific Modeling in Stata
-    Clarke, Damian (2014). Stata Journal 14(4): 895-908
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[140] Plotting Regression Coefficients and other Estimates
-    Jann, Ben (2014). Stata Journal 14(4): 708-737
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[141] Dhreg, Xtdhreg, and Bootdhreg: Commands to Implement Double-Hurdle Regression
-    Engel, Christoph; Moffatt, Peter G. (2014). Stata Journal 14(4): 778-797
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[142] Adjcatlogit, Ccrlogit, and Ucrlogit: Fitting Ordinal Logistic Regression Models
-    Fagerland, Morten W. (2014). Stata Journal 14(4): 947-964
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[143] Ivtreatreg: A Command for Fitting Binary Treatment Models with Heterogeneous Response to Treatment and Unobservable Selection
-    Cerulli, Giovanni (2014). Stata Journal 14(3): 453-480
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[144] Merger Simulation with Nested Logit Demand
-    Björnerstedt, Jonas; Verboven, Frank (2014). Stata Journal 14(3): 511-540
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[145] Modeling Count Data with Generalized Distributions
-    Harris, Tammy; Hilbe, Joseph M.; Hardin, James W. (2014). Stata Journal 14(3): 562-579
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[146] Adaptive Markov Chain Monte Carlo Sampling and Estimation in Mata
-    Baker, Matthew J. (2014). Stata Journal 14(3): 623-661
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[147] From Stata to aML
-    Ayllón, Sara (2014). Stata Journal 14(2): 342-362
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[148] Power Analyses for Detecting Effects for Multiple Coefficients in Regression
-    Aberson, Christopher L. (2014). Stata Journal 14(2): 389-397
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[149] Estimation and Testing of Binomial and Beta-Binomial Regression Models with and without Zero Inflation
-    Hardin, James W.; Hilbe, Joseph M. (2014). Stata Journal 14(2): 292-303
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[150] A Smooth Covariate Rank Transformation for Use in Regression Models with a Sigmoid Dose–Response Function
-    Royston, Patrick (2014). Stata Journal 14(2): 329-341
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[151] Regression Models for Count Data Based on the Negative Binomial(p) Distribution
-    Hardin, James W.; Hilbe, Joseph M. (2014). Stata Journal 14(2): 280-291
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[152] Marginscontplot: Plotting the Marginal Effects of Continuous Predictors
-    Royston, Patrick (2013). Stata Journal 13(3): 510-527
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[153] A Short Guide and a Forest Plot Command (Ipdforest) for One-Stage Meta-Analysis
-    Kontopantelis, Evangelos; Reeves, David (2013). Stata Journal 13(3): 574-587
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[154] Goodness-of-Fit Tests for Categorical Data
-    Bellocco, Rino; Algeri, Sara (2013). Stata Journal 13(2): 356-365
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[155] A Command for Laplace Regression
-    Bottai, Matteo; Orsini, Nicola (2013). Stata Journal 13(2): 302-314
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[156] Doubly Robust Estimation in Generalized Linear Models
-    Orsini, Nicola; Bellocco, Rino; Sjölander, Arvid (2013). Stata Journal 13(1): 185-205
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[157] Regression Anatomy, Revealed
-    Filoso, Valerio (2013). Stata Journal 13(1): 92-106
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[158] Within and between Estimates in Random-Effects Models: Advantages and Drawbacks of Correlated Random Effects and Hybrid Models
-    Schunck, Reinhard (2013). Stata Journal 13(1): 65-76
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[159] Modeling Underdispersed Count Data with Generalized Poisson Regression
-    Harris, Tammy; Yang, Zhao; Hardin, James W. (2012). Stata Journal 12(4): 736-747
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[160] A Generalized Missing-Indicator Approach to Regression with Imputed Covariates
-    Dardanoni, Valentino; De Luca, Giuseppe; Modica, Salvatore; Peracchi, Franco (2012). Stata Journal 12(4): 575-604
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[161] Robinson's Square Root of N Consistent Semiparametric Regression Estimator in Stata
-    Verardi, Vincenzo; Debarsy, Nicolas (2012). Stata Journal 12(4): 726-735
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[162] Review of Interpreting and Visualizing Regression Models Using Stata by Michael N. Mitchell
-    Acock, Alan C. (2012). Stata Journal 12(3): 562-564
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[163] Long-Run Covariance and its Applications in Cointegration Regression
-    Wang, Qunyong; Wu, Na (2012). Stata Journal 12(3): 515-542
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[164] Sensible Parameters for Univariate and Multivariate Splines
-    Newson, Roger B. (2012). Stata Journal 12(3): 479-504
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[165] A Generalized Hosmer–Lemeshow Goodness-of-Fit Test for Multinomial Logistic Regression Models
-    Fagerland, Morten W.; Hosmer, David W. (2012). Stata Journal 12(3): 447-453
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[166] Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects
-    Williams, Richard (2012). Stata Journal 12(2): 308-331
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[167] The S-Estimator of Multivariate Location and Scatter in Stata
-    Verardi, Vincenzo; McCathie, Alice (2012). Stata Journal 12(2): 299-307
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[168] Threshold Regression for Time-to-Event Analysis: The Stthreg Package
-    Xiao, Tao; Whitmore, G. A.; He, Xin; Lee, Mei-Ling Ting (2012). Stata Journal 12(2): 257-283
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[169] Bayesian Model Averaging and Weighted-Average Least Squares:  Equivariance, Stability, and Numerical Issues
-    De Luca, Giuseppe; Magnus, Jan R. (2011). Stata Journal 11(4): 518-544
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[170] Logistic Quantile Regression in Stata
-    Orsini, Nicola; Bottai, Matteo (2011). Stata Journal 11(3): 327-344
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[171] The Impact of Different Sources of Body Mass Index Assessment on Smoking Onset: An Application of Multiple-Source Information Models
-    Caria, Maria Paola; Galanti, Maria Rosaria; Bellocco, Rino; Horton, Nicholas J. (2011). Stata Journal 11(3): 386-402
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[172] A Closer Examination of Three Small-Sample Approximations to the Multiple-Imputation Degrees of Freedom
-    Wagstaff, David A.; Harel, Ofer (2011). Stata Journal 11(3): 403-419
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[173] Multivariate Random-effects Meta-regression: Updates to Mvmeta
-    White, Ian R. (2011). Stata Journal 11(2): 255-270
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[174] Fitting Fully Observed Recursive Mixed-process Models with cmp
-    Roodman, David (2011). Stata Journal 11(2): 159-206
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[175] Stata Tip 94: Manipulation of Prediction Parameters for Parametric Survival Regression Models
-    Boswell, Theresa; Gutierrez, Roberto G. (2011). Stata Journal 11(1): 143-144
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[176] A Procedure to Tabulate and Plot Results after Flexible Modeling of a Quantitative Covariate
-    Orsini, Nicola; Greenland, Sander (2011). Stata Journal 11(1): 1-29
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[177] Right-censored Poisson Regression Model
-    Raciborski, Rafal (2011). Stata Journal 11(1): 95-105
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[178] A Suite of Commands for Fitting the Skew-normal and Skew-t models
-    Marchenko, Yulia V.; Genton, Marc G. (2010). Stata Journal 10(4): 507-539
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[179] Fitting Heterogeneous Choice Models with Oglm
-    Williams, Richard (2010). Stata Journal 10(4): 540-567
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[180] A Simple Feasible Procedure to fit Models with High-dimensional Fixed Effects
-    Guimarães, Paulo; Portugal, Pedro (2010). Stata Journal 10(4): 628-649
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[181] Variable Selection in Linear Regression
-    Lindsey, Charles; Sheather, Simon (2010). Stata Journal 10(4): 650-669
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[182] Estimation of Quantile Treatment Effects with Stata
-    Fröolich, Markus; Melly, Blaise (2010). Stata Journal 10(3): 423-457
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[183] Regression Analysis of Censored Data Using Pseudo-observations
-    Parner, Erik T.; Andersen, Per K. (2010). Stata Journal 10(3): 408-422
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[184] Model Fit Assessment via Marginal Model Plots
-    Lindsey, Charles; Sheather, Simon (2010). Stata Journal 10(2): 215-225
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[185] Review of Multivariable Model-building: A Pragmatic Approach to Regression Analysis Based on Fractional Polynomials for Modeling Continuous Variables, by Royston and Sauerbrei
-    Dupont, William D. (2010). Stata Journal 10(2): 297-302
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[186] Using the World Development Indicators Database for Statistical Analysis in Stata
-    Jeanty, P. Wilner (2010). Stata Journal 10(1): 30-45
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[187] Creating Synthetic Discrete-response Regression Models
-    Hilbe, Joseph M. (2010). Stata Journal 10(1): 104-124
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[188] Tabulating SPost Results Using Estout and Esttab
-    Jann, Ben; Long, J. Scott (2010). Stata Journal 10(1): 46-60
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[189] Power Transformation via Multivariate Box–Cox
-    Lindsey, Charles; Sheather, Simon (2010). Stata Journal 10(1): 69-81
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[190] Partial Effects in Probit and Logit Models with a Triple Dummy-Variable Interaction Term
-    Cornelißen, Thomas; Sonderhof, Katja (2009). Stata Journal 9(4): 571-583
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[191] Robust Regression in Stata
-    Verardi, Vincenzo; Croux, Christophe (2009). Stata Journal 9(3): 439-453
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[192] Methods for Estimating Adjusted Risk Ratios
-    Cummings, Peter (2009). Stata Journal 9(2): 175-196
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[193] Metandi: Meta-analysis of Diagnostic Accuracy Using Hierarchical Logistic Regression
-    Harbord, Roger M.; Whiting, Penny (2009). Stata Journal 9(2): 211-229
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[194] Updated Tests for Small-study Effects in Meta-analyses
-    Harbord, Roger M.; Harris, Ross J.; Sterne, Jonathan A. C. (2009). Stata Journal 9(2): 197-210
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[195] Estimation and Comparison of Receiver Operating Characteristic Curves
-    Pepe, Margaret S.; Longton, Gary; Janes, Holly (2009). Stata Journal 9(1): 1-16
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[196] The Blinder–Oaxaca Decomposition for Linear Regression Models
-    Jann, Ben (2008). Stata Journal 8(4): 453-479
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[197] The Blinder–Oaxaca Decomposition for Nonlinear Regression Models
-    Sinning, Mathias; Hahn, Markus; Bauer, Thomas K. (2008). Stata Journal 8(4): 480-492
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[198] Meta-Regression in Stata
-    Harbord, Roger M.; Higgins, Julian P. T. (2008). Stata Journal 8(4): 493-519
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[199] A New Framework for Managing and Analyzing Multiply Imputed Data in Stata
-    Carlin, John B.; Galati, John C.; Royston, Patrick (2008). Stata Journal 8(1): 49-67
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[200] Causal Inference with Observational Data
-    Nichols, Austin (2007). Stata Journal 7(4): 507-541
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[201] Enhanced Routines for Instrumental Variables/Generalized Method of Moments Estimation and Testing
-    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2007). Stata Journal 7(4): 465-506
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[202] Profile Likelihood for Estimation and Confidence Intervals
-    Royston, Patrick (2007). Stata Journal 7(3): 376-387
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[203] Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence
-    Hoechle, Daniel (2007). Stata Journal 7(3): 281-312
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[204] Maximum Likelihood and Two-Step Estimation of an Ordered-Probit Selection Model
-    Chiburis, Richard; Lokshin, Michael (2007). Stata Journal 7(2): 167-182
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[205] Predict and Adjust with Logistic Regression
-    Buis, Maarten L. (2007). Stata Journal 7(2): 221-226
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[206] Improved Generalized Estimating Equation Analysis via xtqls for Quasi–Least Squares in Stata
-    Shults, Justine; Ratcliffe, Sarah J.; Leonard, Mary (2007). Stata Journal 7(2): 147-166
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[207] Making Regression Tables Simplified
-    Jann, Ben (2007). Stata Journal 7(2): 227-244
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[208] Two Postestimation Commands for Assessing Confounding Effects in Epidemiological Studies
-    Wang, Zhiqiang (2007). Stata Journal 7(2): 183-196
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[209] Multivariable Modeling with Cubic Regression Splines: A Principled Approach
-    Royston, Patrick; Sauerbrei, Willi (2007). Stata Journal 7(1): 45-70
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[210] Speaking Stata: In Praise of Trigonometric Predictors
-    Cox, Nicholas J. (2006). Stata Journal 6(4): 561-579
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[211] Graphical Representation of Interactions
-    Barthel, Friederike Maria-Sophie; Royston, Patrick (2006). Stata Journal 6(3): 348-363
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[212] Tests and Confidence Sets with Correct Size when Instruments are Potentially Weak
-    Mikusheva, Anna; Poi, Brian P. (2006). Stata Journal 6(3): 335-347
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[213] Maximum Likelihood Estimation of Endogenous Switching and Sample Selection Models for Binary, Ordinal, and Count Variables
-    Miranda, Alfonso; Rabe-Hesketh, Sophia (2006). Stata Journal 6(3): 285-308
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[214] Difference-Based Semiparametric Estimation of Partial Linear Regression Models
-    Lokshin, Michael (2006). Stata Journal 6(3): 377-383
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[215] Review of Regression Models for Categorical Dependent Variables Using Stata, Second Edition, by Long and Freese
-    Williams, Richard (2006). Stata Journal 6(2): 273-278
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[216] Maximum Simulated Likelihood Estimation of a Negative Binomial Regression Model with Multinomial Endogenous Treatment
-    Deb, Partha; Trivedi, Pravin K. (2006). Stata Journal 6(2): 246-255
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[217] Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables
-    Williams, Richard (2006). Stata Journal 6(1): 58-82
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[218] Generalized Least Squares for Trend Estimation of Summarized Dose–response Data
-    Orsini, Nicola; Bellocco, Rino; Greenland, Sander (2006). Stata Journal 6(1): 40-57
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[219] Goodness-of-fit Test for a Logistic Regression Model Fitted using Survey Sample Data
-    Archer, Kellie J.; Lemeshow, Stanley (2006). Stata Journal 6(1): 97-105
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[220] Confidence Intervals for Predicted Outcomes in Regression Models for Categorical Outcomes
-    Xu, Jun; Long, J. Scott (2005). Stata Journal 5(4): 537-559
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[221] Speaking Stata: Smoothing in Various Directions
-    Cox, Nicholas J. (2005). Stata Journal 5(4): 574-593
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[222] A Simple Approach to Fit the Beta-binomial Model
-    Guimarães, Paulo (2005). Stata Journal 5(3): 385-394
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[223] Making Regression Tables from Stored Estimates
-    Jann, Ben (2005). Stata Journal 5(3): 288-308
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[224] Stings in the Tails: Detecting and Dealing with Censored Data
-    Conroy, Ronán M. (2005). Stata Journal 5(3): 395-404
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[225] Boosted Regression (Boosting): An Introductory Tutorial and a Stata Plugin
-    Schonlau, Matthias (2005). Stata Journal 5(3): 330-354
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[226] A Multivariable Scatterplot Smoother
-    Royston, Patrick; Cox, Nicholas J. (2005). Stata Journal 5(3): 405-412
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[227] Estimation and Testing of Fixed-effect Panel-data Systems
-    Blackwell, J. Lloyd (2005). Stata Journal 5(2): 202-207
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[228] Review of Regression Methods in Biostatistics: Linear, Logistic, Survival, and Repeated Measures Models by Vittinghoff, Glidden, Shiboski, and McCulloch
-    Lemeshow, Stanley; Moeschberger, Melvin L. (2005). Stata Journal 5(2): 274-278
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[229] Stata: The Language of Choice for Time-Series Analysis?
-    Baum, Christopher F. (2005). Stata Journal 5(1): 46-63
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[230] Speaking Stata: Graphing Model Diagnostics
-    Cox, Nicholas J. (2004). Stata Journal 4(4): 449-475
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[231] Controlling for Time-dependent Confounding using Marginal Structural Models
-    Fewell, Zoe; Hernán, Miguel A.; Wolfe, Frederick; Tilling, Kate; Choi, Hyon; Sterne, Jonathan A. C. (2004). Stata Journal 4(4): 402-420
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[232] From the Help Desk: Seemingly Unrelated Regression with Unbalanced Equations
-    McDowell, Allen (2004). Stata Journal 4(4): 442-448
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[233] Confidence Intervals for the Variance Component of Random-effects Linear Models
-    Bottai, Matteo; Orsini, Nicola (2004). Stata Journal 4(4): 429-435
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[234] Graphing Confidence Ellipses: An Update of Ellip for Stata 8
-    Alexandersson, Anders (2004). Stata Journal 4(3): 242-256
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[235] Maximum Likelihood Estimation of Endogenous Switching Regression Models
-    Lokshin, Michael; Sajaia, Zurab (2004). Stata Journal 4(3): 282-289
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[236] Analysis of Matched Cohort Data
-    Cummings, Peter; McKnight, Barbara (2004). Stata Journal 4(3): 274-281
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[237] Multiple Imputation of Missing Values
-    Royston, Patrick (2004). Stata Journal 4(3): 227-241
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[238] Understanding the Multinomial-Poisson Transformation
-    Guimarães, Paulo (2004). Stata Journal 4(3): 265-273
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[239] The Regression-calibration Method for Fitting Generalized Linear Models with Additive Measurement Error
-    Hardin, James W.; Schmiediche, Henrik; Carroll, Raymond J. (2003). Stata Journal 3(4): 361-372
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[240] From the Help Desk: Local Polynomial Regression and Stata Plugins
-    Gutierrez, Roberto G.; Linhart, Jean Marie; Pitblado, Jeffrey S. (2003). Stata Journal 3(4): 412-419
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[241] Variance Estimation for the Instrumental Variables Approach to Measurement Error in Generalized Linear Models
-    Hardin, James W.; Carroll, Raymond J. (2003). Stata Journal 3(4): 342-350
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[242] Odds Ratios and Logistic Regression: Further Examples of their use and Interpretation
-    Hailpern, Susan M.; Visintainer, Paul F. (2003). Stata Journal 3(3): 213-225
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[243] Confidence Intervals and p-values for Delivery to the End User
-    Newson, Roger (2003). Stata Journal 3(3): 245-269
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[244] Multivariate Probit Regression using Simulated Maximum Likelihood
-    Cappellari, Lorenzo; Jenkins, Stephen P. (2003). Stata Journal 3(3): 278-294
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[245] Using Aalen's Linear Hazards Model to Investigate Time-varying Effects in the Proportional Hazards Regression Model
-    Hosmer, David W.; Royston, Patrick (2002). Stata Journal 2(4): 331-350
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[246] Least Likely Observations in Regression Models for Categorical Outcomes
-    Freese, Jeremy (2002). Stata Journal 2(3): 296-300
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[247] Choosing an Appropriate Real-Life Measure of Effect Size: The Case of a Continuous Predictor and a Binary Outcome
-    Conroy, Ronán M. (2002). Stata Journal 2(3): 290-295
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[248] Power by Simulation
-    Feiveson, A. H. (2002). Stata Journal 2(2): 107-124
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[249] Reliable Estimation of Generalized Linear Mixed Models using Adaptive Quadrature
-    Rabe-Hesketh, Sophia; Skrondal, Anders; Pickles, Andrew (2002). Stata Journal 2(1): 1-21
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[250] Review of Regression Models for Categorical Dependent Variables Using Stata by Long and Freese
-    Hendrickx, John (2002). Stata Journal 2(1): 103-105
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[251] Analysis of Quantitative Traits using Regression and Log-linear Modeling when Phase is unknown
-    Mander, A. P. (2002). Stata Journal 2(1): 65-70
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[252] Parametric Frailty and Shared Frailty Survival Models
-    Gutierrez, Roberto G. (2002). Stata Journal 2(1): 22-44
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[253] Flexible Parametric Alternatives to the Cox Model, and more
-    Royston, Patrick (2001). Stata Journal 1(1): 1-28
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[254] Residual Diagnostics for Cross-section Time Series Regression Models
-    Baum, Christopher F. (2001). Stata Journal 1(1): 101-104
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
-Showing 254 of 254 results. (all)
+Showing 3 of 78 results. (all)
 
-. 
-. 
-. *----------------------------------------------------------------------------
-> ---
-. * Section 2: Targeted Author-search Regression Tests
-. * Reference: Editor's comments on Jenkins, Lian, and Baum searches
-. *----------------------------------------------------------------------------
-> ---
-. 
-. display as result "--- Example 6: Jenkins Author Search ---"
---- Example 6: Jenkins Author Search ---
+.
+.
+. *-----------------------------------------------------------------------------
+> --
+. * Section 2: Targeted author-search regression tests
+. * Manuscript: How findsj resolves a query
+. *-----------------------------------------------------------------------------
+> --
+.
+. display as result "--- Example 5: Jenkins author search ---"
+--- Example 5: Jenkins author search ---
 
-. // Every displayed author list should contain Jenkins as a complete name toke
-> n
-. findsj jenkins, author
+. findsj jenkins, author allresults
 [1] Announcement of the Stata Journal Editors’ Prize 2026
     Cox, Nicholas J.; Jenkins, Stephen P. (2026). Stata Journal 26(1): 5-6
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [2] The Stata Journal Editors’ Prize 2025: Michael J. Crowther
-    Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(4): 696-698
+    Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(4):
+    696-698
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [3] Announcement of the Stata Journal Editors' Prize 2025
     Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(1): 1-2
@@ -959,16 +230,20 @@ Showing 254 of 254 results. (all)
     Cox, Nicholas J.; Jenkins, Stephen P. (2024). Stata Journal 24(1): 1-2
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [5] The Stata Journal Editors’ Prize 2023: Fernando Rios-Avila
-    Cox, Nicholas J.; Jenkins, Stephen P. (2023). Stata Journal 23(4): 905-908
+    Cox, Nicholas J.; Jenkins, Stephen P. (2023). Stata Journal 23(4):
+    905-908
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Finite mixture models for linked survey and administrative data: Estimation and postestimation
-    Jenkins, Stephen P.; Rios-Avila, Fernando (2023). Stata Journal 23(1): 53-85
+[6] Finite mixture models for linked survey and administrative data: Estimation
+and postestimation
+    Jenkins, Stephen P.; Rios-Avila, Fernando (2023). Stata Journal 23(1):
+    53-85
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [7] Announcement of the Stata Journal Editors’ Prize 2023
     Cox, Nicholas J.; Jenkins, Stephen P. (2023). Stata Journal 23(1): 1-2
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [8] The Stata Journal Editors’ Prize 2022: Christopher F. Baum
-    Cox, Nicholas J.; Jenkins, Stephen P. (2022). Stata Journal 22(4): 727-733
+    Cox, Nicholas J.; Jenkins, Stephen P. (2022). Stata Journal 22(4):
+    727-733
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [9] Announcement of the Stata Journal Editors’ Prize 2022
     Cox, Nicholas J.; Jenkins, Stephen P. (2022). Stata Journal 22(1): 1-2
@@ -976,44 +251,79 @@ Showing 254 of 254 results. (all)
 [10] Comparing distributions of ordinal data
     Jenkins, Stephen P. (2020). Stata Journal 20(3): 505-531
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[11] Review of Applied Health Economics by Jones, Rice, Bago d'Uva, and Balia
+    Jenkins, Stephen P. (2008). Stata Journal 8(1): 122-128
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[12] Stata Tip 32: Do not Stop
+    Jenkins, Stephen P. (2006). Stata Journal 6(2): 281-281
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[13] Calculation of Multivariate Normal Probabilities by Simulation, with
+Applications to Maximum Simulated Likelihood Estimation
+    Cappellari, Lorenzo; Jenkins, Stephen P. (2006). Stata Journal 6(2):
+    156-189
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[14] Review of Maximum Likelihood Estimation with Stata by Gould, Pitblado, and
+Sribney
+    Jenkins, Stephen P. (2003). Stata Journal 3(4): 440-444
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[15] Multivariate Probit Regression using Simulated Maximum Likelihood
+    Cappellari, Lorenzo; Jenkins, Stephen P. (2003). Stata Journal 3(3):
+    278-294
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[16] Generalized Lorenz Curves and Related Graphs: An Update for Stata 7
+    Van Kerm, Philippe; Jenkins, Stephen P. (2001). Stata Journal 1(1):
+    107-112
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
-Showing 10 of 16 results. (all)
+Showing 16 of 16 results. (all)
 
-. 
-. display as result "--- Example 7: Lian Author Search ---"
---- Example 7: Lian Author Search ---
+. local n_jenkins = r(n_results)
 
-. // This must not return substring matches such as Iliana, Julian, or Galiani
-. findsj lian, author
+. verify_author_count, query("jenkins") returned(`n_jenkins')
+PASS: jenkins returned all 16 complete-token matches.
+
+.
+. display as result "--- Example 6: Lian author search ---"
+--- Example 6: Lian author search ---
+
+. findsj lian, author allresults
 [1] Browse and cite Stata manuals easily: The wwwhelp command
     Chen, Yongli; Lian, Yujun (2024). Stata Journal 24(1): 161-168
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [2] Two-tier stochastic frontier analysis using Stata
-    Lian, Yujun; Liu, Chang; Parmeter, Christopher F. (2023). Stata Journal 23(1): 197-229
+    Lian, Yujun; Liu, Chang; Parmeter, Christopher F. (2023). Stata Journal
+    23(1): 197-229
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
 Showing 2 of 2 results. (all)
 
-. 
-. display as result "--- Example 8: Baum Author Search ---"
---- Example 8: Baum Author Search ---
+. local n_lian = r(n_results)
 
-. // Every displayed author list should contain Baum as a complete name token
-. findsj baum, author
+. verify_author_count, query("lian") returned(`n_lian')
+PASS: lian returned all 2 complete-token matches.
+
+.
+. display as result "--- Example 7: Baum author search ---"
+--- Example 7: Baum author search ---
+
+. findsj baum, author allresults
 [1] Stata tip 166: Changing the axis scale with marginsplot
     Baum, Christopher F. (2025). Stata Journal 25(4): 872-873
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [2] Estimating treatment effects when program participation is misreported
-    Baum, Christopher F.; Tommasi, Denni; Zhang, Lina (2024). Stata Journal 24(4): 614-629
+    Baum, Christopher F.; Tommasi, Denni; Zhang, Lina (2024). Stata Journal
+    24(4): 614-629
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [3] Testing for time-varying Granger causality
-    Baum, Christopher F.; Hurn, Stan; Otero, Jesús (2022). Stata Journal 22(2): 355-378
+    Baum, Christopher F.; Hurn, Stan; Otero, Jesús (2022). Stata Journal
+    22(2): 355-378
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [4] Erratum: Unit-root tests for explosive behavior
     Baum, Christopher F.; Otero, Jesús (2022). Stata Journal 22(1): 234-237
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [5] Fitting mixture models for feeling and uncertainty for rating data analysis
-    Cerulli, Giovanni; Simone, Rosaria; Di Iorio, Francesca; Piccolo, Domenico; Baum, Christopher F. (2022). Stata Journal 22(1): 195-223
+    Cerulli, Giovanni; Simone, Rosaria; Di Iorio, Francesca; Piccolo,
+    Domenico; Baum, Christopher F. (2022). Stata Journal 22(1): 195-223
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [6] Unit-root tests for explosive behavior
     Baum, Christopher F.; Otero, Jesús (2021). Stata Journal 21(4): 999-1020
@@ -1022,108 +332,377 @@ Showing 2 of 2 results. (all)
     Baum, Christopher F.; Hurn, Stan (2021). Stata Journal 21(2): 295-319
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [8] The BDS test of independence
-    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2021). Stata Journal 21(2): 279-294
+    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2021). Stata Journal
+    21(2): 279-294
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [9] Local Whittle estimation of the long-memory parameter
-    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2020). Stata Journal 20(3): 565-583
+    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2020). Stata Journal
+    20(3): 565-583
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [10] Advice on using heteroskedasticity-based identification
-    Baum, Christopher F.; Lewbel, Arthur (2019). Stata Journal 19(4): 757-767
+    Baum, Christopher F.; Lewbel, Arthur (2019). Stata Journal 19(4):
+    757-767
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[11] Unit-root Tests Based on Forward and Reverse Dickey–Fuller Regressions
+    Otero, Jesús; Baum, Christopher F. (2018). Stata Journal 18(1): 22-28
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[12] Response Surface Models for the Elliott, Rothenberg, and Stock Unit-root
+Test
+    Otero, Jesús; Baum, Christopher F. (2017). Stata Journal 17(4): 985-1002
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[13] Stata Tip 126: Handling Irregularly Spaced high-frequency Transactions Data
+    Baum, Christopher F.; Bibo, Sebastiaan (2016). Stata Journal 16(2):
+    517-520
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[14] Richard Sperling (1961–2011)
+    Baum, Christopher F. (2011). Stata Journal 11(2): 157-158
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[15] Stata Tip 88: Efficiently Evaluating Elasticities with the Margins Command
+    Baum, Christopher F. (2010). Stata Journal 10(2): 309-312
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[16] Stata Tip 73: Append with Care!
+    Baum, Christopher F. (2009). Stata Journal 9(1): 166-168
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[17] Evaluating Concavity for Production and Cost Functions
+    Baum, Christopher F.; Linz, Teresa (2009). Stata Journal 9(1): 161-165
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[18] Stata Tip 63: Modeling Proportions
+    Baum, Christopher F. (2008). Stata Journal 8(2): 299-303
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[19] Enhanced Routines for Instrumental Variables/Generalized Method of Moments
+Estimation and Testing
+    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2007). Stata
+    Journal 7(4): 465-506
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[20] Stata Tip 45: Getting those Data into Shape
+    Baum, Christopher F.; Cox, Nicholas J. (2007). Stata Journal 7(2):
+    268-271
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[21] Stata Tip 40: Taking Care of Business
+    Baum, Christopher F. (2007). Stata Journal 7(1): 137-139
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[22] Stata Tip 37: And the Last shall be First
+    Baum, Christopher F. (2006). Stata Journal 6(4): 588-589
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[23] Stata Tip 38: Testing for Groupwise Heteroskedasticity
+    Baum, Christopher F. (2006). Stata Journal 6(4): 590-592
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[24] Stata: The Language of Choice for Time-Series Analysis?
+    Baum, Christopher F. (2005). Stata Journal 5(1): 46-63
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[25] Instrumental Variables and GMM: Estimation and Testing
+    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2003). Stata
+    Journal 3(1): 1-31
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[26] Residual Diagnostics for Cross-section Time Series Regression Models
+    Baum, Christopher F. (2001). Stata Journal 1(1): 101-104
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
-Showing 10 of 26 results. (all)
+Showing 26 of 26 results. (all)
 
-. 
-. 
-. *----------------------------------------------------------------------------
-> ---
-. * Section 3: Citation Management
-. * Reference: Page 5 (Figure 2 & 3) and Page 6 (Figure 4)
-. *----------------------------------------------------------------------------
-> ---
-. 
-. display as result "--- Example 9: Reference Links (Figure 2) ---"
---- Example 9: Reference Links (Figure 2) ---
+. local n_baum = r(n_results)
 
-. // Search for "wwwhelp" and include specific reference format links (md, late
-> x, txt)
-. findsj wwwhelp, ref
-[1] Browse and cite Stata manuals easily: The wwwhelp command
-    Chen, Yongli; Lian, Yujun (2024). Stata Journal 24(1): 161-168
-    DOI: 10.1177/1536867x241233676
+. verify_author_count, query("baum") returned(`n_baum')
+PASS: baum returned all 26 complete-token matches.
+
+.
+. display as result "--- Example 8: Multiword author search ---"
+--- Example 8: Multiword author search ---
+
+. findsj "Christopher F. Baum", author allresults
+[1] Stata tip 166: Changing the axis scale with marginsplot
+    Baum, Christopher F. (2025). Stata Journal 25(4): 872-873
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[2] Estimating treatment effects when program participation is misreported
+    Baum, Christopher F.; Tommasi, Denni; Zhang, Lina (2024). Stata Journal
+    24(4): 614-629
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[3] Testing for time-varying Granger causality
+    Baum, Christopher F.; Hurn, Stan; Otero, Jesús (2022). Stata Journal
+    22(2): 355-378
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[4] Erratum: Unit-root tests for explosive behavior
+    Baum, Christopher F.; Otero, Jesús (2022). Stata Journal 22(1): 234-237
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[5] Fitting mixture models for feeling and uncertainty for rating data analysis
+    Cerulli, Giovanni; Simone, Rosaria; Di Iorio, Francesca; Piccolo,
+    Domenico; Baum, Christopher F. (2022). Stata Journal 22(1): 195-223
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[6] Unit-root tests for explosive behavior
+    Baum, Christopher F.; Otero, Jesús (2021). Stata Journal 21(4): 999-1020
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[7] “What good is a volatility model?” A reexamination after 20 years
+    Baum, Christopher F.; Hurn, Stan (2021). Stata Journal 21(2): 295-319
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[8] The BDS test of independence
+    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2021). Stata Journal
+    21(2): 279-294
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[9] Local Whittle estimation of the long-memory parameter
+    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2020). Stata Journal
+    20(3): 565-583
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[10] Advice on using heteroskedasticity-based identification
+    Baum, Christopher F.; Lewbel, Arthur (2019). Stata Journal 19(4):
+    757-767
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[11] Unit-root Tests Based on Forward and Reverse Dickey–Fuller Regressions
+    Otero, Jesús; Baum, Christopher F. (2018). Stata Journal 18(1): 22-28
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[12] Response Surface Models for the Elliott, Rothenberg, and Stock Unit-root
+Test
+    Otero, Jesús; Baum, Christopher F. (2017). Stata Journal 17(4): 985-1002
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[13] Stata Tip 126: Handling Irregularly Spaced high-frequency Transactions Data
+    Baum, Christopher F.; Bibo, Sebastiaan (2016). Stata Journal 16(2):
+    517-520
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[14] Richard Sperling (1961–2011)
+    Baum, Christopher F. (2011). Stata Journal 11(2): 157-158
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[15] Stata Tip 88: Efficiently Evaluating Elasticities with the Margins Command
+    Baum, Christopher F. (2010). Stata Journal 10(2): 309-312
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[16] Evaluating Concavity for Production and Cost Functions
+    Baum, Christopher F.; Linz, Teresa (2009). Stata Journal 9(1): 161-165
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[17] Stata Tip 73: Append with Care!
+    Baum, Christopher F. (2009). Stata Journal 9(1): 166-168
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[18] Stata Tip 63: Modeling Proportions
+    Baum, Christopher F. (2008). Stata Journal 8(2): 299-303
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[19] Enhanced Routines for Instrumental Variables/Generalized Method of Moments
+Estimation and Testing
+    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2007). Stata
+    Journal 7(4): 465-506
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[20] Stata Tip 45: Getting those Data into Shape
+    Baum, Christopher F.; Cox, Nicholas J. (2007). Stata Journal 7(2):
+    268-271
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[21] Stata Tip 40: Taking Care of Business
+    Baum, Christopher F. (2007). Stata Journal 7(1): 137-139
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[22] Stata Tip 38: Testing for Groupwise Heteroskedasticity
+    Baum, Christopher F. (2006). Stata Journal 6(4): 590-592
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[23] Stata Tip 37: And the Last shall be First
+    Baum, Christopher F. (2006). Stata Journal 6(4): 588-589
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[24] Stata: The Language of Choice for Time-Series Analysis?
+    Baum, Christopher F. (2005). Stata Journal 5(1): 46-63
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[25] Instrumental Variables and GMM: Estimation and Testing
+    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2003). Stata
+    Journal 3(1): 1-31
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[26] Residual Diagnostics for Cross-section Time Series Regression Models
+    Baum, Christopher F. (2001). Stata Journal 1(1): 101-104
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
-Showing 1 of 1 results. (all)
+Showing 26 of 26 results. (all)
 
-. 
-. display as result "--- Example 10: Generating Markdown Citation via DOI (Figu
-> re 3) ---"
---- Example 10: Generating Markdown Citation via DOI (Figure 3) ---
+. local n_fullname = r(n_results)
 
-. // This uses the helper command `getiref` directly, which findsj invokes inte
-> rnally
-. // Note: This requires an internet connection
+. verify_author_count, query("Christopher F. Baum") returned(`n_fullname')
+PASS: Christopher F. Baum returned all 26 complete-token matches.
+
+.
+.
+. *-----------------------------------------------------------------------------
+> --
+. * Section 3: Citation management
+. * Manuscript: Citation management and worked ten-article example
+. *-----------------------------------------------------------------------------
+> --
+.
+. display as result "--- Example 9: DOI display and reference links ---"
+--- Example 9: DOI display and reference links ---
+
+. findsj did, ref n(1)
+[1] On synthetic difference-in-differences and related estimation methods in
+Stata
+    Clarke, Damian; Pailañir, Daniel; Athey, Susan; Imbens, Guido (2024).
+    Stata Journal 24(4): 557-598
+    DOI: 10.1177/1536867x241297914
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+
+Showing 1 of 49 results. (all)
+
+.
+. display as result "--- Example 10: Markdown citation from a DOI ---"
+--- Example 10: Markdown citation from a DOI ---
+
 . getiref 10.1177/1536867x241233676, md
-  
-Chen, Y., & Lian, Y. (2024). Browse and cite Stata manuals easily: The wwwhelp 
-> command. The Stata Journal, 24(1), 161–168.
-    Link    PDF    Google    
 
-Chen, Y., & Lian, Y. (2024). Browse and cite Stata manuals easily: The wwwhelp 
-> command. The Stata Journal, 24(1), 161–168. [Link](https://journals.sagepub.c
-> om/doi/10.1177/1536867x241233676), [PDF](https://journals.sagepub.com/doi/pdf
-> /10.1177/1536867x241233676), [Google](<https://scholar.google.com/scholar?q=B
-> rowse and cite Stata manuals easily: The wwwhelp command>).
- 
+Chen, Y., & Lian, Y. (2024). Browse and cite Stata manuals easily: The wwwhelp c
+> ommand. The Stata Journal, 24(1), 161–168.
+    Link    PDF    Google
+
+Chen, Y., & Lian, Y. (2024). Browse and cite Stata manuals easily: The wwwhelp c
+> ommand. The Stata Journal, 24(1), 161–168. [Link](https://journals.sagepub.com
+> /doi/10.1177/1536867x241233676), [PDF](https://journals.sagepub.com/doi/pdf/10
+> .1177/1536867x241233676), [Google](<https://scholar.google.com/scholar?q=Brows
+> e and cite Stata manuals easily: The wwwhelp command>).
+
 Tips: Text is on clipboard. Press '' to paste, ^-^
 
-. 
-. display as result "--- Example 11: Batch Export to Markdown (Figure 4) ---"
---- Example 11: Batch Export to Markdown (Figure 4) ---
+.
+. display as result "--- Example 11: Batch Markdown export ---"
+--- Example 11: Batch Markdown export ---
 
-. // Search "causal inference", limit to 2 results, and export citations to Mar
-> kdown
-. // This copies the result to the clipboard and saves a temp file
-. findsj causal inference, md n(2)
+. findsj causal inference, md n(2) noclip
 
 ------------------------------------------------------------
   Markdown format:
 ------------------------------------------------------------
 
-1. Yan, Guanpeng; Chen, Qiang; Xiao, Zhijie (2025) Quantile control method: Cau
-> sal inference with one treated unit via random forest. The Stata Journal: Pro
-> moting communications on statistics and Stata, 25(2): 407-437. [Link](https:/
-> /www.stata-journal.com/article.html?article=st0777), [PDF](https://journals.s
-> agepub.com/doi/pdf/10.1177/1536867x251341181), [Google](<https://scholar.goog
-> le.com/scholar?q=Quantile%20control%20method:%20Causal%20inference%20with%20o
-> ne%20treated%20unit%20via%20random%20forest>)
-2. Estrada, Pablo; Estrada, Juan; Huynh, Kim P.; Jacho-Chávez, David; Sánchez-A
-> ragón, Leonardo (2025) netivreg: Estimation of peer effects in endogenous soc
-> ial networks. The Stata Journal: Promoting communications on statistics and S
-> tata, 25(2): 344-373. [Link](https://www.stata-journal.com/article.html?artic
-> le=st0775), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/1536867x251341
-> 145), [Google](<https://scholar.google.com/scholar?q=netivreg:%20Estimation%2
-> 0of%20peer%20effects%20in%20endogenous%20social%20networks>)
+1. Estrada, Pablo; Estrada, Juan; Huynh, Kim P.; Jacho-Chávez, David; Sánchez-Ar
+> agón, Leonardo (2025) netivreg: Estimation of peer effects in endogenous socia
+> l networks. The Stata Journal: Promoting communications on statistics and Stat
+> a, 25(2): 344-373. [Link](https://www.stata-journal.com/article.html?article=s
+> t0775), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/1536867x251341145),
+>  [Google](<https://scholar.google.com/scholar?q=netivreg:%20Estimation%20of%20
+> peer%20effects%20in%20endogenous%20social%20networks>)
+2. Yan, Guanpeng; Chen, Qiang; Xiao, Zhijie (2025) Quantile control method: Caus
+> al inference with one treated unit via random forest. The Stata Journal: Promo
+> ting communications on statistics and Stata, 25(2): 407-437. [Link](https://ww
+> w.stata-journal.com/article.html?article=st0777), [PDF](https://journals.sagep
+> ub.com/doi/pdf/10.1177/1536867x251341181), [Google](<https://scholar.google.co
+> m/scholar?q=Quantile%20control%20method:%20Causal%20inference%20with%20one%20t
+> reated%20unit%20via%20random%20forest>)
 
-Note: Clipboard not supported on this OS. Text saved to file.
 ----------------------------------------------------------
   View        Open_Mac       Open_Win          dir
 ----------------------------------------------------------
 
-. 
-. 
-. *----------------------------------------------------------------------------
-> ---
-. * Section 4: Database Updates
-. * Reference: Page 3 (Syntax) and Page 7 (Figure 6)
-. *----------------------------------------------------------------------------
-> ---
-. 
-. display as result "--- Example 12: Update Source Menu (Figure 6) ---"
---- Example 12: Update Source Menu (Figure 6) ---
+. capture erase "_findsj_temp_out_.md"
 
-. // Displays interactive menu to choose download source (GitHub/Gitee)
-. // Note: This command is interactive.
+.
+. display as result "--- Example 12: Ten-article plain-text export ---"
+--- Example 12: Ten-article plain-text export ---
+
+. timer clear 1
+
+. timer on 1
+
+. findsj causal inference, txt n(10) noclip
+
+------------------------------------------------------------
+  Plain text format:
+------------------------------------------------------------
+
+1. Estrada, Pablo; Estrada, Juan; Huynh, Kim P.; Jacho-Chávez, David; Sánchez-Ar
+> agón, Leonardo (2025) netivreg: Estimation of peer effects in endogenous socia
+> l networks. The Stata Journal: Promoting communications on statistics and Stat
+> a, 25(2): 344-373. Link: https://www.stata-journal.com/article.html?article=st
+> 0775, PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x251341145, Goo
+> gle: https://scholar.google.com/scholar?q=netivreg:%20Estimation%20of%20peer%2
+> 0effects%20in%20endogenous%20social%20networks
+2. Yan, Guanpeng; Chen, Qiang; Xiao, Zhijie (2025) Quantile control method: Caus
+> al inference with one treated unit via random forest. The Stata Journal: Promo
+> ting communications on statistics and Stata, 25(2): 407-437. Link: https://www
+> .stata-journal.com/article.html?article=st0777, PDF: https://journals.sagepub.
+> com/doi/pdf/10.1177/1536867x251341181, Google: https://scholar.google.com/scho
+> lar?q=Quantile%20control%20method:%20Causal%20inference%20with%20one%20treated
+> %20unit%20via%20random%20forest
+3. Tübbicke, Stefan (2023) ebct: Using entropy balancing for continuous treatmen
+> ts to estimate dose–response functions and their derivatives. The Stata Journa
+> l: Promoting communications on statistics and Stata, 23(3): 709-729. Link: htt
+> ps://www.stata-journal.com/article.html?article=st0726, PDF: https://journals.
+> sagepub.com/doi/pdf/10.1177/1536867x231196291, Google: https://scholar.google.
+> com/scholar?q=ebct:%20Using%20entropy%20balancing%20for%20continuous%20treatme
+> nts%20to%20estimate%20dose–response%20functions%20and%20their%20derivatives
+4. Yan, Guanpeng; Chen, Qiang (2023) synth2: Synthetic control method with place
+> bo tests, robustness test, and visualization. The Stata Journal: Promoting com
+> munications on statistics and Stata, 23(3): 597-624. Link: https://www.stata-j
+> ournal.com/article.html?article=st0722, PDF: https://journals.sagepub.com/doi/
+> pdf/10.1177/1536867x231195278, Google: https://scholar.google.com/scholar?q=sy
+> nth2:%20Synthetic%20control%20method%20with%20placebo%20tests,%20robustness%20
+> test,%20and%20visualization
+5. Yan, Guanpeng; Chen, Qiang (2022) rcm: A command for the regression control m
+> ethod. The Stata Journal: Promoting communications on statistics and Stata, 22
+> (4): 842-883. Link: https://www.stata-journal.com/article.html?article=st0693,
+>  PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x221140960, Google:
+> https://scholar.google.com/scholar?q=rcm:%20A%20command%20for%20the%20regressi
+> on%20control%20method
+6. Kaplan, David M. (2019) distcomp: Comparing distributions. The Stata Journal:
+>  Promoting communications on statistics and Stata, 19(4): 832-848. Link: https
+> ://www.stata-journal.com/article.html?article=st0579, PDF: https://journals.sa
+> gepub.com/doi/pdf/10.1177/1536867x19893626, Google: https://scholar.google.com
+> /scholar?q=distcomp:%20Comparing%20distributions
+7. Cerulli, Giovanni; Ventura, Marco (2019) Estimation of pre- and posttreatment
+>  average treatment effects with binary time-varying treatment using Stata. The
+>  Stata Journal: Promoting communications on statistics and Stata, 19(3): 551-5
+> 65. Link: https://www.stata-journal.com/article.html?article=st0566, PDF: http
+> s://journals.sagepub.com/doi/pdf/10.1177/1536867x19874224, Google: https://sch
+> olar.google.com/scholar?q=Estimation%20of%20pre-%20and%20posttreatment%20avera
+> ge%20treatment%20effects%20with%20binary%20time-varying%20treatment%20using%20
+> Stata
+8. Xu, Ran; Frank, Kenneth A.; Maroulis, Spiro J.; Rosenberg, Joshua M. (2019) k
+> onfound: Command to quantify robustness of causal inferences. The Stata Journa
+> l: Promoting communications on statistics and Stata, 19(3): 523-550. Link: htt
+> ps://www.stata-journal.com/article.html?article=st0565, PDF: https://journals.
+> sagepub.com/doi/pdf/10.1177/1536867x19874223, Google: https://scholar.google.c
+> om/scholar?q=konfound:%20Command%20to%20quantify%20robustness%20of%20causal%20
+> inferences
+9. Terza, Joseph V. (2017) Causal Effect Estimation and Inference Using Stata. T
+> he Stata Journal: Promoting communications on statistics and Stata, 17(4): 939
+> -961. Link: https://www.stata-journal.com/article.html?article=st0506, PDF: ht
+> tps://journals.sagepub.com/doi/pdf/10.1177/1536867x1801700410, Google: https:/
+> /scholar.google.com/scholar?q=Causal%20Effect%20Estimation%20and%20Inference%2
+> 0Using%20Stata
+10. Heß, Simon (2017) Randomization Inference with Stata: A Guide and Software.
+> The Stata Journal: Promoting communications on statistics and Stata, 17(3): 63
+> 0-651. Link: https://www.stata-journal.com/article.html?article=st0489, PDF: h
+> ttps://journals.sagepub.com/doi/pdf/10.1177/1536867x1701700306, Google: https:
+> //scholar.google.com/scholar?q=Randomization%20Inference%20with%20Stata:%20A%2
+> 0Guide%20and%20Software
+
+----------------------------------------------------------
+  View        Open_Mac       Open_Win          dir
+----------------------------------------------------------
+
+. timer off 1
+
+. timer list 1
+   1:      0.01 /        1 =       0.0110
+
+. capture erase "_findsj_temp_out_.txt"
+
+.
+. display as result "--- Example 13: BibTeX and RIS downloads ---"
+--- Example 13: BibTeX and RIS downloads ---
+
+. findsj st0377, bib
+Downloading bib file for st0377... done.
+Save to: /Users/ronald/Desktop/paper/statajournal/findsj/st0377.bib
+
+. confirm file "st0377.bib"
+
+. findsj dm0065, ris
+Downloading ris file for dm0065... done.
+Save to: /Users/ronald/Desktop/paper/statajournal/findsj/dm0065.ris
+
+. confirm file "dm0065.ris"
+
+. capture erase "st0377.bib"
+
+. capture erase "dm0065.ris"
+
+.
+.
+. *-----------------------------------------------------------------------------
+> --
+. * Section 4: Database-source display
+. * Manuscript: Database structure and updates
+. *-----------------------------------------------------------------------------
+> --
+.
+. display as result "--- Example 14: Update-source menu ---"
+--- Example 14: Update-source menu ---
+
 . findsj, updatesource
 ----------------------------------------------------------------------
   Stata Journal Database Update
@@ -1139,75 +718,70 @@ Download source options:
 Click on a source above to download.
 ----------------------------------------------------------------------
 
-. 
-. display as result "--- Example 13: Quick Update ---"
---- Example 13: Quick Update ---
+.
+. display as text "To update the database manually, run: findsj, update"
+To update the database manually, run: findsj, update
 
-. // The following command updates the installed database in place. It is shown
-. // for reproducibility but is not executed while generating this audit log.
-. // findsj, update
-. display as text "To update the database, run: findsj, update"
-To update the database, run: findsj, update
+.
+.
+. *-----------------------------------------------------------------------------
+> --
+. * Section 5: Download-path management
+. * Manuscript: Download path management
+. *-----------------------------------------------------------------------------
+> --
+.
+. display as result "--- Example 15: Managing download paths ---"
+--- Example 15: Managing download paths ---
 
-. 
-. 
-. *----------------------------------------------------------------------------
-> ---
-. * Section 5: Download Path Management
-. * Reference: Page 9 (Section 4.2)
-. *----------------------------------------------------------------------------
-> ---
-. 
-. display as result "--- Example 14: Managing Download Paths ---"
---- Example 14: Managing Download Paths ---
-
-. 
-. // 1. Check current path
 . findsj, querypath
-Current download path: /Users/ronald/Desktop/paper/statajournal/findsj (default
-> )
+Current download path: /Users/ronald/Desktop/paper/statajournal/findsj (default)
 
-. 
-. // 2. Set a cross-platform temporary path for demonstration purposes
-. local demo_path "`c(tmpdir)'findsj_demo_references"
+.
+. local demo_root = subinstr("`c(tmpdir)'", "\", "/", .)
+
+. if substr("`demo_root'", -1, 1) != "/" local demo_root "`demo_root'/"
+
+. local demo_path "`demo_root'findsj_demo_references"
 
 . capture mkdir "`demo_path'"
 
 . findsj, setpath("`demo_path'")
-Download path set to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_wo
-> rker_default_ap529ya4findsj_demo_references
+Download path set to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/findsj_de
+> mo_references
 This setting will be remembered for future sessions.
 
-. 
-. // Verify the new path
 . findsj, querypath
-Current download path: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_w
-> orker_default_ap529ya4findsj_demo_references
+Current download path: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/findsj_d
+> emo_references
 
-. 
-. // 3. Reset to default (current working directory)
 . findsj, resetpath
 Download path reset to default (current working directory)
 Use findsj ..., setpath(path) to set a custom download path
 
-. 
-. // Verify reset
 . findsj, querypath
-Current download path: /Users/ronald/Desktop/paper/statajournal/findsj (default
-> )
+Current download path: /Users/ronald/Desktop/paper/statajournal/findsj (default)
 
-. 
-. // Cleanup demo folder
 . capture rmdir "`demo_path'"
 
-. 
-. display as result "--- End of Examples ---"
---- End of Examples ---
+.
+. if c(linesize) != 80 {
+.     display as error "Regression test failed: findsj changed linesize."
+.     exit 9
+. }
+
+. display as result "PASS: caller linesize remains 80."
+PASS: caller linesize remains 80.
+
+.
+. capture program drop verify_author_count
+
+. display as result "--- All examples and regression checks completed ---"
+--- All examples and regression checks completed ---
 
 . log close
       name:  <unnamed>
-       log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.lo
-> g
+       log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.log
   log type:  text
- closed on:  21 Jul 2026, 20:25:07
--------------------------------------------------------------------------------
+ closed on:  22 Jul 2026, 19:37:36
+--------------------------------------------------------------------------------

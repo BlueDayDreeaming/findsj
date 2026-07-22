@@ -1,7 +1,9 @@
-*! version 3.2.3  21Jul2026
+*! version 3.2.4  22Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal and Stata Technical Bulletin articles
+* v3.2.4: Require every author-query term to match a complete name token;
+*   accept quoted multiword queries; preserve the caller's linesize
 * v3.2.3: Create Stata's PERSONAL ado directory before saving setpath()
 *   configuration on installations where that directory does not yet exist
 * v3.2.2: Make BibTeX/RIS downloads synchronous and validate the returned
@@ -45,8 +47,9 @@
 
 *===============================================================================
 * Helper program: findsj_author_match
-* Match the first query term as a complete author-name token.  This prevents a
-* search for "lian" from matching names such as Iliana, Julian, or Galiani.
+* Match every query term as a complete author-name token (AND logic).  This
+* prevents "lian" from matching Iliana, Julian, or Galiani and supports full
+* author queries such as "Christopher F. Baum".
 *===============================================================================
 program define findsj_author_match
     version 14
@@ -56,9 +59,8 @@ program define findsj_author_match
 
     local query_clean = ustrlower(ustrregexra(`"`query'"', "[^\p{L}\p{N}_]+", " "))
     local query_clean = strtrim(stritrim(`"`query_clean'"'))
-    local first_word = word(`"`query_clean'"', 1)
 
-    if `"`first_word'"' == "" {
+    if `"`query_clean'"' == "" {
         gen byte `generate' = 0
         exit
     }
@@ -67,7 +69,14 @@ program define findsj_author_match
     gen strL `author_tokens' = ustrlower(`varlist')
     replace `author_tokens' = ustrregexra(`author_tokens', "[^\p{L}\p{N}_]+", " ")
     replace `author_tokens' = " " + strtrim(stritrim(`author_tokens')) + " "
-    gen byte `generate' = strpos(`author_tokens', " `first_word' ") > 0
+    gen byte `generate' = 1
+
+    local n_words = wordcount(`"`query_clean'"')
+    forvalues i = 1/`n_words' {
+        local query_word = word(`"`query_clean'"', `i')
+        replace `generate' = 0 if ///
+            strpos(`author_tokens', " `query_word' ") == 0
+    }
 end
 
 
@@ -252,6 +261,17 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
 * Check for updates (once per day)
 findsj_check_update
 
+* syntax, anything preserves grouping quotes.  Treat one pair of surrounding
+* double quotes as command-line grouping, not as part of the search text.
+local keywords = strtrim(stritrim(`"`keywords'"'))
+if strlen(`"`keywords'"') >= 2 {
+    if substr(`"`keywords'"', 1, 1) == char(34) & ///
+       substr(`"`keywords'"', -1, 1) == char(34) {
+        local keywords = substr(`"`keywords'"', 2, strlen(`"`keywords'"') - 2)
+        local keywords = strtrim(stritrim(`"`keywords'"'))
+    }
+}
+
 
 * Handle citation-file download subcommands (findsj artid, bib|ris)
 if "`bib'" != "" | "`ris'" != "" {
@@ -405,8 +425,6 @@ if "`download_path'" == "" {
     local download_path "`c(pwd)'"
 }
 
-local keywords = strtrim(`"`keywords'"')   
-local keywords = stritrim(`"`keywords'"')
 if wordcount(`"`keywords'"') > 1 {
     local keywords_url = subinstr(`"`keywords'"', " ", "+", .)
 }
@@ -562,7 +580,7 @@ if `use_offline' == 1 {
         * 1. Case-insensitive (convert all to lowercase)
         * 2. Substring matching for titles/keywords; token matching for authors
         * 3. Multiple words use AND logic (all words must appear)
-        * 4. Author search: only first word is used
+        * 4. Author search: all query terms use complete-token AND matching
         * 5. Keyword search: searches in title, author, AND abstract
         * 6. Abbreviation expansion: automatically expands common abbreviations
         * ========================================
@@ -616,7 +634,7 @@ if `use_offline' == 1 {
         
         * First pass: exact match with original keywords
         if "`scope'" == "author" {
-            * Author search: first query term must be a complete name token
+            * Author search: every query term must be a complete name token
             findsj_author_match author, generate(author_match) query(`"`keywords_clean'"')
             replace matched = author_match
             replace match_priority = 1 if matched == 1
@@ -900,10 +918,6 @@ if `num_export' > 0 {
     local n_results = `total_results'
 }
 else {
-    * Save and increase line size to prevent wrapping
-    local old_linesize = c(linesize)
-    quietly set linesize 255
-
     local n = `n_display'
     forvalues i = 1/`n' {
     local volnum_i  = volnum_str[`i']
@@ -1139,10 +1153,6 @@ else {
     * ref option is deprecated - citation buttons are now directly available in main button row
     
 }
-
-
-* Restore original line size
-quietly set linesize `old_linesize'
 
 * Save total number of displayed results
 global findsj_n_display `n_display'

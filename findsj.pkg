@@ -1,9 +1,11 @@
 d 'FINDSJ': Search and cite Stata Journal articles with interactive buttons
 d
-d Search Stata Journal and STB articles with clickable buttons for Article, PDF,
-d Google Scholar, package installation, and citation generation. Export formatted
-d citations in Markdown, LaTeX, or plain text with automatic clipboard copying.
-d Download BibTeX/RIS files. Database automatically updated via GitHub Actions.
+d Search Stata Journal and STB articles with clickable buttons for article pages,
+d DOI-based publisher PDF links, Google Scholar, package searches, and citation
+d generation. Export Markdown, LaTeX, or plain-text citations. Batch exports are
+d copied to the clipboard on Windows and macOS; Linux exports are file-only.
+d Download BibTeX/RIS files. The 1,269-record database is checked monthly via
+d GitHub Actions.
 d
 d KW: findsj
 d KW: Stata Journal
@@ -17,7 +19,7 @@ d
 d Requires: Stata version 16 or higher
 d
 d Distribution-Date: 20260722
-d version: 3.2.3
+d version: 3.2.4
 d License: MIT
 d
 d Author: Lian Yu-jun, Lingnan College, Sun Yat-Sen University, China
@@ -26,7 +28,7 @@ d
 d Author: Chucheng Wan, Lingnan College, Sun Yat-sen University, China
 d Support: email chucheng.wan@outlook.com
 d
-d Github: https://github.com/arlionn/findsj
+d Github: https://github.com/BlueDayDreeaming/findsj
 d
 f findsj.ado
 f findsj.sthlp
@@ -34,5 +36,6 @@ f findsj.dta
 f findsj_version.dta
 f findsj_examples.do
 f findsj_examples.log
+f README.txt
 f getiref.ado
 f getiref.sthlp
