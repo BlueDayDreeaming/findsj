@@ -1,6 +1,6 @@
 d 'FINDSJ': Search and cite Stata Journal articles with interactive buttons
 d
-d Search Stata Journal and STB articles with clickable buttons for article pages,
+d Search Stata Journal articles with clickable buttons for article pages,
 d DOI-based publisher PDF links, Google Scholar, package searches, and citation
 d generation. Export Markdown, LaTeX, or plain-text citations. Batch exports are
 d copied to the clipboard on Windows and macOS; Linux exports are file-only.
@@ -18,8 +18,8 @@ d KW: getiref
 d
 d Requires: Stata version 16 or higher
 d
-d Distribution-Date: 20260722
-d version: 3.2.4
+d Distribution-Date: 20260723
+d version: 3.2.5
 d License: MIT
 d
 d Author: Lian Yu-jun, Lingnan College, Sun Yat-Sen University, China

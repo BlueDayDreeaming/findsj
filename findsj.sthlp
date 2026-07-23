@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.2.4  22Jul2026}{...}
+{* *! version 3.2.5  23Jul2026}{...}
 {vieweralsosee "[R] search" "help search"}{...}
 {vieweralsosee "[R] net" "help net"}{...}
 {viewerjumpto "Syntax" "findsj##syntax"}{...}
@@ -87,6 +87,9 @@ Configure download path
 {synopt:{opt title}}search by article title{p_end}
 {synopt:{opt keyword}}search by keyword (default){p_end}
 
+{syntab:Search source}
+{synopt:{opt online}}query the Stata Journal website even when the local database is available{p_end}
+
 {syntab:Display control}
 {synopt:{opt n(#)}}number of results to display; default is {cmd:n(10)}{p_end}
 {synopt:{opt allresults}}display all search results{p_end}
@@ -103,7 +106,7 @@ Configure download path
 {synopt:{opt text}}same as {cmd:plain}{p_end}
 {synopt:{opt txt}}same as {cmd:plain}{p_end}
 {synopt:{opt noclip}}disable automatic clipboard copying{p_end}
-{synopt:{opt getdoi}}fetch DOI information (auto-enabled with {cmd:ref}){p_end}
+{synopt:{opt getdoi}}display DOI information (auto-enabled with {cmd:ref}){p_end}
 
 {syntab:Database management}
 {synopt:{opt update}}update the local database using {cmd:source(both)}{p_end}
@@ -123,8 +126,8 @@ Configure download path
 {title:Description}
 
 {pstd}
-{cmd:findsj} searches and cites articles published in the {it:Stata Journal} (2001-present) 
-and {it:Stata Technical Bulletin} (1991-2000). It provides an integrated workflow 
+{cmd:findsj} searches and cites articles published in the {it:Stata Journal}
+(2001-present). It provides an integrated workflow
 for finding articles, opening publisher links, generating citations, and launching
 package searches associated with journal articles.
 
@@ -134,7 +137,11 @@ Key features:
 {phang2}
 {bf:1. Interactive Search} - Search by keyword, author, or title. {cmd:findsj}
 uses the bundled local database first and falls back to the official Stata Journal
-website when the database is unavailable.
+website when the database is unavailable. Specify {cmd:online} to query the website
+even when the local database is available. {cmd:findsj} displays or exports the
+website-supplied matches without applying an additional query-term post-filter. The
+{cmd:n()} and {cmd:allresults} options continue to control how many results are
+displayed or exported.
 
 {phang2}
 {bf:2. Clickable Buttons} - Each search result displays interactive buttons that execute 
@@ -196,9 +203,10 @@ database ({cmd:findsj.dta}) is downloaded together with the program files:
 
 {pstd}
 The {cmd:all} option is required because {cmd:findsj.dta} is an ancillary file.
-Without it, only {cmd:findsj.ado}, {cmd:findsj.sthlp}, and {cmd:getiref} are
-installed, and {cmd:findsj} must fetch DOI information online for every search.
-The {cmd:replace} option lets you re-run the same command to upgrade an existing
+Without it, the program and help files for {cmd:findsj} and the bundled
+{cmd:getiref} are installed, but local searches use the online path and website
+matching semantics. The
+{cmd:replace} option lets you re-run the same command to upgrade an existing
 installation.
 
 {pstd}
@@ -212,18 +220,33 @@ To refresh the database later without reinstalling the package, use
 {dlgtab:Search scope}
 
 {phang}
-{opt author} searches for articles by author name. Each query term is matched as a
-complete name token, and a multiple-term query requires all tokens to be present.
-Thus, {cmd:findsj lian, author} does not match {it:Iliana}, and
-{cmd:findsj "Christopher F. Baum", author} requires the complete tokens
-{it:Christopher}, {it:F}, and {it:Baum}.
+{opt author} searches for articles by author name. In local-database searches, each
+query term is matched as a complete name token, and a multiple-term query requires
+all tokens to be present. Thus, the local search {cmd:findsj lian, author} does not
+match {it:Iliana}, and {cmd:findsj "Christopher F. Baum", author} requires the
+complete tokens {it:Christopher}, {it:F}, and {it:Baum}. In online searches, the
+Stata Journal website controls matching; {cmd:findsj} does not apply an additional
+query-term post-filter, including its local complete-token rule.
 
 {phang}
 {opt title} searches for articles by words in the title.
 
 {phang}
-{opt keyword} searches across titles, abstracts, and keywords. This is the default 
+{opt keyword} searches across titles, author lists, and abstracts. This is the default
 if no scope is specified.
+
+
+{dlgtab:Search source}
+
+{phang}
+{opt online} bypasses the bundled database and queries the official Stata Journal
+website. This is useful for comparing the two search paths or requesting current
+website results without removing {cmd:findsj.dta}. Subject to {cmd:n()} or
+{cmd:allresults}, {cmd:findsj} displays or exports the website-supplied matches
+without applying an additional query-term post-filter. In particular, online
+author results may reflect broader website matching than a local complete-token
+author search.
+Internet access is required.
 
 
 {dlgtab:Display control}
@@ -295,13 +318,13 @@ Automatic clipboard copying is not supported on Linux; the exported file is stil
 created.
 
 {phang}
-{opt getdoi} fetches DOI and page information for all articles. This option:
+{opt getdoi} displays the DOI found for each displayed result. The lookup needed
+for the standard PDF and citation actions is already attempted for every displayed
+result, using local metadata first and an online DOI lookup when needed. This option:
 
 {phang2}
-• First searches local database (findsj.dta) if available{break}
-• Falls back to real-time web fetch if not in database{break}
-• Enables complete citations with page numbers{break}
-• Adds DOI-based publisher PDF links{break}
+• Adds the DOI value as a separate line in the displayed result{break}
+• Does not change the search match set or ordering{break}
 • Is automatically activated when {cmd:ref} is specified
 
 
@@ -367,7 +390,11 @@ any blue underlined text or button with your mouse to execute the action.
 {pmore}→ Finds all articles by Nicholas J. Cox{p_end}
 
 {phang2}{inp:.} {stata "findsj Christopher F. Baum, author":findsj Christopher F. Baum, author}{p_end}
-{pmore}→ Requires all three complete author-name tokens to match{p_end}
+{pmore}→ In the local database, requires all three complete author-name tokens to match{p_end}
+
+{phang2}{inp:.} {stata "findsj lian, author online allresults":findsj lian, author online allresults}{p_end}
+{pmore}→ Displays the website-supplied author matches without an additional
+{cmd:findsj} query-term post-filter{p_end}
 
 {phang2}{inp:.} {stata "findsj propensity score matching, title":findsj propensity score matching, title}{p_end}
 {pmore}→ Searches article titles only{p_end}
@@ -469,8 +496,8 @@ then falls back to the alternate source{p_end}
     {hline}
 {pstd}{bf:Advanced Usage}{p_end}
 
-{phang2}{inp:.} {stata "findsj survival analysis, md allresults getdoi":findsj survival analysis, md allresults getdoi}{p_end}
-{pmore}→ Export all results with complete DOI information{p_end}
+{phang2}{inp:.} {stata "findsj survival analysis, md allresults noclip":findsj survival analysis, md allresults noclip}{p_end}
+{pmore}→ Export all matching results in Markdown without clipboard copying{p_end}
 
 
 
@@ -487,6 +514,7 @@ then falls back to the alternate source{p_end}
 {p2col 5 20 24 2: Macros}{p_end}
 {synopt:{cmd:r(keywords)}}search keywords used{p_end}
 {synopt:{cmd:r(scope)}}search scope: author, title, or keyword{p_end}
+{synopt:{cmd:r(search_source)}}search source: local or online{p_end}
 {synopt:{cmd:r(url)}}URL of search results page{p_end}
 {synopt:{cmd:r(art_id_1)}}article ID of first result{p_end}
 {synopt:{cmd:r(title_1)}}title of first result{p_end}

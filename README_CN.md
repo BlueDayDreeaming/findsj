@@ -4,25 +4,28 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.4-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.5-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-当前版本：**3.2.4（22Jul2026）**。
+当前版本：**3.2.5（23Jul2026）**。
 
-`findsj` 可以按照关键词、作者或标题搜索 Stata Journal（SJ）和 Stata
-Technical Bulletin（STB）文章。每条结果均提供可点击的文章页面、基于 DOI
+`findsj` 可以按照关键词、作者或标题搜索 Stata Journal（SJ）文章。每条结果
+均提供可点击的文章页面、基于 DOI
 的出版商 PDF 链接（可用时，访问权限取决于出版商）、Google Scholar、软件包搜索、
 引用生成以及 BibTeX/RIS 下载链接。
 
 当前随附数据库包含 **1,269 条记录**。程序优先搜索本地数据库，从而实现快速
-的离线检索；本地数据库不可用时，才回退到 Stata Journal 官方网站。DOI
-检索同样遵循“本地优先、必要时在线查询”的顺序。
+的离线检索；本地数据库不可用时，才回退到 Stata Journal 官方网站。即使本地
+数据库存在，也可以用 `online` 选项显式选择网站搜索。`findsj` 显示或导出网站
+提供的匹配结果，不再额外按查询词进行后置筛选；`n()` 和 `allresults` 仍用于
+控制显示或导出的记录数。DOI 检索同样遵循“本地优先、必要时在线查询”的顺序。
 
 ## 主要功能
 
 - 本地优先的关键词、作者和标题搜索
-- 作者完整 token 匹配：多词查询中的所有姓名 token 必须同时匹配
+- 本地作者搜索使用完整 token 匹配：查询中的所有姓名 token 必须同时匹配
+- 显式 `online` 模式保留 Stata Journal 网站返回的匹配结果
 - 可点击的文章、PDF、Google Scholar 和软件包搜索链接
 - 默认显示 Markdown、LaTeX 和纯文本引用按钮
 - 批量导出 Markdown、LaTeX 或纯文本引用
@@ -58,14 +61,14 @@ ssc install findsj, all replace
 [BlueDayDreeaming/findsj](https://github.com/BlueDayDreeaming/findsj)。
 
 ```stata
-net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
+net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) all replace
 findsj, updatesource source(github)
 ```
 
 希望使用 Gitee 镜像的用户可以运行：
 
 ```stata
-net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) replace
+net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) all replace
 findsj, updatesource source(gitee)
 ```
 
@@ -85,9 +88,20 @@ findsj cox, author
 findsj "Christopher F. Baum", author allresults
 ```
 
-作者查询不区分大小写，并按完整姓名 token 匹配。因此，搜索 `lian` 不会误匹配
-`Iliana`。多词查询要求所有 token 同时存在：`Christopher F. Baum` 要求作者
-字段中完整出现 `Christopher`、`F` 和 `Baum` 三个 token。
+在本地数据库搜索中，作者查询不区分大小写，并按完整姓名 token 匹配。因此，
+搜索 `lian` 不会误匹配 `Iliana`。多词查询要求所有 token 同时存在：
+`Christopher F. Baum` 要求作者字段中完整出现 `Christopher`、`F` 和 `Baum`
+三个 token。
+
+显式查询 Stata Journal 网站：
+
+```stata
+findsj lian, author online allresults
+```
+
+在 `online` 模式中，匹配规则由网站决定。`findsj` 不会再按查询词进行额外
+后置筛选（包括本地搜索所用的完整姓名 token 规则），因此本地和在线结果集
+可能不同；可用 `n()` 或 `allresults` 控制显示的网站记录数。
 
 仅搜索文章标题：
 
@@ -168,9 +182,15 @@ findsj, resetpath
 
 ### 搜索范围
 
-- `author` — 按完整姓名 token 搜索作者字段，多词查询使用 AND 逻辑
+- `author` — 搜索作者字段；本地搜索按完整姓名 token 并使用 AND 逻辑，
+  在线搜索则保留网站的匹配结果
 - `title` — 搜索文章标题
 - `keyword` — 按关键词搜索（默认）
+
+### 搜索来源
+
+- `online` — 跳过本地数据库并查询 Stata Journal 网站；显示或导出网站提供的
+  匹配结果，不再由 `findsj` 按查询词进行额外后置筛选
 
 ### 显示控制
 
@@ -208,11 +228,13 @@ findsj, resetpath
 findsj, updatesource source(both)
 ```
 
+常规搜索完成后，`r(search_source)` 会以 `local` 或 `online` 标明实际使用的
+搜索路径。
+
 ## 数据库覆盖与维护
 
-- Stata Technical Bulletin：1991–2000 年
 - Stata Journal：2001 年至今
-- 随附记录数：截至 2026 年 7 月 22 日为 1,269 条
+- 随附记录数：截至 2026 年 7 月为 1,269 条
 - 仓库数据库检查：GitHub Actions 每月运行
 
 可随时手动刷新已安装的数据库：

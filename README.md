@@ -4,26 +4,31 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.4-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.5-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-Current release: **3.2.4 (22Jul2026)**.
+Current release: **3.2.5 (23Jul2026)**.
 
-`findsj` searches Stata Journal (SJ) and Stata Technical Bulletin (STB)
-articles by keyword, author, or title. Each result includes clickable links for
+`findsj` searches Stata Journal (SJ) articles by keyword, author, or title.
+Each result includes clickable links for
 the article page, a DOI-based publisher PDF link (when available), Google Scholar, package search,
 citation generation, and BibTeX/RIS download.
 
 The bundled database currently contains **1,269 records**. Searches use the
 local database first for fast, offline access and fall back to the official
-Stata Journal website when the database is unavailable. DOI lookup also uses
-the local database first and then attempts an online lookup when necessary.
+Stata Journal website when the database is unavailable. The `online` option
+can explicitly select the website even when the local database is present.
+`findsj` displays or exports the website-supplied matches without applying an
+additional query-term post-filter; `n()` and `allresults` still control how many
+records are displayed or exported. DOI lookup also uses the local database
+first and then attempts an online lookup when necessary.
 
 ## Key features
 
 - Local-first keyword, author, and title search
-- Complete-token author matching: all name tokens in a multiword query must match
+- Complete-token author matching in local searches: all query tokens must match
+- Explicit `online` mode that preserves the Stata Journal website's matches
 - Clickable article, PDF, Google Scholar, and package-search links
 - Citation buttons in Markdown, LaTeX, and plain-text formats by default
 - Batch citation export in Markdown, LaTeX, or plain text
@@ -61,14 +66,14 @@ The canonical repository is
 [BlueDayDreeaming/findsj](https://github.com/BlueDayDreeaming/findsj).
 
 ```stata
-net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) replace
+net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) all replace
 findsj, updatesource source(github)
 ```
 
 For users who prefer the Gitee mirror:
 
 ```stata
-net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) replace
+net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) all replace
 findsj, updatesource source(gitee)
 ```
 
@@ -88,10 +93,22 @@ findsj cox, author
 findsj "Christopher F. Baum", author allresults
 ```
 
-Author queries are case-insensitive and match complete name tokens. A search
-for `lian` therefore does not match names such as `Iliana`. In a multiword query,
-all tokens are required: `Christopher F. Baum` requires the complete tokens
-`Christopher`, `F`, and `Baum` to occur in the author field.
+In local-database searches, author queries are case-insensitive and match
+complete name tokens. A search for `lian` therefore does not match names such
+as `Iliana`. In a multiword query, all tokens are required: `Christopher F.
+Baum` requires the complete tokens `Christopher`, `F`, and `Baum` to occur in
+the author field.
+
+Explicitly query the Stata Journal website:
+
+```stata
+findsj lian, author online allresults
+```
+
+The website controls matching in `online` mode. `findsj` does not apply an
+additional query-term post-filter, including its local complete-token author
+rule, so local and online result sets may differ. Use `n()` or `allresults` to
+control how many website records are displayed.
 
 Search within article titles:
 
@@ -175,9 +192,16 @@ findsj, resetpath
 
 ### Search scope
 
-- `author` — search the author field using complete name tokens and AND logic
+- `author` — search the author field; local searches use complete name tokens
+  and AND logic, while online searches preserve website matching
 - `title` — search article titles
 - `keyword` — search by keyword (default)
+
+### Search source
+
+- `online` — bypass the local database and query the Stata Journal website;
+  display or export the website-supplied matches without an additional
+  `findsj` query-term post-filter
 
 ### Display
 
@@ -216,11 +240,13 @@ In particular, `findsj, update` is equivalent to:
 findsj, updatesource source(both)
 ```
 
+After a regular search, `r(search_source)` identifies the path used as `local`
+or `online`.
+
 ## Database coverage and maintenance
 
-- Stata Technical Bulletin: 1991–2000
 - Stata Journal: 2001–present
-- Bundled records: 1,269 as of 22 July 2026
+- Bundled records: 1,269 as of July 2026
 - Repository database check: monthly through GitHub Actions
 
 You can refresh an installed database at any time with:

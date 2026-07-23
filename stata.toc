@@ -1,12 +1,12 @@
-v 3.2.4
+v 3.2.5
 
-d Distribution-Date: 20260722
+d Distribution-Date: 20260723
 d Requires: Stata version 16 or higher
 d Database: 1,269 records; checked monthly via GitHub Actions
 d Authors: Yujun lian, Chucheng Wan
 d Contact: arlionn@163.com
 d Github: https://github.com/BlueDayDreeaming/findsj
 
-d 'findsj': findsj searches for articles from the Stata Journal (SJ) and Stata Technical Bulletin (STB) by keywords, author names, or article titles. 
+d 'findsj': findsj searches for Stata Journal (SJ) articles by keywords, author names, or article titles. Local author searches use complete name tokens; online searches preserve website matching.
 
 p findsj  module to search and cite Stata Journal articles with interactive buttons

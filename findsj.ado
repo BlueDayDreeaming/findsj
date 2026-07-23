@@ -1,7 +1,10 @@
-*! version 3.2.4  22Jul2026
+*! version 3.2.5  23Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
-* Search Stata Journal and Stata Technical Bulletin articles
+* Search Stata Journal articles
+* v3.2.5: Add online option to preserve website-supplied matches without an
+*   additional query-term post-filter; report the source, retain online in
+*   the all-results link, and repair year parsing plus metadata ordering
 * v3.2.4: Require every author-query term to match a complete name token;
 *   accept quoted multiword queries; preserve the caller's linesize
 * v3.2.3: Create Stata's PERSONAL ado directory before saving setpath()
@@ -255,6 +258,7 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
     SOUrce(string) ///
     BIB ///
     RIS ///
+    ONLINE ///
     ]
 
 	
@@ -269,6 +273,26 @@ if strlen(`"`keywords'"') >= 2 {
        substr(`"`keywords'"', -1, 1) == char(34) {
         local keywords = substr(`"`keywords'"', 2, strlen(`"`keywords'"') - 2)
         local keywords = strtrim(stritrim(`"`keywords'"'))
+    }
+}
+
+* online is a search-mode option, not a modifier for administrative or
+* article-download subcommands.
+if "`online'" != "" {
+    local online_conflict ""
+    if "`bib'" != ""          local online_conflict "bib"
+    else if "`ris'" != ""     local online_conflict "ris"
+    else if "`update'" != ""  local online_conflict "update"
+    else if "`updatesource'" != "" local online_conflict "updatesource"
+    else if "`source'" != ""   local online_conflict "source()"
+    else if "`setpath'" != ""  local online_conflict "setpath()"
+    else if "`querypath'" != "" local online_conflict "querypath"
+    else if "`resetpath'" != "" local online_conflict "resetpath"
+
+    if "`online_conflict'" != "" {
+        dis as error "Option online cannot be combined with `online_conflict'."
+        dis as error "Option online is available only for article searches."
+        exit 198
     }
 }
 
@@ -289,7 +313,7 @@ if "`bib'" != "" | "`ris'" != "" {
 }
 
 * Handle showref subcommand (findsj artid, ref)
-if "`ref'" != "" & "`keywords'" != "" & "`author'" == "" & "`title'" == "" & "`keyword'" == "" {
+if "`ref'" != "" & "`online'" == "" & "`keywords'" != "" & "`author'" == "" & "`title'" == "" & "`keyword'" == "" {
     * Check if keywords looks like an article ID (not a search term)
     * Article IDs are typically alphanumeric strings like "st0001", "dm0065", or "st0136_1"
     if regexm("`keywords'", "^[a-z]+[0-9_]+$") | regexm("`keywords'", "^ï»¿[a-z]+[0-9_]+$") {
@@ -545,10 +569,13 @@ if `dta_found' == 1 {
     }
 }
 
-* Auto-enable offline mode if database is available
-if `dta_found' == 1 & `"`dta_path'"' != "" {
+* Use the local database by default when available.  online explicitly
+* bypasses it for the search itself.
+if `dta_found' == 1 & `"`dta_path'"' != "" & "`online'" == "" {
     local use_offline = 1
 }
+
+local search_source = cond(`use_offline' == 1, "local", "online")
 
 if `use_offline' == 1 {
     * ===== OFFLINE SEARCH MODE =====
@@ -576,7 +603,7 @@ if `use_offline' == 1 {
         }
         
         * ========================================
-        * Search Logic (matches Stata Journal website):
+        * Local search logic:
         * 1. Case-insensitive (convert all to lowercase)
         * 2. Substring matching for titles/keywords; token matching for authors
         * 3. Multiple words use AND logic (all words must appear)
@@ -736,6 +763,11 @@ if `use_offline' == 1 {
 }
 else {
     * ===== ONLINE SEARCH MODE =====
+    dis _n as text "{hline 70}"
+    dis as text "Source: " as result "Stata Journal website"
+    dis as text "The website supplies matching and ordering."
+    dis as text "findsj applies no query-term post-filter."
+    dis as text "{hline 70}"
     dis _n as text "  Searching ... " _c
 
     preserve //===================preserve begin======
@@ -818,20 +850,24 @@ else {
     replace author_year_raw = strtrim(author_year_raw)
     gen year_from_html = ""
     * Try matching with trailing dot first, then without
-    replace year_from_html = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.?[ ]*$")
+    replace year_from_html = ustrregexs(1) if ///
+        ustrregexm(author_year_raw, "\.[ ]*([0-9]{4})\.?[ ]*$")
     * If no match, try alternative pattern (year at end without preceding dot)
-    replace year_from_html = regexs(1) if year_from_html == "" & regexm(author_year_raw, "[ ]([0-9]{4})\.?[ ]*$")
+    replace year_from_html = ustrregexs(1) if year_from_html == "" & ///
+        ustrregexm(author_year_raw, "[ ]([0-9]{4})\.?[ ]*$")
     
     * Clean up extracted data - remove year from author string
-    gen author = regexr(author_year_raw, "\.?[ ]*[0-9]{4}\.?[ ]*$", "")
+    gen author = ustrregexra(author_year_raw, ///
+        "\.?[ ]*[0-9]{4}\.?[ ]*$", "")
     replace author = strtrim(author)
     * Remove trailing dots and spaces from author
-    replace author = regexr(author, "\.[ ]*$", "")
+    replace author = ustrregexra(author, "\.[ ]*$", "")
     replace author = author[_n+1] if author == "" & author[_n+1] != ""
     drop author_year_raw
     
     drop v 
     keep if art_id != ""
+    recast str20 art_id
     gen selected = 1
     local n_results = _N
     
@@ -864,14 +900,6 @@ else {
     cap confirm variable author
     if _rc == 0 {
         drop if missing(author) | author == "" | author == "."
-
-        * The SJ website may return substring matches (for example, "lian"
-        * inside "Iliana").  Apply the same token filter as local search.
-        if "`scope'" == "author" {
-            findsj_author_match author, generate(author_match) query(`"`keywords'"')
-            keep if author_match == 1
-            drop author_match
-        }
     }
     else {
         * If author is missing, create placeholder
@@ -911,6 +939,10 @@ else local n_display = min(`n', `total_results')
 local url_sj "https://www.stata-journal.com/sjsearch.html?choice=`scope'&q=`keywords_url'"
 local all_cmd `"findsj `keywords', allresults"'
 if "`scope'" != "keyword" local all_cmd `"findsj `keywords', `scope' allresults"'
+if "`search_source'" == "online" {
+    local all_cmd `"findsj `keywords', online allresults"'
+    if "`scope'" != "keyword" local all_cmd `"findsj `keywords', `scope' online allresults"'
+}
 
 * If export format specified, skip displaying search results
 if `num_export' > 0 {
@@ -1174,6 +1206,7 @@ local n_results = `total_results'
 return local keywords   = "`keywords'"
 return local scope      = "`scope'"
 return local url        = "`url_sj'"
+return local search_source = "`search_source'"
 return scalar n_results = `n_results'
 
 if `n_results' > 0 {
@@ -1529,15 +1562,19 @@ if `num_export' > 0 {
                     * Extract year - handle both "Author. Year." and "Author. Year" formats
                     replace author_year_raw = strtrim(author_year_raw)
                     gen year = ""
-                    replace year = regexs(1) if regexm(author_year_raw, "\.[ ]*([0-9]{4})\.?[ ]*$")
-                    replace year = regexs(1) if year == "" & regexm(author_year_raw, "[ ]([0-9]{4})\.?[ ]*$")
+                    replace year = ustrregexs(1) if ///
+                        ustrregexm(author_year_raw, "\.[ ]*([0-9]{4})\.?[ ]*$")
+                    replace year = ustrregexs(1) if year == "" & ///
+                        ustrregexm(author_year_raw, "[ ]([0-9]{4})\.?[ ]*$")
                     
-                    gen author = regexr(author_year_raw, "\.?[ ]*[0-9]{4}\.?[ ]*$", "")
+                    gen author = ustrregexra(author_year_raw, ///
+                        "\.?[ ]*[0-9]{4}\.?[ ]*$", "")
                     replace author = strtrim(author)
-                    replace author = regexr(author, "\.[ ]*$", "")
+                    replace author = ustrregexra(author, "\.[ ]*$", "")
                     
                     drop v author_year_raw
                     keep if art_id != ""
+                    recast str20 art_id
                     
                     gen volume = volume_html
                     gen number = number_html
@@ -1549,8 +1586,10 @@ if `num_export' > 0 {
                     gen url_html = "`url_base'" + art_id_clean
                     
                     * Try to get DOI for PDF links from local database
-                    gen doi = "."
-                    gen page = "."
+                    gen str80 doi = "."
+                    gen str20 page = "."
+                    tempvar online_order merge_flag
+                    gen long `online_order' = _n
                     
                     * Simplified DOI lookup: merge with local database if available
                     * Build search paths (ado directory has highest priority, cross-platform)
@@ -1590,29 +1629,48 @@ if `num_export' > 0 {
                                     use "`p'/findsj.dta", clear
                                     cap confirm variable art_id
                                     if _rc == 0 {
-                                        keep art_id DOI page citation_apa
-                                        cap rename DOI doi
+                                        cap confirm variable DOI
+                                        if _rc == 0 rename DOI doi
+                                        cap confirm variable doi
+                                        if _rc != 0 gen str80 doi = "."
+                                        cap confirm variable page
+                                        if _rc != 0 gen str20 page = "."
+                                        cap confirm variable citation_apa
+                                        if _rc != 0 gen strL citation_apa = ""
+                                        keep art_id doi page citation_apa
                                         replace art_id = subinstr(art_id, "ï»¿", "", .)
                                         tempfile doi_data
                                         save "`doi_data'", replace
                                         
                                         use "`current_data'", clear
-                                        merge 1:1 art_id using "`doi_data'", update replace nogen keep(master match)
+                                        merge 1:1 art_id using "`doi_data'", ///
+                                            update replace generate(`merge_flag')
+                                        drop if `merge_flag' == 2
+                                        drop `merge_flag'
                                         local found_db = 1
                                     }
                                     else {
                                         cap confirm variable artid
                                         if _rc == 0 {
-                                            keep artid DOI citation_apa
-                                            cap rename DOI doi
-                                            cap gen page = "."
+                                            cap confirm variable DOI
+                                            if _rc == 0 rename DOI doi
+                                            cap confirm variable doi
+                                            if _rc != 0 gen str80 doi = "."
+                                            cap confirm variable page
+                                            if _rc != 0 gen str20 page = "."
+                                            cap confirm variable citation_apa
+                                            if _rc != 0 gen strL citation_apa = ""
+                                            keep artid doi page citation_apa
                                             rename artid art_id
                                             replace art_id = subinstr(art_id, "ï»¿", "", .)
                                             tempfile doi_data
                                             save "`doi_data'", replace
                                             
                                             use "`current_data'", clear
-                                            merge 1:1 art_id using "`doi_data'", update replace nogen keep(master match)
+                                            merge 1:1 art_id using "`doi_data'", ///
+                                                update replace generate(`merge_flag')
+                                            drop if `merge_flag' == 2
+                                            drop `merge_flag'
                                             local found_db = 1
                                         }
                                         else {
@@ -1626,6 +1684,10 @@ if `num_export' > 0 {
                             }
                         }
                     }
+
+                    * merge sorts on art_id; restore the website's ordering
+                    sort `online_order'
+                    drop `online_order'
                     
                     local url_pdf_base "https://journals.sagepub.com/doi/pdf/"
                     gen url_pdf = "`url_pdf_base'" + doi if doi != "" & doi != "."
@@ -1644,21 +1706,10 @@ if `num_export' > 0 {
                     gen title_for_url = subinstr(title, " ", "%20", .)
                     gen url_google = "https://scholar.google.com/scholar?q=" + title_for_url
                     
-                    * Convert author format: "N. J. Cox" -> "Cox, N. J."
-                    * Use word() function to extract last word (surname)
-                    gen author_getiref = ""
-                    gen n_words = wordcount(author)
-                    * Get last word (surname) - remove trailing period if exists
-                    gen lastname = word(author, n_words)
-                    replace lastname = subinstr(lastname, ".", "", .) if substr(lastname, -1, 1) == "."
-                    * Get everything before last word (first/middle names)
-                    gen firstname = ""
-                    replace firstname = substr(author, 1, length(author) - length(word(author, n_words)) - 1)
-                    replace firstname = strtrim(firstname)
-                    * Combine as "Lastname, Firstname"
-                    replace author_getiref = lastname + ", " + firstname if firstname != ""
-                    replace author_getiref = lastname if firstname == ""
-                    drop n_words lastname firstname
+                    * Preserve the website's author-list order in the fallback
+                    * citation text.  Inverting only the final word is not valid
+                    * for multi-author lists.
+                    gen author_getiref = author
                     
                     * Title case for title (capitalize first letter of each major word)
                     gen title_display = proper(title)
@@ -1673,62 +1724,87 @@ if `num_export' > 0 {
                         }
                     }
                     
-                    * Generate formatted citations using local citation_apa field
-                    * Check if citation_apa field exists in database AND has non-empty values
+                    * Start with website-derived fallback citations so that
+                    * newly published records absent from the local database
+                    * are never reduced to link-only output.
+                    gen cite_text = author_getiref + " (" + year + "). " + ///
+                        title_display + ". The Stata Journal, " + volnum_str
+                    replace cite_text = cite_text + ", " + page ///
+                        if page != "" & page != "."
+                    replace cite_text = cite_text + ". "
+
+                    if "`md'" != "" {
+                        replace cite_text = cite_text + ///
+                            "[Link](" + url_html + ")"
+                        replace cite_text = cite_text + ///
+                            ", [PDF](" + url_pdf + ")" ///
+                            if url_pdf != "" & url_pdf != "."
+                        replace cite_text = cite_text + ///
+                            ", [Google](<" + url_google + ">)"
+                    }
+                    else if "`latex'" != "" {
+                        replace cite_text = cite_text + ///
+                            "\\href{" + url_html + "}{Link}"
+                        replace cite_text = cite_text + ///
+                            ", \\href{" + url_pdf + "}{PDF}" ///
+                            if url_pdf != "" & url_pdf != "."
+                        replace cite_text = cite_text + ///
+                            ", \\href{" + url_google + "}{Google}"
+                    }
+                    else if "`plain'" != "" {
+                        replace cite_text = cite_text + "Link: " + url_html
+                        replace cite_text = cite_text + ", PDF: " + url_pdf ///
+                            if url_pdf != "" & url_pdf != "."
+                        replace cite_text = cite_text + ///
+                            ", Google: " + url_google
+                    }
+
+                    * Prefer richer local citation metadata record by record.
+                    * Records without citation_apa retain the website fallback.
                     cap confirm variable citation_apa
-                    local use_citation_apa = 0
                     if _rc == 0 {
-                        * Check if any citation_apa values are non-empty
-                        qui count if citation_apa != "" & citation_apa != "."
-                        if r(N) > 0 {
-                            local use_citation_apa = 1
-                        }
-                    }
-                    
-                    if `use_citation_apa' == 1 {
-                        * Use citation_apa from database with added links
+                        tempvar has_local_citation
+                        gen byte `has_local_citation' = ///
+                            citation_apa != "" & citation_apa != "."
+
                         if "`md'" != "" {
-                            gen cite_text = citation_apa + " [Link](" + url_html + ")"
-                            replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
-                            replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
+                            replace cite_text = citation_apa + ///
+                                " [Link](" + url_html + ")" ///
+                                if `has_local_citation'
+                            replace cite_text = cite_text + ///
+                                ", [PDF](" + url_pdf + ")" ///
+                                if `has_local_citation' & ///
+                                   url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ///
+                                ", [Google](<" + url_google + ">)" ///
+                                if `has_local_citation'
                         }
                         else if "`latex'" != "" {
-                            gen cite_text = citation_apa + " \\href{" + url_html + "}{Link}"
-                            replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
-                            replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
+                            replace cite_text = citation_apa + ///
+                                " \\href{" + url_html + "}{Link}" ///
+                                if `has_local_citation'
+                            replace cite_text = cite_text + ///
+                                ", \\href{" + url_pdf + "}{PDF}" ///
+                                if `has_local_citation' & ///
+                                   url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ///
+                                ", \\href{" + url_google + "}{Google}" ///
+                                if `has_local_citation'
                         }
                         else if "`plain'" != "" {
-                            gen cite_text = citation_apa + " Link: " + url_html
-                            replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
-                            replace cite_text = cite_text + ", Google: " + url_google
+                            replace cite_text = citation_apa + ///
+                                " Link: " + url_html ///
+                                if `has_local_citation'
+                            replace cite_text = cite_text + ///
+                                ", PDF: " + url_pdf ///
+                                if `has_local_citation' & ///
+                                   url_pdf != "" & url_pdf != "."
+                            replace cite_text = cite_text + ///
+                                ", Google: " + url_google ///
+                                if `has_local_citation'
                         }
-                    }
-                    else {
-                        * Fallback: Generate citations manually (old method)
-                        if "`md'" != "" {
-                            gen cite_text = author_getiref + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str
-                            replace cite_text = cite_text + ", " + page if page != "" & page != "."
-                            replace cite_text = cite_text + ". "
-                            replace cite_text = cite_text + "[Link](" + url_html + ")"
-                            replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
-                            replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
-                        }
-                        else if "`latex'" != "" {
-                            gen cite_text = author_getiref + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str
-                            replace cite_text = cite_text + ", " + page if page != "" & page != "."
-                            replace cite_text = cite_text + ". "
-                            replace cite_text = cite_text + "\\href{" + url_html + "}{Link}"
-                            replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
-                            replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
-                        }
-                        else if "`plain'" != "" {
-                            gen cite_text = author_getiref + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str
-                            replace cite_text = cite_text + ", " + page if page != "" & page != "."
-                            replace cite_text = cite_text + ". "
-                            replace cite_text = cite_text + "Link: " + url_html
-                            replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
-                            replace cite_text = cite_text + ", Google: " + url_google
-                        }
+
+                        drop `has_local_citation'
                     }
                     
                     * Save citations to local macros for later display
@@ -1832,6 +1908,10 @@ if `num_export' > 0 {
     restore
     } // End of else (online export mode)
 } // End of if num_export > 0
+
+* Reassert after export helpers so callers can always verify the path and count.
+return local search_source = "`search_source'"
+return scalar n_results = `n_results'
 
 end
 
