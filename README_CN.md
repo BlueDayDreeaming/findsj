@@ -4,11 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.5-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.6-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-当前版本：**3.2.5（23Jul2026）**。
+当前版本：**3.2.6（25Jul2026）**。
 
 `findsj` 可以按照关键词、作者或标题搜索 Stata Journal（SJ）文章。每条结果
 均提供可点击的文章页面、基于 DOI
@@ -101,7 +101,7 @@ findsj lian, author online allresults
 
 在 `online` 模式中，匹配规则由网站决定。`findsj` 不会再按查询词进行额外
 后置筛选（包括本地搜索所用的完整姓名 token 规则），因此本地和在线结果集
-可能不同；可用 `n()` 或 `allresults` 控制显示的网站记录数。
+可能不同；可用 `n()` 或 `allresults` 控制显示或导出的网站记录数。
 
 仅搜索文章标题：
 
@@ -143,6 +143,11 @@ findsj regression, text noclip
 - Markdown：`md`、`markdown`
 - LaTeX：`latex`、`tex`
 - 纯文本：`plain`、`text`、`txt`
+
+批量导出与显示使用相同的结果上限：默认前 10 条，`n(#)` 指定其他正整数
+上限，`allresults` 才导出全部匹配结果。命令会在当前目录写入固定的临时工作
+文件 `_findsj_temp_out_.md`、`_findsj_temp_out_.tex` 或
+`_findsj_temp_out_.txt`；覆盖已有同名文件前，结果窗口会显示提示。
 
 `noclip` 会禁用自动复制到剪贴板。在 Linux 上无论是否指定该选项都不会自动
 复制，但导出文件仍会保存。
@@ -194,8 +199,8 @@ findsj, resetpath
 
 ### 显示控制
 
-- `n(#)` — 最多显示多少条结果，默认为 10
-- `allresults` — 显示全部匹配结果
+- `n(#)` — 最多显示或导出多少条结果，默认为 10，且必须为正整数
+- `allresults` — 显示或导出全部匹配结果
 
 ### 引用与导出
 

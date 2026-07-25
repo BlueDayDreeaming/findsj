@@ -1,5 +1,5 @@
-findsj 3.2.5 -- Resubmission software and reproducibility files
-23 July 2026
+findsj 3.2.6 -- Resubmission software and reproducibility files
+25 July 2026
 
 TITLE
 
@@ -30,7 +30,7 @@ REQUIREMENTS
 
 FILES FOR THE STATA PACKAGE
 
-  findsj.ado              Main command, version 3.2.5
+  findsj.ado              Main command, version 3.2.6
   findsj.sthlp            Help file
   findsj.dta              Bundled article metadata (1,269 records)
   findsj_version.dta      Database-version metadata
@@ -63,7 +63,8 @@ REPRODUCTION
   name-token matching. It also explicitly runs website searches for those
   names. Website-supplied matches are not tested against the local matching
   rule. The do-file additionally tests a multiword local
-  author query, the principal search scopes, DOI display, batch export,
+  author query, the principal search scopes, zero-result returns, DOI display,
+  local and online batch exports in Markdown, LaTeX, and plain text,
   BibTeX/RIS downloads, the update-source menu, and download-path
   configuration.
 

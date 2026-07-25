@@ -1,6 +1,6 @@
-*! version 1.3.0  Reproducing examples for "findsj: Interactive search and citation management"
+*! version 1.4.0  Reproducing examples for "findsj: Interactive search and citation management"
 *! Authors: Yujun Lian and Chucheng Wan
-*! Date: 2026-07-23
+*! Date: 2026-07-25
 
 version 16
 clear all
@@ -13,9 +13,24 @@ local package_root = subinstr("`c(pwd)'", "\", "/", .)
 adopath ++ "`package_root'"
 discard
 
-log using "`package_root'/findsj_examples.log", text replace
-which findsj
-which getiref
+log using "findsj_examples.log", text replace
+
+* Record the submitted program versions without printing machine-specific paths.
+quietly findfile findsj.ado
+local findsj_file `"`r(fn)'"'
+tempname findsj_handle
+file open `findsj_handle' using `"`findsj_file'"', read text
+file read `findsj_handle' findsj_version
+file close `findsj_handle'
+display as text "`findsj_version'"
+
+quietly findfile getiref.ado
+local getiref_file `"`r(fn)'"'
+tempname getiref_handle
+file open `getiref_handle' using `"`getiref_file'"', read text
+file read `getiref_handle' getiref_version
+file close `getiref_handle'
+display as text "`getiref_version'"
 
 * Verify that an author command returns exactly the records whose author field
 * contains every query term as a complete name token.
@@ -59,6 +74,112 @@ program define verify_author_count
     }
     display as result ///
         "PASS: `query' returned all `returned' complete-token matches."
+end
+
+* Inspect a batch export as raw text, rather than importing it as delimited
+* data. This catches unwanted CSV quoting and format-specific escaping errors.
+capture program drop verify_export_file
+program define verify_export_file
+    version 16
+    syntax using/, Format(string) Expected(integer) [Firstid(string)]
+
+    local format = lower(`"`format'"')
+    if !inlist(`"`format'"', "markdown", "latex", "plain") {
+        display as error "Unknown export format in regression test: `format'"
+        exit 198
+    }
+
+    tempname export_handle
+    capture file open `export_handle' using `"`using'"', read text
+    if _rc {
+        display as error "Could not open export file: `using'"
+        exit _rc
+    }
+
+    local n_lines 0
+    local outer_quotes 0
+    local missing_marker 0
+    local doubled_href 0
+    local unescaped_percent 0
+    local first_identity_mismatch 0
+
+    file read `export_handle' export_line
+    while r(eof) == 0 {
+        if strtrim(`"`export_line'"') != "" {
+            local n_lines = `n_lines' + 1
+
+            if `n_lines' == 1 & `"`firstid'"' != "" {
+                if strpos(`"`export_line'"', `"`firstid'"') == 0 {
+                    local first_identity_mismatch 1
+                }
+            }
+
+            if substr(`"`export_line'"', 1, 1) == char(34) | ///
+               substr(`"`export_line'"', -1, 1) == char(34) {
+                local outer_quotes = `outer_quotes' + 1
+            }
+
+            if `"`format'"' == "markdown" {
+                if strpos(`"`export_line'"', "[Link](") == 0 {
+                    local missing_marker = `missing_marker' + 1
+                }
+            }
+            else if `"`format'"' == "latex" {
+                if strpos(`"`export_line'"', "\href{") == 0 {
+                    local missing_marker = `missing_marker' + 1
+                }
+                if strpos(`"`export_line'"', "\\href{") > 0 {
+                    local doubled_href = `doubled_href' + 1
+                }
+                local percent_check = ///
+                    subinstr(`"`export_line'"', "\%", "", .)
+                if strpos(`"`percent_check'"', "%") > 0 {
+                    local unescaped_percent = `unescaped_percent' + 1
+                }
+            }
+            else if `"`format'"' == "plain" {
+                if strpos(`"`export_line'"', "Link: https://") == 0 {
+                    local missing_marker = `missing_marker' + 1
+                }
+            }
+        }
+        file read `export_handle' export_line
+    }
+    file close `export_handle'
+
+    if `n_lines' != `expected' {
+        display as error ///
+            "`format' export contained `n_lines' records; expected `expected'."
+        exit 9
+    }
+    if `outer_quotes' {
+        display as error ///
+            "`format' export wrapped one or more records in CSV quotes."
+        exit 9
+    }
+    if `missing_marker' {
+        display as error ///
+            "`format' export omitted its expected link syntax."
+        exit 9
+    }
+    if `doubled_href' {
+        display as error ///
+            "LaTeX export used a doubled backslash before href."
+        exit 9
+    }
+    if `unescaped_percent' {
+        display as error ///
+            "LaTeX export contained an unescaped percent sign."
+        exit 9
+    }
+    if `first_identity_mismatch' {
+        display as error ///
+            "The first export record did not match returned art_id_1."
+        exit 9
+    }
+
+    display as result ///
+        "PASS: `format' export has `expected' raw, correctly formatted records."
 end
 
 
@@ -188,48 +309,146 @@ sysdir set PERSONAL "`isolated_personal'/"
 global findsj_download_path ""
 
 capture noisily {
-    display as result "--- Example 12: Online batch export ---"
-    findsj lian, author online txt allresults noclip
-    local source_lian_export `"`r(search_source)'"'
-    local n_lian_export = r(n_results)
-    if `"`source_lian_export'"' != "online" {
-        display as error "Expected the online export path for Lian."
+    *---------------------------------------------------------------------------
+    * Section 4: Raw batch-export regression tests
+    * Manuscript: Citation management
+    *---------------------------------------------------------------------------
+
+    display as result "--- Example 12: Local Markdown export ---"
+    findsj did, md n(2) noclip
+    local export_source `"`r(search_source)'"'
+    local export_total = r(n_results)
+    if `"`export_source'"' != "local" | `export_total' < 2 {
+        display as error "Local Markdown export returned unexpected results."
         exit 9
     }
-    if `n_lian_export' != `n_lian_online' {
-        display as error "Online display and export returned different counts."
+    verify_export_file using "_findsj_temp_out_.md", ///
+        format(markdown) expected(2)
+    capture erase "_findsj_temp_out_.md"
+
+    display as result "--- Example 13: Local LaTeX export ---"
+    findsj did, latex n(2) noclip
+    local export_source `"`r(search_source)'"'
+    local export_total = r(n_results)
+    if `"`export_source'"' != "local" | `export_total' < 2 {
+        display as error "Local LaTeX export returned unexpected results."
         exit 9
     }
-    confirm file "_findsj_temp_out_.txt"
-    preserve
-    quietly import delimited using "_findsj_temp_out_.txt", clear ///
-        varnames(nonames) stringcols(_all)
-    local n_lian_exported_rows = _N
-    restore
-    if `n_lian_exported_rows' != `n_lian_online' {
-        display as error "Online export omitted website result rows."
+    verify_export_file using "_findsj_temp_out_.tex", ///
+        format(latex) expected(2)
+    capture erase "_findsj_temp_out_.tex"
+
+    display as result "--- Example 14: Local plain-text export ---"
+    findsj did, plain n(2) noclip
+    local export_source `"`r(search_source)'"'
+    local export_total = r(n_results)
+    if `"`export_source'"' != "local" | `export_total' < 2 {
+        display as error "Local plain-text export returned unexpected results."
         exit 9
     }
+    verify_export_file using "_findsj_temp_out_.txt", ///
+        format(plain) expected(2)
     capture erase "_findsj_temp_out_.txt"
+
+    display as result "--- Example 15: Online Markdown alias export ---"
+    findsj lian, author online markdown n(2) noclip
+    local export_source `"`r(search_source)'"'
+    local export_total = r(n_results)
+    local export_first_id `"`r(art_id_1)'"'
+    if `"`export_source'"' != "online" | ///
+       `export_total' != `n_lian_online' | ///
+       `"`export_first_id'"' == "" {
+        display as error "Online Markdown export returned unexpected results."
+        exit 9
+    }
+    verify_export_file using "_findsj_temp_out_.md", ///
+        format(markdown) expected(2) firstid(`"`export_first_id'"')
+    capture erase "_findsj_temp_out_.md"
     display as result ///
-        "PASS: Online display and export preserved the same website result count."
+        "PASS: Online display and export preserved the website result count."
+
+    display as result "--- Example 16: Online LaTeX alias export ---"
+    findsj lian, author online tex n(2) noclip
+    local export_source `"`r(search_source)'"'
+    local export_total = r(n_results)
+    local export_first_id `"`r(art_id_1)'"'
+    if `"`export_source'"' != "online" | `export_total' < 2 | ///
+       `"`export_first_id'"' == "" {
+        display as error "Online LaTeX export returned unexpected results."
+        exit 9
+    }
+    verify_export_file using "_findsj_temp_out_.tex", ///
+        format(latex) expected(2) firstid(`"`export_first_id'"')
+    capture erase "_findsj_temp_out_.tex"
+
+    display as result "--- Example 17: Online plain-text alias export ---"
+    findsj lian, author online txt n(2) noclip
+    local export_source `"`r(search_source)'"'
+    local export_total = r(n_results)
+    local export_first_id `"`r(art_id_1)'"'
+    if `"`export_source'"' != "online" | `export_total' < 2 | ///
+       `"`export_first_id'"' == "" {
+        display as error "Online plain-text export returned unexpected results."
+        exit 9
+    }
+    verify_export_file using "_findsj_temp_out_.txt", ///
+        format(plain) expected(2) firstid(`"`export_first_id'"')
+    capture erase "_findsj_temp_out_.txt"
 
     *---------------------------------------------------------------------------
-    * Section 4: Citation management
+    * Section 5: Returned-results and input-validation regression tests
+    * Manuscript: Syntax and usage
+    *---------------------------------------------------------------------------
+
+    display as result "--- Example 18: Local zero-result return contract ---"
+    findsj zzzxqvnonexistentfindsjtest, n(1)
+    local zero_source `"`r(search_source)'"'
+    local zero_results = r(n_results)
+    if `"`zero_source'"' != "local" | `zero_results' != 0 {
+        display as error ///
+            "Local zero-result search did not return n_results=0/source=local."
+        exit 9
+    }
+    display as result ///
+        "PASS: Local zero-result search returned n_results=0 and source=local."
+
+    display as result "--- Example 19: Online zero-result return contract ---"
+    findsj zzzxqvnonexistentfindsjtest, online n(1)
+    local zero_source `"`r(search_source)'"'
+    local zero_results = r(n_results)
+    if `"`zero_source'"' != "online" | `zero_results' != 0 {
+        display as error ///
+            "Online zero-result search did not return n_results=0/source=online."
+        exit 9
+    }
+    display as result ///
+        "PASS: Online zero-result search returned n_results=0 and source=online."
+
+    display as result "--- Example 20: Reject nonpositive n() ---"
+    capture noisily findsj did, n(0)
+    local invalid_n_rc = _rc
+    if `invalid_n_rc' != 198 {
+        display as error "n(0) returned error `invalid_n_rc'; expected 198."
+        exit 9
+    }
+    display as result "PASS: n(0) was rejected with error 198."
+
+    *---------------------------------------------------------------------------
+    * Section 6: Citation management
     * Manuscript: Citation management and worked ten-article example
     *---------------------------------------------------------------------------
 
-    display as result "--- Example 13: DOI display and reference links ---"
+    display as result "--- Example 21: DOI display and reference links ---"
     findsj did, ref n(1)
 
-    display as result "--- Example 14: Markdown citation from a DOI ---"
+    display as result "--- Example 22: Markdown citation from a DOI ---"
     getiref 10.1177/1536867x241233676, md
 
-    display as result "--- Example 15: Batch Markdown export ---"
+    display as result "--- Example 23: Batch Markdown export ---"
     findsj causal inference, md n(2) noclip
     capture erase "_findsj_temp_out_.md"
 
-    display as result "--- Example 16: Ten-article plain-text export ---"
+    display as result "--- Example 24: Ten-article plain-text export ---"
     timer clear 1
     timer on 1
     findsj causal inference, txt n(10) noclip
@@ -238,27 +457,27 @@ capture noisily {
     capture erase "_findsj_temp_out_.txt"
 
     *---------------------------------------------------------------------------
-    * Section 5: Database-source display
+    * Section 7: Database-source display
     * Manuscript: Database structure and updates
     *---------------------------------------------------------------------------
 
-    display as result "--- Example 17: Update-source menu ---"
+    display as result "--- Example 25: Update-source menu ---"
     findsj, updatesource
 
     display as text "To update the database manually, run: findsj, update"
 
 
     *---------------------------------------------------------------------------
-    * Section 6: Isolated download and path-management tests
+    * Section 8: Isolated download and path-management tests
     * Manuscript: Download path management
     *---------------------------------------------------------------------------
 
-    display as result "--- Example 18: Managing download paths ---"
+    display as result "--- Example 26: Managing download paths ---"
     findsj, querypath
     findsj, setpath("`demo_path'")
     findsj, querypath
 
-    display as result "--- Example 19: BibTeX and RIS downloads ---"
+    display as result "--- Example 27: BibTeX and RIS downloads ---"
     findsj st0377, bib
     confirm file "`demo_path'/st0377.bib"
     findsj dm0065, ris
@@ -294,6 +513,7 @@ capture rmdir "`example_workspace'"
 if `isolated_examples_rc' {
     display as error "Isolated file-writing examples failed."
     capture program drop verify_author_count
+    capture program drop verify_export_file
     log close
     exit `isolated_examples_rc'
 }
@@ -301,5 +521,6 @@ display as result "PASS: caller working directory and path configuration restore
 display as result "PASS: caller linesize remains 80."
 
 capture program drop verify_author_count
+capture program drop verify_export_file
 display as result "--- All examples and regression checks completed ---"
 log close

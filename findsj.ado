@@ -1,7 +1,9 @@
-*! version 3.2.5  23Jul2026
+*! version 3.2.6  25Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal articles
+* v3.2.6: Write batch exports as plain text, produce valid escaped LaTeX,
+*   validate n(), reuse parsed online results, and strengthen stored results
 * v3.2.5: Add online option to preserve website-supplied matches without an
 *   additional query-term post-filter; report the source, retain online in
 *   the all-results link, and repair year parsing plus metadata ordering
@@ -79,6 +81,90 @@ program define findsj_author_match
         local query_word = word(`"`query_clean'"', `i')
         replace `generate' = 0 if ///
             strpos(`author_tokens', " `query_word' ") == 0
+    }
+end
+
+
+*===============================================================================
+* Helper program: findsj_tex_escape
+* Escape plain citation text or link destinations for use in LaTeX.  Private-use
+* Unicode markers prevent the backslashes and braces introduced by one
+* replacement from being escaped again by a later replacement.
+*===============================================================================
+program define findsj_tex_escape
+    version 14
+    syntax varname, Generate(name) [URL]
+
+    confirm new variable `generate'
+
+    local mark_bs      = uchar(57344)
+    local mark_lbrace  = uchar(57345)
+    local mark_rbrace  = uchar(57346)
+    local mark_percent = uchar(57347)
+    local mark_dollar  = uchar(57348)
+    local mark_hash    = uchar(57349)
+    local mark_under   = uchar(57350)
+    local mark_amp     = uchar(57351)
+    local mark_tilde   = uchar(57352)
+    local mark_caret   = uchar(57353)
+
+    gen strL `generate' = `varlist'
+    replace `generate' = subinstr(`generate', char(92), "`mark_bs'", .)
+    replace `generate' = subinstr(`generate', "{", "`mark_lbrace'", .)
+    replace `generate' = subinstr(`generate', "}", "`mark_rbrace'", .)
+    replace `generate' = subinstr(`generate', "%", "`mark_percent'", .)
+    replace `generate' = subinstr(`generate', char(36), "`mark_dollar'", .)
+    replace `generate' = subinstr(`generate', "#", "`mark_hash'", .)
+    replace `generate' = subinstr(`generate', "_", "`mark_under'", .)
+    replace `generate' = subinstr(`generate', "&", "`mark_amp'", .)
+    replace `generate' = subinstr(`generate', "~", "`mark_tilde'", .)
+    replace `generate' = subinstr(`generate', "^", "`mark_caret'", .)
+
+    if "`url'" == "" {
+        replace `generate' = subinstr(`generate', "`mark_bs'", ///
+            char(92) + "textbackslash{}", .)
+        replace `generate' = subinstr(`generate', "`mark_lbrace'", ///
+            char(92) + "{", .)
+        replace `generate' = subinstr(`generate', "`mark_rbrace'", ///
+            char(92) + "}", .)
+        replace `generate' = subinstr(`generate', "`mark_percent'", ///
+            char(92) + "%", .)
+        replace `generate' = subinstr(`generate', "`mark_dollar'", ///
+            char(92) + char(36), .)
+        replace `generate' = subinstr(`generate', "`mark_hash'", ///
+            char(92) + "#", .)
+        replace `generate' = subinstr(`generate', "`mark_under'", ///
+            char(92) + "_", .)
+        replace `generate' = subinstr(`generate', "`mark_amp'", ///
+            char(92) + "&", .)
+        replace `generate' = subinstr(`generate', "`mark_tilde'", ///
+            char(92) + "textasciitilde{}", .)
+        replace `generate' = subinstr(`generate', "`mark_caret'", ///
+            char(92) + "textasciicircum{}", .)
+    }
+    else {
+        * Percent-encode characters that are not safe link destinations, and
+        * TeX-escape characters that must survive literally in the URL.
+        replace `generate' = subinstr(`generate', "`mark_bs'", ///
+            char(92) + "%5C", .)
+        replace `generate' = subinstr(`generate', "`mark_lbrace'", ///
+            char(92) + "%7B", .)
+        replace `generate' = subinstr(`generate', "`mark_rbrace'", ///
+            char(92) + "%7D", .)
+        replace `generate' = subinstr(`generate', "`mark_percent'", ///
+            char(92) + "%", .)
+        replace `generate' = subinstr(`generate', "`mark_dollar'", ///
+            char(92) + "%24", .)
+        replace `generate' = subinstr(`generate', "`mark_hash'", ///
+            char(92) + "#", .)
+        replace `generate' = subinstr(`generate', "`mark_under'", ///
+            char(92) + "_", .)
+        replace `generate' = subinstr(`generate', "`mark_amp'", ///
+            char(92) + "&", .)
+        replace `generate' = subinstr(`generate', "`mark_tilde'", ///
+            char(92) + "%7E", .)
+        replace `generate' = subinstr(`generate', "`mark_caret'", ///
+            char(92) + "%5E", .)
     }
 end
 
@@ -261,7 +347,12 @@ syntax [anything(name=keywords id="keywords" everything)] [, ///
     ONLINE ///
     ]
 
-	
+if `n' < 1 {
+    dis as error "Option n() must specify a positive integer."
+    exit 198
+}
+
+
 * Check for updates (once per day)
 findsj_check_update
 
@@ -468,6 +559,8 @@ else {
     if "`title'"  != "" local scope "title"
     if "`keyword'"!= "" local scope "keyword"
 }
+
+local url_sj "https://www.stata-journal.com/sjsearch.html?choice=`scope'&q=`keywords_url'"
 
 * Check if findsj.dta exists, if not and ref option is used, show one-time reminder
 * Priority 1: Same directory as findsj.ado (ensures version compatibility)
@@ -722,6 +815,11 @@ if `use_offline' == 1 {
             noi dis as error "No articles found matching: `keywords'"
             noi dis as text "Try different keywords or search scope."
             restore
+            return local keywords = "`keywords'"
+            return local scope = "`scope'"
+            return local url = "`url_sj'"
+            return local search_source = "`search_source'"
+            return scalar n_results = 0
             exit
         }
         
@@ -812,6 +910,11 @@ else {
         noi dis as error "No articles found matching: `keywords'"
         noi dis as text "Try different keywords or search scope."
         restore
+        return local keywords = "`keywords'"
+        return local scope = "`scope'"
+        return local url = "`url_sj'"
+        return local search_source = "`search_source'"
+        return scalar n_results = 0
         exit
     }
     
@@ -879,8 +982,8 @@ else {
     gen volnum_url = volume + "-" + number if volume != "" & volume != "."
     
     * Initialize optional fields (will be fetched on-demand if getdoi is specified)
-    gen doi = "."
-    gen page = "."
+    gen str80 doi = "."
+    gen str20 page = "."
     gen volnum = real(volume + "." + number) if volume != "" & volume != "."
     
     keep if selected == 1
@@ -910,6 +1013,11 @@ else {
     if `n_results' == 0 {
         noi dis as error "No valid articles with complete information."
         restore
+        return local keywords = "`keywords'"
+        return local scope = "`scope'"
+        return local url = "`url_sj'"
+        return local search_source = "`search_source'"
+        return scalar n_results = 0
         exit
     }
     
@@ -928,6 +1036,10 @@ else {
     replace page_str = "" if page_str == ": ."
     
     local total_results = _N
+    if `num_export' > 0 {
+        tempfile online_export_data
+        save "`online_export_data'", replace
+    }
     } // End of online search qui block
 } // End of else (online search mode)
 
@@ -1131,6 +1243,15 @@ else {
                     local has_doi = 1
                 }
             }
+        }
+    }
+
+    * Keep enriched metadata in the search-result data so stored results,
+    * especially r(doi_1), agree with the DOI/PDF actions shown to the user.
+    if `has_doi' == 1 {
+        capture quietly replace doi = "`doi_i'" in `i'
+        if "`page_i'" != "" & "`page_i'" != "." {
+            capture quietly replace page = "`page_i'" in `i'
         }
     }
     
@@ -1392,6 +1513,24 @@ if `num_export' > 0 {
                     local use_citation_apa = 1
                 }
             }
+
+            * LaTeX requires separate escaping for visible citation text and
+            * link destinations.  Build these once and use a single literal
+            * backslash for each \href command below.
+            if "`latex'" != "" {
+                tempvar author_tex title_tex url_html_tex url_pdf_tex ///
+                    url_google_tex
+                findsj_tex_escape author, generate(`author_tex')
+                findsj_tex_escape title_display, generate(`title_tex')
+                findsj_tex_escape url_html, generate(`url_html_tex') url
+                findsj_tex_escape url_pdf, generate(`url_pdf_tex') url
+                findsj_tex_escape url_google, generate(`url_google_tex') url
+                if `use_citation_apa' == 1 {
+                    tempvar citation_apa_tex
+                    findsj_tex_escape citation_apa, ///
+                        generate(`citation_apa_tex')
+                }
+            }
             
             if `use_citation_apa' == 1 {
                 * Use citation_apa from database
@@ -1401,9 +1540,13 @@ if `num_export' > 0 {
                     replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
                 }
                 else if "`latex'" != "" {
-                    gen cite_text = citation_apa + " \\href{" + url_html + "}{Link}"
-                    replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
-                    replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
+                    gen cite_text = `citation_apa_tex' + " " + ///
+                        char(92) + "href{" + `url_html_tex' + "}{Link}"
+                    replace cite_text = cite_text + ", " + char(92) + ///
+                        "href{" + `url_pdf_tex' + "}{PDF}" ///
+                        if url_pdf != "" & url_pdf != "."
+                    replace cite_text = cite_text + ", " + char(92) + ///
+                        "href{" + `url_google_tex' + "}{Google}"
                 }
                 else if "`plain'" != "" {
                     gen cite_text = citation_apa + " Link: " + url_html
@@ -1421,10 +1564,16 @@ if `num_export' > 0 {
                     replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
                 }
                 else if "`latex'" != "" {
-                    gen cite_text = author + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str + ". "
-                    replace cite_text = cite_text + "\\href{" + url_html + "}{Link}"
-                    replace cite_text = cite_text + ", \\href{" + url_pdf + "}{PDF}" if url_pdf != "" & url_pdf != "."
-                    replace cite_text = cite_text + ", \\href{" + url_google + "}{Google}"
+                    gen cite_text = `author_tex' + " (" + year + "). " + ///
+                        `title_tex' + ". The Stata Journal, " + ///
+                        volnum_str + ". "
+                    replace cite_text = cite_text + char(92) + ///
+                        "href{" + `url_html_tex' + "}{Link}"
+                    replace cite_text = cite_text + ", " + char(92) + ///
+                        "href{" + `url_pdf_tex' + "}{PDF}" ///
+                        if url_pdf != "" & url_pdf != "."
+                    replace cite_text = cite_text + ", " + char(92) + ///
+                        "href{" + `url_google_tex' + "}{Google}"
                 }
                 else if "`plain'" != "" {
                     gen cite_text = author + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str + ". "
@@ -1452,14 +1601,26 @@ if `num_export' > 0 {
             
             * Export to file
             if "`md'" != "" local fn_suffix ".md"
-            else if "`latex'" != "" local fn_suffix ".txt"
+            else if "`latex'" != "" local fn_suffix ".tex"
             else if "`plain'" != "" local fn_suffix ".txt"
             
             local saving "_findsj_temp_out_`fn_suffix'"
             local save_path "`c(pwd)'"
             local save_path = subinstr("`save_path'", "\", "/", .)
-            
-            qui export delimited cite_text using "`save_path'/`saving'", novar nolabel noq replace
+
+            capture confirm file "`save_path'/`saving'"
+            if _rc == 0 {
+                noi dis as text ///
+                    "Note: replacing existing export file: `saving'"
+            }
+
+            tempname export_fh
+            file open `export_fh' using "`save_path'/`saving'", ///
+                write text replace
+            forvalues j = 1/`=_N' {
+                file write `export_fh' (cite_text[`j']) _n
+            }
+            file close `export_fh'
             
             global findsj_export_path "`save_path'"
             global findsj_export_file "`saving'"
@@ -1510,86 +1671,18 @@ if `num_export' > 0 {
         restore
     }
     else {
-    * ===== ONLINE EXPORT: Fetch from website =====
-    preserve
-	clear      // added by Yujun Lian, 2026/02/03 16:14
-    qui {
-        tempfile sj_search_result
-        local url_sj "https://www.stata-journal.com/sjsearch.html?choice=`scope'&q=`keywords_url'"
-        
-        cap copy "`url_sj'" "`sj_search_result'.txt", replace
-        if _rc == 0 {
-            cap import delimited "`sj_search_result'.txt", delim("@#@") clear varnames(nonames) stringcols(_all)
-            if _rc {
-                cap infix strL v 1-20000 using "`sj_search_result'.txt", clear
-            }
-            else {
-                rename v1 v
-            }
-            
+        * ===== ONLINE EXPORT: Reuse the already parsed website results =====
+        preserve
+        quietly use "`online_export_data'", clear
+        qui {
+            capture confirm numeric variable year
             if _rc == 0 {
-                cap drop if v == ""
-                keep if regexm(v, ".*<d[td]>.*")
-                
-                if _N > 0 {
-                    findsj_strget v, gen(art_id) begin(`"article="') end(`"">"')
-                    findsj_strget v, gen(title) begin(`"">"') end(`"</a></dt>"')
-                    
-                    gen author_year_raw = ""
-                    gen n = _n
-                    forvalues i = 1/`=_N' {
-                        if art_id[`i'] != "" & `i' < _N {
-                            if regexm(v[`i'+1], "<dd>(.+)</dd>") {
-                                qui replace author_year_raw = regexs(1) in `i'
-                            }
-                        }
-                    }
-                    drop n
-                    
-                    gen volume_html = ""
-                    gen number_html = ""
-                    gen n = _n
-                    forvalues i = 1/`=_N' {
-                        if art_id[`i'] != "" & `i' < _N - 1 {
-                            if regexm(v[`i'+2], "Volume ([0-9]+) Number ([0-9]+)") {
-                                qui replace volume_html = regexs(1) in `i'
-                                qui replace number_html = regexs(2) in `i'
-                            }
-                        }
-                    }
-                    drop n
-                    
-                    * Extract year - handle both "Author. Year." and "Author. Year" formats
-                    replace author_year_raw = strtrim(author_year_raw)
-                    gen year = ""
-                    replace year = ustrregexs(1) if ///
-                        ustrregexm(author_year_raw, "\.[ ]*([0-9]{4})\.?[ ]*$")
-                    replace year = ustrregexs(1) if year == "" & ///
-                        ustrregexm(author_year_raw, "[ ]([0-9]{4})\.?[ ]*$")
-                    
-                    gen author = ustrregexra(author_year_raw, ///
-                        "\.?[ ]*[0-9]{4}\.?[ ]*$", "")
-                    replace author = strtrim(author)
-                    replace author = ustrregexra(author, "\.[ ]*$", "")
-                    
-                    drop v author_year_raw
-                    keep if art_id != ""
-                    recast str20 art_id
-                    
-                    gen volume = volume_html
-                    gen number = number_html
-                    gen volnum_str = volume + "(" + number + ")" if volume != "" & volume != "."
-                    
-                    local url_base "https://www.stata-journal.com/article.html?article="
-                    gen art_id_clean = art_id
-                    qui replace art_id_clean = subinstr(art_id_clean, "ï»¿", "%EF%BB%BF", .)
-                    gen url_html = "`url_base'" + art_id_clean
-                    
-                    * Try to get DOI for PDF links from local database
-                    gen str80 doi = "."
-                    gen str20 page = "."
-                    tempvar online_order merge_flag
-                    gen long `online_order' = _n
+                tostring year, replace format(%9.0g) force
+                replace year = "" if year == "."
+            }
+
+            tempvar online_order merge_flag
+            gen long `online_order' = _n
                     
                     * Simplified DOI lookup: merge with local database if available
                     * Build search paths (ado directory has highest priority, cross-platform)
@@ -1688,7 +1781,12 @@ if `num_export' > 0 {
                     * merge sorts on art_id; restore the website's ordering
                     sort `online_order'
                     drop `online_order'
+
+                    * Save the first enriched DOI so the post-export r() list
+                    * agrees with the metadata used in the exported citation.
+                    local export_doi_1 = doi[1]
                     
+                    capture drop url_pdf page_str
                     local url_pdf_base "https://journals.sagepub.com/doi/pdf/"
                     gen url_pdf = "`url_pdf_base'" + doi if doi != "" & doi != "."
                     gen page_str = ": " + page if page != "" & page != "."
@@ -1727,13 +1825,15 @@ if `num_export' > 0 {
                     * Start with website-derived fallback citations so that
                     * newly published records absent from the local database
                     * are never reduced to link-only output.
-                    gen cite_text = author_getiref + " (" + year + "). " + ///
-                        title_display + ". The Stata Journal, " + volnum_str
-                    replace cite_text = cite_text + ", " + page ///
+                    gen strL citation_base = author_getiref + " (" + year + ///
+                        "). " + title_display + ". The Stata Journal, " + ///
+                        volnum_str
+                    replace citation_base = citation_base + ", " + page ///
                         if page != "" & page != "."
-                    replace cite_text = cite_text + ". "
+                    replace citation_base = citation_base + ". "
 
                     if "`md'" != "" {
+                        gen strL cite_text = citation_base
                         replace cite_text = cite_text + ///
                             "[Link](" + url_html + ")"
                         replace cite_text = cite_text + ///
@@ -1743,15 +1843,30 @@ if `num_export' > 0 {
                             ", [Google](<" + url_google + ">)"
                     }
                     else if "`latex'" != "" {
+                        tempvar citation_base_tex url_html_tex url_pdf_tex ///
+                            url_google_tex
+                        findsj_tex_escape citation_base, ///
+                            generate(`citation_base_tex')
+                        findsj_tex_escape url_html, ///
+                            generate(`url_html_tex') url
+                        findsj_tex_escape url_pdf, ///
+                            generate(`url_pdf_tex') url
+                        findsj_tex_escape url_google, ///
+                            generate(`url_google_tex') url
+
+                        gen strL cite_text = `citation_base_tex'
                         replace cite_text = cite_text + ///
-                            "\\href{" + url_html + "}{Link}"
+                            char(92) + "href{" + `url_html_tex' + "}{Link}"
                         replace cite_text = cite_text + ///
-                            ", \\href{" + url_pdf + "}{PDF}" ///
+                            ", " + char(92) + "href{" + `url_pdf_tex' + ///
+                            "}{PDF}" ///
                             if url_pdf != "" & url_pdf != "."
                         replace cite_text = cite_text + ///
-                            ", \\href{" + url_google + "}{Google}"
+                            ", " + char(92) + "href{" + ///
+                            `url_google_tex' + "}{Google}"
                     }
                     else if "`plain'" != "" {
+                        gen strL cite_text = citation_base
                         replace cite_text = cite_text + "Link: " + url_html
                         replace cite_text = cite_text + ", PDF: " + url_pdf ///
                             if url_pdf != "" & url_pdf != "."
@@ -1767,6 +1882,12 @@ if `num_export' > 0 {
                         gen byte `has_local_citation' = ///
                             citation_apa != "" & citation_apa != "."
 
+                        if "`latex'" != "" {
+                            tempvar citation_apa_tex
+                            findsj_tex_escape citation_apa, ///
+                                generate(`citation_apa_tex')
+                        }
+
                         if "`md'" != "" {
                             replace cite_text = citation_apa + ///
                                 " [Link](" + url_html + ")" ///
@@ -1780,15 +1901,18 @@ if `num_export' > 0 {
                                 if `has_local_citation'
                         }
                         else if "`latex'" != "" {
-                            replace cite_text = citation_apa + ///
-                                " \\href{" + url_html + "}{Link}" ///
+                            replace cite_text = `citation_apa_tex' + " " + ///
+                                char(92) + "href{" + `url_html_tex' + ///
+                                "}{Link}" ///
                                 if `has_local_citation'
                             replace cite_text = cite_text + ///
-                                ", \\href{" + url_pdf + "}{PDF}" ///
+                                ", " + char(92) + "href{" + ///
+                                `url_pdf_tex' + "}{PDF}" ///
                                 if `has_local_citation' & ///
                                    url_pdf != "" & url_pdf != "."
                             replace cite_text = cite_text + ///
-                                ", \\href{" + url_google + "}{Google}" ///
+                                ", " + char(92) + "href{" + ///
+                                `url_google_tex' + "}{Google}" ///
                                 if `has_local_citation'
                         }
                         else if "`plain'" != "" {
@@ -1830,7 +1954,7 @@ if `num_export' > 0 {
                     * Save to file
                     * Determine file extension and save path
                     if "`md'" != "" local fn_suffix ".md"
-                    else if "`latex'" != "" local fn_suffix ".txt"
+                    else if "`latex'" != "" local fn_suffix ".tex"
                     else if "`plain'" != "" local fn_suffix ".txt"
                     
                     local saving "_findsj_temp_out_`fn_suffix'"
@@ -1838,18 +1962,26 @@ if `num_export' > 0 {
                     * Get save path (use current working directory)
                     local save_path "`c(pwd)'"
                     local save_path = subinstr("`save_path'", "\", "/", .)
-                    
-                    * Export citations to file
-                    qui export delimited cite_text using "`save_path'/`saving'", ///
-                        novar nolabel delimiter(tab) replace
+
+                    capture confirm file "`save_path'/`saving'"
+                    if _rc == 0 {
+                        noi dis as text ///
+                            "Note: replacing existing export file: `saving'"
+                    }
+
+                    * Write one citation per line without CSV quoting.
+                    tempname export_fh
+                    file open `export_fh' using "`save_path'/`saving'", ///
+                        write text replace
+                    forvalues j = 1/`=_N' {
+                        file write `export_fh' (cite_text[`j']) _n
+                    }
+                    file close `export_fh'
                     
                     * Save file location info to global (will be cleaned up later)
                     global findsj_export_path "`save_path'"
                     global findsj_export_file "`saving'"
-                }
-            }
         }
-    }
     
     * Display formatted citations (outside qui block)
     if `num_export' > 0 {
@@ -1912,6 +2044,9 @@ if `num_export' > 0 {
 * Reassert after export helpers so callers can always verify the path and count.
 return local search_source = "`search_source'"
 return scalar n_results = `n_results'
+if "`export_doi_1'" != "" & "`export_doi_1'" != "." {
+    return local doi_1 = "`export_doi_1'"
+}
 
 end
 

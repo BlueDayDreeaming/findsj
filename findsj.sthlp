@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.2.5  23Jul2026}{...}
+{* *! version 3.2.6  25Jul2026}{...}
 {vieweralsosee "[R] search" "help search"}{...}
 {vieweralsosee "[R] net" "help net"}{...}
 {viewerjumpto "Syntax" "findsj##syntax"}{...}
@@ -91,18 +91,18 @@ Configure download path
 {synopt:{opt online}}query the Stata Journal website even when the local database is available{p_end}
 
 {syntab:Display control}
-{synopt:{opt n(#)}}number of results to display; default is {cmd:n(10)}{p_end}
-{synopt:{opt allresults}}display all search results{p_end}
+{synopt:{opt n(#)}}maximum results to display or export; default is {cmd:n(10)}{p_end}
+{synopt:{opt allresults}}display or export all search results{p_end}
 
 {syntab:Citation and export}
 {synopt:{opt ref}}display DOI information; citation buttons are shown by default{p_end}
 {synopt:{opt bib}}download the selected article's BibTeX file{p_end}
 {synopt:{opt ris}}download the selected article's RIS file{p_end}
-{synopt:{opt md}}export all results in Markdown format{p_end}
+{synopt:{opt md}}export results in Markdown format{p_end}
 {synopt:{opt markdown}}same as {cmd:md}{p_end}
-{synopt:{opt latex}}export all results in LaTeX format{p_end}
+{synopt:{opt latex}}export results in LaTeX format{p_end}
 {synopt:{opt tex}}same as {cmd:latex}{p_end}
-{synopt:{opt plain}}export all results in plain text format{p_end}
+{synopt:{opt plain}}export results in plain text format{p_end}
 {synopt:{opt text}}same as {cmd:plain}{p_end}
 {synopt:{opt txt}}same as {cmd:plain}{p_end}
 {synopt:{opt noclip}}disable automatic clipboard copying{p_end}
@@ -252,12 +252,13 @@ Internet access is required.
 {dlgtab:Display control}
 
 {phang}
-{opt n(#)} specifies maximum number of results to display. Default is 10. 
-Use {cmd:allresults} to show all matches.
+{opt n(#)} specifies the maximum number of results to display or export.
+Default is 10. The argument must be a positive integer.
+Use {cmd:allresults} to display or export all matches.
 
 {phang}
-{opt allresults} displays all search results without limit. Useful for comprehensive 
-reviews or when exporting complete citation lists.
+{opt allresults} displays or exports all search results without limit. Useful for
+comprehensive reviews or when exporting complete citation lists.
 
 
 {dlgtab:Citation and export}
@@ -278,8 +279,9 @@ for that article. For a regular search, {cmd:ref} is equivalent to {cmd:getdoi};
 is not required to make citation buttons appear.
 
 {phang}
-{opt md} or {opt markdown} exports all search results as formatted citations in 
-Markdown format. The output includes:
+{opt md} or {opt markdown} exports search results as formatted citations in
+Markdown format. By default, the first 10 results are exported; {cmd:n()} changes
+that limit, and {cmd:allresults} exports every match. The output includes:
 
 {phang2}
 • Citations displayed in Results window{break}
@@ -294,7 +296,8 @@ Cox, N. J. (2007). Speaking Stata: Identifying Spells. The Stata Journal, 7(2).
 
 {phang}
 {opt latex} or {opt tex} exports citations in LaTeX format with \href commands.
-File saved as {bf:_findsj_temp_out_.txt}.
+The same {cmd:n()} and {cmd:allresults} limits apply. File saved as
+{bf:_findsj_temp_out_.tex}.
 
 {pmore}
 Format example:{break}
@@ -303,12 +306,19 @@ Cox, N. J. (2007). Speaking Stata: Identifying Spells. The Stata Journal, 7(2).
 
 {phang}
 {opt plain}, {opt text}, or {opt txt} exports citations in plain text format. File
-saved as {bf:_findsj_temp_out_.txt}.
+saved as {bf:_findsj_temp_out_.txt}. The same {cmd:n()} and {cmd:allresults}
+limits apply.
 
 {pmore}
 Format example:{break}
 Cox, N. J. (2007). Speaking Stata: Identifying Spells. The Stata Journal, 7(2). 
 Link: https://..., PDF: https://..., Google: https://...
+
+{pmore}
+The fixed {bf:_findsj_temp_out_.md}, {bf:_findsj_temp_out_.tex}, and
+{bf:_findsj_temp_out_.txt} names denote temporary working files in the current
+directory. An existing file with the applicable name is overwritten.
+The Results window prints a notice before replacement.
 
 {phang}
 {opt noclip} disables automatic clipboard copying. By default, export formats

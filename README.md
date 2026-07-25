@@ -4,11 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.5-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.6-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-Current release: **3.2.5 (23Jul2026)**.
+Current release: **3.2.6 (25Jul2026)**.
 
 `findsj` searches Stata Journal (SJ) articles by keyword, author, or title.
 Each result includes clickable links for
@@ -108,7 +108,7 @@ findsj lian, author online allresults
 The website controls matching in `online` mode. `findsj` does not apply an
 additional query-term post-filter, including its local complete-token author
 rule, so local and online result sets may differ. Use `n()` or `allresults` to
-control how many website records are displayed.
+control how many website records are displayed or exported.
 
 Search within article titles:
 
@@ -152,6 +152,13 @@ Supported aliases are:
 - Markdown: `md`, `markdown`
 - LaTeX: `latex`, `tex`
 - Plain text: `plain`, `text`, `txt`
+
+Batch export follows the same result limit as display: the default is the first
+10 matches, `n(#)` selects another positive limit, and `allresults` exports
+every match. Results are written to the fixed temporary working file
+`_findsj_temp_out_.md`, `_findsj_temp_out_.tex`, or
+`_findsj_temp_out_.txt` in the current directory; an existing file with the
+applicable name is overwritten after a notice is printed.
 
 The `noclip` option prevents automatic clipboard copying. On Linux, clipboard
 copying is skipped regardless, while the export file is still saved.
@@ -205,17 +212,21 @@ findsj, resetpath
 
 ### Display
 
-- `n(#)` — maximum number of results to display; default is 10
-- `allresults` — display all matching results
+- `n(#)` — maximum number of results to display or export; default is 10 and
+  `#` must be a positive integer
+- `allresults` — display or export all matching results
 
 ### Citation and export
 
 - `ref` — display DOI information for search results; with an article ID, show
   its citation formats
 - `getdoi` — display DOI information
-- `md`, `markdown` — export results in Markdown format
-- `latex`, `tex` — export results in LaTeX format
-- `plain`, `text`, `txt` — export results in plain-text format
+- `md`, `markdown` — export results in Markdown format, subject to `n()` or
+  `allresults`
+- `latex`, `tex` — export results in LaTeX format, subject to `n()` or
+  `allresults`
+- `plain`, `text`, `txt` — export results in plain-text format, subject to
+  `n()` or `allresults`
 - `noclip` — do not copy a batch export to the clipboard
 - `bib` — download a BibTeX file for the specified article ID
 - `ris` — download a RIS file for the specified article ID
