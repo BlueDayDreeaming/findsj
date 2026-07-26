@@ -196,27 +196,23 @@ available from GitHub or Gitee (China mirror).
 {cmd:findsj} requires Stata 16 or later.
 
 {pstd}
-For a standard runtime installation from SSC, type:
+For the recommended SSC installation, type:
 
-{phang2}{cmd:. ssc install findsj, replace}{p_end}
+{phang2}{cmd:. ssc install findsj, all replace}{p_end}
 
 {pstd}
-The standard installation places the runtime databases ({cmd:findsj.dta} and
+This installation places the runtime databases ({cmd:findsj.dta} and
 {cmd:findsj_version.dta}) in the PLUS package directory together with the
 program and help files for {cmd:findsj} and the bundled {cmd:getiref}. Local
 search therefore works immediately and continues to use the installed database
 after the current working directory is changed.
 
 {pstd}
-For the complete reproducibility materials, the following is recommended:
-
-{phang2}{cmd:. ssc install findsj, all replace}{p_end}
-
-{pstd}
 The {cmd:all} option additionally downloads ancillary files such as
 {cmd:findsj_examples.do}, {cmd:findsj_examples.log}, and {cmd:README.txt}; it is
-not required for the runtime database. The {cmd:replace} option lets the same
-command upgrade an existing installation.
+not required for the runtime database, but is recommended so that the complete
+distribution and reproducibility materials are obtained together. The
+{cmd:replace} option lets the same command upgrade an existing installation.
 
 {pstd}
 To refresh the database later without reinstalling the package, use

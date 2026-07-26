@@ -50,26 +50,19 @@ file is still created normally.
 
 ### SSC
 
-For a standard runtime installation, type:
-
-```stata
-ssc install findsj, replace
-```
-
-This installs the command, help files, bundled `getiref`, and the runtime
-databases (`findsj.dta` and `findsj_version.dta`) in Stata's PLUS directory.
-Local search uses that installed database, so changing the current working
-directory does not affect it.
-
-To obtain the complete reproducibility materials, the following is recommended:
+For the recommended SSC installation, type:
 
 ```stata
 ssc install findsj, all replace
 ```
 
-The `all` option additionally downloads ancillary files such as
+This installs the command, help files, bundled `getiref`, and the runtime
+databases (`findsj.dta` and `findsj_version.dta`) in Stata's PLUS directory.
+Local search uses that installed database, so changing the current working
+directory does not affect it. The `all` option also downloads ancillary files such as
 `findsj_examples.do`, `findsj_examples.log`, and `README.txt`; it is not
-required to install the runtime databases.
+required for the runtime databases, but it is recommended so that the complete
+distribution and reproducibility materials are obtained together.
 
 ### GitHub
 

@@ -85,22 +85,19 @@ STORED RESULTS
 
 INSTALLATION
 
-  A standard SSC runtime installation is:
+  The recommended SSC installation is:
 
-       . ssc install findsj, replace
+       . ssc install findsj, all replace
 
   It installs findsj, the bundled getiref, findsj.dta, and
   findsj_version.dta in Stata's PLUS directory. Local search reads the
   database from that installed location, so changing the current working
   directory does not affect it.
 
-  To obtain the complete ancillary reproducibility materials, including the
-  example do-file, supplied log, and this README, use:
-
-       . ssc install findsj, all replace
-
-  The all option adds those ancillary files; it is not required for either
-  runtime database.
+  The all option also obtains the complete ancillary reproducibility
+  materials, including the example do-file, supplied log, and this README.
+  It is not required for either runtime database, but is recommended so that
+  the complete distribution is obtained in one step.
 
   Canonical repository:
   https://github.com/BlueDayDreeaming/findsj
