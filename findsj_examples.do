@@ -1,4 +1,4 @@
-*! version 1.4.1  Reproducing examples for "findsj: Interactive search and citation management"
+*! version 1.4.2  Reproducing examples for "findsj: Interactive search and citation management"
 *! Authors: Yujun Lian and Chucheng Wan
 *! Date: 2026-07-26
 
@@ -24,6 +24,11 @@ file read `findsj_handle' findsj_version
 file close `findsj_handle'
 display as text "`findsj_version'"
 
+* Locate the bundled runtime database through adopath. This works both when
+* reproducing a submission directory and after net/SSC installation into PLUS.
+quietly findfile findsj.dta
+local findsj_data_file `"`r(fn)'"'
+
 quietly findfile getiref.ado
 local getiref_file `"`r(fn)'"'
 tempname getiref_handle
@@ -37,10 +42,10 @@ display as text "`getiref_version'"
 capture program drop verify_author_count
 program define verify_author_count
     version 16
-    syntax, Query(string) Returned(integer)
+    syntax, Query(string) Returned(integer) Datafile(string)
 
     preserve
-    quietly use "findsj.dta", clear
+    quietly use `"`datafile'"', clear
     capture confirm variable authors
     if !_rc rename authors author
 
@@ -214,7 +219,8 @@ if `"`source_jenkins_local'"' != "local" {
     display as error "Expected the local search path for Jenkins."
     exit 9
 }
-verify_author_count, query("jenkins") returned(`n_jenkins_local')
+verify_author_count, query("jenkins") returned(`n_jenkins_local') ///
+    datafile(`"`findsj_data_file'"')
 
 display as result "--- Example 6: Local Lian author search ---"
 findsj lian, author allresults
@@ -224,7 +230,8 @@ if `"`source_lian_local'"' != "local" {
     display as error "Expected the local search path for Lian."
     exit 9
 }
-verify_author_count, query("lian") returned(`n_lian_local')
+verify_author_count, query("lian") returned(`n_lian_local') ///
+    datafile(`"`findsj_data_file'"')
 
 display as result "--- Example 7: Local Baum author search ---"
 findsj baum, author allresults
@@ -234,7 +241,8 @@ if `"`source_baum_local'"' != "local" {
     display as error "Expected the local search path for Baum."
     exit 9
 }
-verify_author_count, query("baum") returned(`n_baum_local')
+verify_author_count, query("baum") returned(`n_baum_local') ///
+    datafile(`"`findsj_data_file'"')
 
 display as result "--- Example 8: Local multiword author search ---"
 findsj "Christopher F. Baum", author allresults
@@ -245,7 +253,7 @@ if `"`source_fullname_local'"' != "local" {
     exit 9
 }
 verify_author_count, query("Christopher F. Baum") ///
-    returned(`n_fullname_local')
+    returned(`n_fullname_local') datafile(`"`findsj_data_file'"')
 
 
 *-------------------------------------------------------------------------------
