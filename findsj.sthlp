@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.2.6  25Jul2026}{...}
+{* *! version 3.2.7  26Jul2026}{...}
 {vieweralsosee "[R] search" "help search"}{...}
 {vieweralsosee "[R] net" "help net"}{...}
 {viewerjumpto "Syntax" "findsj##syntax"}{...}
@@ -196,18 +196,27 @@ available from GitHub or Gitee (China mirror).
 {cmd:findsj} requires Stata 16 or later.
 
 {pstd}
-Install {cmd:findsj} from SSC with the {cmd:all} option so that the bundled
-database ({cmd:findsj.dta}) is downloaded together with the program files:
+For a standard runtime installation from SSC, type:
+
+{phang2}{cmd:. ssc install findsj, replace}{p_end}
+
+{pstd}
+The standard installation places the runtime databases ({cmd:findsj.dta} and
+{cmd:findsj_version.dta}) in the PLUS package directory together with the
+program and help files for {cmd:findsj} and the bundled {cmd:getiref}. Local
+search therefore works immediately and continues to use the installed database
+after the current working directory is changed.
+
+{pstd}
+For the complete reproducibility materials, the following is recommended:
 
 {phang2}{cmd:. ssc install findsj, all replace}{p_end}
 
 {pstd}
-The {cmd:all} option is required because {cmd:findsj.dta} is an ancillary file.
-Without it, the program and help files for {cmd:findsj} and the bundled
-{cmd:getiref} are installed, but local searches use the online path and website
-matching semantics. The
-{cmd:replace} option lets you re-run the same command to upgrade an existing
-installation.
+The {cmd:all} option additionally downloads ancillary files such as
+{cmd:findsj_examples.do}, {cmd:findsj_examples.log}, and {cmd:README.txt}; it is
+not required for the runtime database. The {cmd:replace} option lets the same
+command upgrade an existing installation.
 
 {pstd}
 To refresh the database later without reinstalling the package, use
@@ -359,10 +368,11 @@ result, using local metadata first and an online DOI lookup when needed. This op
 
 {pmore}
 The database file ({cmd:findsj.dta}) is updated in place where {cmd:findsj.ado} is
-installed. The bundled database contains 1,269 records with article metadata,
-including DOI and page information where available. A GitHub Actions workflow checks
-the Stata Journal website monthly and updates the repository database when its
-contents change.
+installed in PLUS; changing the current working directory does not change the
+database used for local search. The bundled database contains 1,269 records with
+article metadata, including DOI and page information where available. A GitHub
+Actions workflow checks the Stata Journal website monthly and updates the
+repository database when its contents change.
 
 
 {dlgtab:Path management}

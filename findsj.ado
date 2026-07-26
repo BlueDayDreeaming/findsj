@@ -1,7 +1,9 @@
-*! version 3.2.6  25Jul2026
+*! version 3.2.7  26Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal articles
+* v3.2.7: Ensure the bundled runtime database and version metadata are
+*   installed alongside the command on fresh SSC and net installations
 * v3.2.6: Write batch exports as plain text, produce valid escaped LaTeX,
 *   validate n(), reuse parsed online results, and strengthen stored results
 * v3.2.5: Add online option to preserve website-supplied matches without an

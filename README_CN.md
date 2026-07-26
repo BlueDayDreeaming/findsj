@@ -4,11 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.6-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.7-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-当前版本：**3.2.6（25Jul2026）**。
+当前版本：**3.2.7（26Jul2026）**。
 
 `findsj` 可以按照关键词、作者或标题搜索 Stata Journal（SJ）文章。每条结果
 均提供可点击的文章页面、基于 DOI
@@ -46,14 +46,24 @@
 
 ### SSC
 
-同时安装程序和附属数据库：
+标准运行时安装命令为：
+
+```stata
+ssc install findsj, replace
+```
+
+该命令会把主命令、帮助文件、捆绑的 `getiref` 以及运行时数据库
+`findsj.dta` 和 `findsj_version.dta` 安装到 Stata 的 PLUS 目录。本地搜索
+始终读取该安装位置，因此切换当前工作目录不会影响本地搜索。
+
+如需完整的可复现材料，仍建议运行：
 
 ```stata
 ssc install findsj, all replace
 ```
 
-`all` 选项会把 `findsj.dta` 与程序文件一起安装。没有本地数据库时，
-`findsj` 仍可使用在线回退，但搜索和 DOI 查询可能较慢。
+`all` 只会额外下载 `findsj_examples.do`、`findsj_examples.log` 和
+`README.txt` 等附属可复现文件；安装运行时数据库并不需要 `all`。
 
 ### GitHub
 
@@ -64,6 +74,9 @@ ssc install findsj, all replace
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) all replace
 findsj, updatesource source(github)
 ```
+
+这里的 `all` 同样只用于获取附属可复现文件。省略 `all` 仍会把两个
+运行时数据库安装到 PLUS，并支持在任意工作目录中进行本地搜索。
 
 希望使用 Gitee 镜像的用户可以运行：
 

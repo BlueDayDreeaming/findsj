@@ -1,5 +1,5 @@
-findsj 3.2.6 -- Resubmission software and reproducibility files
-25 July 2026
+findsj 3.2.7 -- Resubmission software and reproducibility files
+26 July 2026
 
 TITLE
 
@@ -30,7 +30,7 @@ REQUIREMENTS
 
 FILES FOR THE STATA PACKAGE
 
-  findsj.ado              Main command, version 3.2.6
+  findsj.ado              Main command, version 3.2.7
   findsj.sthlp            Help file
   findsj.dta              Bundled article metadata (1,269 records)
   findsj_version.dta      Database-version metadata
@@ -85,9 +85,22 @@ STORED RESULTS
 
 INSTALLATION
 
-  From SSC, install the program and ancillary database with:
+  A standard SSC runtime installation is:
+
+       . ssc install findsj, replace
+
+  It installs findsj, the bundled getiref, findsj.dta, and
+  findsj_version.dta in Stata's PLUS directory. Local search reads the
+  database from that installed location, so changing the current working
+  directory does not affect it.
+
+  To obtain the complete ancillary reproducibility materials, including the
+  example do-file, supplied log, and this README, use:
 
        . ssc install findsj, all replace
+
+  The all option adds those ancillary files; it is not required for either
+  runtime database.
 
   Canonical repository:
   https://github.com/BlueDayDreeaming/findsj

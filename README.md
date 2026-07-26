@@ -4,11 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.6-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.7-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-Current release: **3.2.6 (25Jul2026)**.
+Current release: **3.2.7 (26Jul2026)**.
 
 `findsj` searches Stata Journal (SJ) articles by keyword, author, or title.
 Each result includes clickable links for
@@ -50,15 +50,26 @@ file is still created normally.
 
 ### SSC
 
-Install the program and its ancillary database together:
+For a standard runtime installation, type:
+
+```stata
+ssc install findsj, replace
+```
+
+This installs the command, help files, bundled `getiref`, and the runtime
+databases (`findsj.dta` and `findsj_version.dta`) in Stata's PLUS directory.
+Local search uses that installed database, so changing the current working
+directory does not affect it.
+
+To obtain the complete reproducibility materials, the following is recommended:
 
 ```stata
 ssc install findsj, all replace
 ```
 
-The `all` option installs `findsj.dta` together with the program files. Without
-the database, `findsj` can still use its online fallback, but searches and DOI
-lookups may be slower.
+The `all` option additionally downloads ancillary files such as
+`findsj_examples.do`, `findsj_examples.log`, and `README.txt`; it is not
+required to install the runtime databases.
 
 ### GitHub
 
@@ -69,6 +80,10 @@ The canonical repository is
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) all replace
 findsj, updatesource source(github)
 ```
+
+Here too, `all` adds the ancillary reproducibility files. Omitting `all` still
+installs both runtime databases in PLUS and supports local search from any
+working directory.
 
 For users who prefer the Gitee mirror:
 

@@ -1,6 +1,6 @@
-*! version 1.4.0  Reproducing examples for "findsj: Interactive search and citation management"
+*! version 1.4.1  Reproducing examples for "findsj: Interactive search and citation management"
 *! Authors: Yujun Lian and Chucheng Wan
-*! Date: 2026-07-25
+*! Date: 2026-07-26
 
 version 16
 clear all
