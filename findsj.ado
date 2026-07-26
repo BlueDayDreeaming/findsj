@@ -1,7 +1,9 @@
-*! version 3.2.7  26Jul2026
+*! version 3.2.8  26Jul2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal articles
+* v3.2.8: Cache true APA-style citation strings, use record-level citation
+*   fallbacks, and keep single-article and batch citation presentation aligned
 * v3.2.7: Ensure the bundled runtime database and version metadata are
 *   installed alongside the command on fresh SSC and net installations
 * v3.2.6: Write batch exports as plain text, produce valid escaped LaTeX,
@@ -1506,83 +1508,84 @@ if `num_export' > 0 {
                 }
             }
             
-            * Use citation_apa directly (it exists in the database)
+            * Build a record-level fallback first, then replace it with the
+            * cached APA citation wherever that field is available.  This
+            * avoids link-only output when a result set mixes complete and
+            * incomplete database records.
+            tempvar year_cite title_cite page_cite journal_cite citation_base
+            gen str8 `year_cite' = string(year, "%9.0g")
+            replace `year_cite' = "" if missing(year)
+
+            gen strL `title_cite' = strtrim(title)
+            replace `title_cite' = `title_cite' + "." if ///
+                `title_cite' != "" & ///
+                !ustrregexm(`title_cite', "[.!?]$")
+
+            gen strL `page_cite' = strtrim(page)
+            replace `page_cite' = subinstr(`page_cite', "-", "–", .)
+
+            gen strL `journal_cite' = "The Stata Journal"
+            replace `journal_cite' = `journal_cite' + ", " + ///
+                string(volume, "%9.0g") if !missing(volume)
+            replace `journal_cite' = `journal_cite' + "(" + ///
+                string(number, "%9.0g") + ")" if !missing(number)
+            replace `journal_cite' = `journal_cite' + ", " + ///
+                `page_cite' if `page_cite' != "" & `page_cite' != "."
+            replace `journal_cite' = `journal_cite' + "."
+
+            gen strL `citation_base' = ""
+            replace `citation_base' = strtrim(author) + ///
+                cond(`year_cite' != "", " (" + `year_cite' + "). ", ". ") + ///
+                `title_cite' if author != "" & author != "."
+            replace `citation_base' = `title_cite' + ///
+                cond(`year_cite' != "", " (" + `year_cite' + ").", "") ///
+                if author == "" | author == "."
+            replace `citation_base' = strtrim(`citation_base') + ///
+                " " + `journal_cite'
+
             cap confirm variable citation_apa
-            local use_citation_apa = 0
             if _rc == 0 {
-                qui count if citation_apa != "" & citation_apa != "."
-                if r(N) > 0 {
-                    local use_citation_apa = 1
-                }
+                replace `citation_base' = citation_apa if ///
+                    citation_apa != "" & citation_apa != "."
             }
 
             * LaTeX requires separate escaping for visible citation text and
             * link destinations.  Build these once and use a single literal
             * backslash for each \href command below.
             if "`latex'" != "" {
-                tempvar author_tex title_tex url_html_tex url_pdf_tex ///
+                tempvar citation_base_tex url_html_tex url_pdf_tex ///
                     url_google_tex
-                findsj_tex_escape author, generate(`author_tex')
-                findsj_tex_escape title_display, generate(`title_tex')
+                findsj_tex_escape `citation_base', ///
+                    generate(`citation_base_tex')
                 findsj_tex_escape url_html, generate(`url_html_tex') url
                 findsj_tex_escape url_pdf, generate(`url_pdf_tex') url
                 findsj_tex_escape url_google, generate(`url_google_tex') url
-                if `use_citation_apa' == 1 {
-                    tempvar citation_apa_tex
-                    findsj_tex_escape citation_apa, ///
-                        generate(`citation_apa_tex')
-                }
             }
-            
-            if `use_citation_apa' == 1 {
-                * Use citation_apa from database
-                if "`md'" != "" {
-                    gen cite_text = citation_apa + " [Link](" + url_html + ")"
-                    replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
-                    replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
-                }
-                else if "`latex'" != "" {
-                    gen cite_text = `citation_apa_tex' + " " + ///
-                        char(92) + "href{" + `url_html_tex' + "}{Link}"
-                    replace cite_text = cite_text + ", " + char(92) + ///
-                        "href{" + `url_pdf_tex' + "}{PDF}" ///
-                        if url_pdf != "" & url_pdf != "."
-                    replace cite_text = cite_text + ", " + char(92) + ///
-                        "href{" + `url_google_tex' + "}{Google}"
-                }
-                else if "`plain'" != "" {
-                    gen cite_text = citation_apa + " Link: " + url_html
-                    replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
-                    replace cite_text = cite_text + ", Google: " + url_google
-                }
+
+            if "`md'" != "" {
+                gen cite_text = `citation_base' + ///
+                    " [Link](" + url_html + ")"
+                replace cite_text = cite_text + ///
+                    ", [PDF](" + url_pdf + ")" ///
+                    if url_pdf != "" & url_pdf != "."
+                replace cite_text = cite_text + ///
+                    ", [Google](<" + url_google + ">)"
             }
-            else {
-                * Fallback: generate citations manually
-                tostring year, replace
-                if "`md'" != "" {
-                    gen cite_text = author + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str + ". "
-                    replace cite_text = cite_text + "[Link](" + url_html + ")"
-                    replace cite_text = cite_text + ", [PDF](" + url_pdf + ")" if url_pdf != "" & url_pdf != "."
-                    replace cite_text = cite_text + ", [Google](<" + url_google + ">)"
-                }
-                else if "`latex'" != "" {
-                    gen cite_text = `author_tex' + " (" + year + "). " + ///
-                        `title_tex' + ". The Stata Journal, " + ///
-                        volnum_str + ". "
-                    replace cite_text = cite_text + char(92) + ///
-                        "href{" + `url_html_tex' + "}{Link}"
-                    replace cite_text = cite_text + ", " + char(92) + ///
-                        "href{" + `url_pdf_tex' + "}{PDF}" ///
-                        if url_pdf != "" & url_pdf != "."
-                    replace cite_text = cite_text + ", " + char(92) + ///
-                        "href{" + `url_google_tex' + "}{Google}"
-                }
-                else if "`plain'" != "" {
-                    gen cite_text = author + " (" + year + "). " + title_display + ". The Stata Journal, " + volnum_str + ". "
-                    replace cite_text = cite_text + "Link: " + url_html
-                    replace cite_text = cite_text + ", PDF: " + url_pdf if url_pdf != "" & url_pdf != "."
-                    replace cite_text = cite_text + ", Google: " + url_google
-                }
+            else if "`latex'" != "" {
+                gen cite_text = `citation_base_tex' + " " + ///
+                    char(92) + "href{" + `url_html_tex' + "}{Link}"
+                replace cite_text = cite_text + ", " + char(92) + ///
+                    "href{" + `url_pdf_tex' + "}{PDF}" ///
+                    if url_pdf != "" & url_pdf != "."
+                replace cite_text = cite_text + ", " + char(92) + ///
+                    "href{" + `url_google_tex' + "}{Google}"
+            }
+            else if "`plain'" != "" {
+                gen cite_text = `citation_base' + " Link: " + url_html
+                replace cite_text = cite_text + ", PDF: " + url_pdf ///
+                    if url_pdf != "" & url_pdf != "."
+                replace cite_text = cite_text + ///
+                    ", Google: " + url_google
             }
             
             * Save citations to local macros

@@ -1,4 +1,4 @@
-*! version 1.4.2  Reproducing examples for "findsj: Interactive search and citation management"
+*! version 1.4.3  Reproducing examples for "findsj: Interactive search and citation management"
 *! Authors: Yujun Lian and Chucheng Wan
 *! Date: 2026-07-26
 
@@ -86,7 +86,8 @@ end
 capture program drop verify_export_file
 program define verify_export_file
     version 16
-    syntax using/, Format(string) Expected(integer) [Firstid(string)]
+    syntax using/, Format(string) Expected(integer) ///
+        [Firstid(string) Contains(string) Excludes(string)]
 
     local format = lower(`"`format'"')
     if !inlist(`"`format'"', "markdown", "latex", "plain") {
@@ -107,6 +108,8 @@ program define verify_export_file
     local doubled_href 0
     local unescaped_percent 0
     local first_identity_mismatch 0
+    local required_text_found = (`"`contains'"' == "")
+    local excluded_text_found 0
 
     file read `export_handle' export_line
     while r(eof) == 0 {
@@ -117,6 +120,15 @@ program define verify_export_file
                 if strpos(`"`export_line'"', `"`firstid'"') == 0 {
                     local first_identity_mismatch 1
                 }
+            }
+
+            if `"`contains'"' != "" & ///
+               strpos(`"`export_line'"', `"`contains'"') > 0 {
+                local required_text_found 1
+            }
+            if `"`excludes'"' != "" & ///
+               strpos(`"`export_line'"', `"`excludes'"') > 0 {
+                local excluded_text_found 1
             }
 
             if substr(`"`export_line'"', 1, 1) == char(34) | ///
@@ -180,6 +192,16 @@ program define verify_export_file
     if `first_identity_mismatch' {
         display as error ///
             "The first export record did not match returned art_id_1."
+        exit 9
+    }
+    if !`required_text_found' {
+        display as error ///
+            "`format' export omitted required citation text: `contains'"
+        exit 9
+    }
+    if `excluded_text_found' {
+        display as error ///
+            "`format' export retained excluded citation text: `excludes'"
         exit 9
     }
 
@@ -331,7 +353,9 @@ capture noisily {
         exit 9
     }
     verify_export_file using "_findsj_temp_out_.md", ///
-        format(markdown) expected(2)
+        format(markdown) expected(2) ///
+        contains("Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024).") ///
+        excludes("Clarke, Damian;")
     capture erase "_findsj_temp_out_.md"
 
     display as result "--- Example 13: Local LaTeX export ---"
@@ -343,7 +367,8 @@ capture noisily {
         exit 9
     }
     verify_export_file using "_findsj_temp_out_.tex", ///
-        format(latex) expected(2)
+        format(latex) expected(2) ///
+        contains("Clarke, D.") excludes("Clarke, Damian;")
     capture erase "_findsj_temp_out_.tex"
 
     display as result "--- Example 14: Local plain-text export ---"
@@ -355,7 +380,9 @@ capture noisily {
         exit 9
     }
     verify_export_file using "_findsj_temp_out_.txt", ///
-        format(plain) expected(2)
+        format(plain) expected(2) ///
+        contains("Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024).") ///
+        excludes("Clarke, Damian;")
     capture erase "_findsj_temp_out_.txt"
 
     display as result "--- Example 15: Online Markdown alias export ---"
@@ -448,9 +475,37 @@ capture noisily {
 
     display as result "--- Example 21: DOI display and reference links ---"
     findsj did, ref n(1)
+    local did_doi `"`r(doi_1)'"'
+    if lower(`"`did_doi'"') != "10.1177/1536867x241297914" {
+        display as error ///
+            "The first DID result returned an unexpected DOI: `did_doi'"
+        exit 9
+    }
+    display as result ///
+        "PASS: The displayed DID result and citation DOI are identical."
 
     display as result "--- Example 22: Markdown citation from a DOI ---"
-    getiref 10.1177/1536867x241233676, md
+    getiref 10.1177/1536867x241297914, md
+    local getiref_body = strtrim(`"`r(refbody)'"')
+
+    preserve
+    quietly use `"`findsj_data_file'"', clear
+    quietly keep if lower(doi) == "10.1177/1536867x241297914"
+    if _N != 1 {
+        display as error ///
+            "Expected one cached citation for the displayed DID article."
+        exit 9
+    }
+    local cached_body = strtrim(citation_apa[1])
+    restore
+
+    if `"`getiref_body'"' != `"`cached_body'"' {
+        display as error ///
+            "Per-article and cached batch citation bodies do not agree."
+        exit 9
+    }
+    display as result ///
+        "PASS: Per-article and batch citation bodies use the same APA text."
 
     display as result "--- Example 23: Batch Markdown export ---"
     findsj causal inference, md n(2) noclip

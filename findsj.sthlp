@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 3.2.7  26Jul2026}{...}
+{* *! version 3.2.8  26Jul2026}{...}
 {vieweralsosee "[R] search" "help search"}{...}
 {vieweralsosee "[R] net" "help net"}{...}
 {viewerjumpto "Syntax" "findsj##syntax"}{...}

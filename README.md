@@ -4,11 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.7-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.8-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-Current release: **3.2.7 (26Jul2026)**.
+Current release: **3.2.8 (26Jul2026)**.
 
 `findsj` searches Stata Journal (SJ) articles by keyword, author, or title.
 Each result includes clickable links for

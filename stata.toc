@@ -1,4 +1,4 @@
-v 3.2.7
+v 3.2.8
 
 d Distribution-Date: 20260726
 d Requires: Stata version 16 or higher

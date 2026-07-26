@@ -165,6 +165,73 @@ def get_crossref_citation(doi, retry=3):
     logger.error(f"Failed to fetch citation for DOI: {doi}")
     return {}
 
+def _given_names_to_initials(given_names):
+    """Convert given names to APA-style initials, preserving hyphens."""
+    initials = []
+    for name_part in re.split(r'\s+', str(given_names).strip()):
+        if not name_part:
+            continue
+
+        hyphenated = []
+        for component in name_part.split('-'):
+            match = re.search(r'[^\W\d_]', component, flags=re.UNICODE)
+            if match:
+                hyphenated.append(f"{match.group(0).upper()}.")
+
+        if hyphenated:
+            initials.append('-'.join(hyphenated))
+
+    return ' '.join(initials)
+
+
+def format_authors_apa(authors):
+    """
+    Convert the stored ``Family, Given; Family, Given`` author list to APA style.
+    """
+    formatted = []
+    for raw_author in str(authors or '').split(';'):
+        raw_author = raw_author.strip()
+        if not raw_author:
+            continue
+
+        if ',' in raw_author:
+            family, given = raw_author.split(',', 1)
+            family = family.strip()
+            initials = _given_names_to_initials(given)
+            formatted.append(
+                f"{family}, {initials}" if initials else family
+            )
+        else:
+            # Preserve an organization name or an already unstructured name.
+            formatted.append(raw_author)
+
+    if not formatted:
+        return ''
+    if len(formatted) == 1:
+        return formatted[0]
+    if len(formatted) == 2:
+        return f"{formatted[0]}, & {formatted[1]}"
+    return ', '.join(formatted[:-1]) + f", & {formatted[-1]}"
+
+
+def _clean_year(value):
+    """Return a stable year string for values read from Crossref or pandas."""
+    if value is None or value == '':
+        return ''
+    text = str(value).strip()
+    if re.fullmatch(r'\d+\.0', text):
+        text = text[:-2]
+    return text
+
+
+def _end_with_period(text):
+    """Add terminal punctuation without producing duplicate periods."""
+    text = str(text or '').strip()
+    if not text:
+        return ''
+    return text if text[-1] in '.!?' else text + '.'
+
+
 def format_citation_apa(info):
     """
     格式化引用文本（APA 风格）
@@ -176,34 +243,48 @@ def format_citation_apa(info):
         str: 格式化的引用文本
     """
     parts = []
-    
-    # 作者
-    if info.get('authors'):
-        parts.append(info['authors'])
-    
-    # 年份
-    if info.get('year'):
-        parts.append(f"({info['year']})")
-    
-    # 标题
-    if info.get('title'):
-        parts.append(info['title'] + '.')
-    
-    # 期刊
-    if info.get('container_title'):
-        journal_part = info['container_title']
-        
-        # 卷期页码
-        if info.get('volume'):
-            journal_part += f", {info['volume']}"
-            if info.get('issue'):
-                journal_part += f"({info['issue']})"
-        
-        if info.get('page'):
-            journal_part += f": {info['page']}"
-        
-        parts.append(journal_part + '.')
-    
+    authors_apa = info.get('authors_apa') or format_authors_apa(
+        info.get('authors', '')
+    )
+    year = _clean_year(info.get('year'))
+    title = str(info.get('title') or '').strip()
+
+    if authors_apa:
+        author_year = authors_apa
+        if year:
+            author_year += f" ({year})."
+        else:
+            author_year += '.'
+        parts.append(author_year)
+        if title:
+            parts.append(_end_with_period(title))
+    else:
+        # APA places the title in the author position when no author is known.
+        if title:
+            parts.append(_end_with_period(title))
+        if year:
+            parts.append(f"({year}).")
+
+    journal = str(info.get('container_title') or '').strip()
+    if re.match(r'^the stata journal(?:\s*:.*)?$', journal, flags=re.I):
+        journal = 'The Stata Journal'
+
+    if journal:
+        journal_part = journal
+        volume = _clean_year(info.get('volume'))
+        issue = _clean_year(info.get('issue'))
+        page = str(info.get('page') or '').strip()
+        page = re.sub(r'(?<=\d)-(?=\d)', '–', page)
+
+        if volume:
+            journal_part += f", {volume}"
+            if issue:
+                journal_part += f"({issue})"
+        if page:
+            journal_part += f", {page}"
+
+        parts.append(_end_with_period(journal_part))
+
     return ' '.join(parts)
 
 def get_web_info(doi, vol, num, title_fallback=''):

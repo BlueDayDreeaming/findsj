@@ -4,11 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.7-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.8-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-当前版本：**3.2.7（26Jul2026）**。
+当前版本：**3.2.8（26Jul2026）**。
 
 `findsj` 可以按照关键词、作者或标题搜索 Stata Journal（SJ）文章。每条结果
 均提供可点击的文章页面、基于 DOI
