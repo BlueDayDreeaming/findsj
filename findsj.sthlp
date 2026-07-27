@@ -174,8 +174,8 @@ with four access buttons:
 
 {phang3}
 • {bf:View} - Open in Stata's viewer{break}
-• {bf:Open_Mac} - Open with default Mac app{break}
-• {bf:Open_Win} - Open with default Windows app{break}
+• {bf:Open_Mac} - Open the exported file or its containing folder on macOS{break}
+• {bf:Open_Win} - Open the exported file or reveal it in File Explorer on Windows{break}
 • {bf:dir} - Browse to file location
 
 {phang2}
@@ -400,7 +400,7 @@ any blue underlined text or button with your mouse to execute the action.
 {pstd}{bf:Basic Search}{p_end}
 
 {phang2}{inp:.} {stata "findsj panel data":findsj panel data}{p_end}
-{pmore}→ Searches for "panel data", displays 10 results with 7 buttons each{p_end}
+{pmore}→ Searches for "panel data" and displays 10 results with the available action buttons{p_end}
 
 {phang2}{inp:.} {stata "findsj cox, author":findsj cox, author}{p_end}
 {pmore}→ Finds all articles by Nicholas J. Cox{p_end}
@@ -426,7 +426,7 @@ any blue underlined text or button with your mouse to execute the action.
 
 {phang2}{inp:.} {stata "findsj fixed effects":findsj fixed effects}{p_end}
 {pmore}For each result, click:{p_end}
-{pmore2}• {bf:Article} to read abstract online{p_end}
+{pmore2}• {bf:Web} to read the article page online{p_end}
 {pmore2}• {bf:PDF} to open the DOI-based publisher PDF link (access may be restricted){p_end}
 {pmore2}• {bf:Google} to search on Google Scholar{p_end}
 {pmore2}• {bf:Install} to launch a Stata package search{p_end}
