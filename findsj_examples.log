@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.log
   log type:  text
- opened on:   2 Aug 2026, 18:20:37
+ opened on:   2 Aug 2026, 21:00:18
 
 . 
 . * Record the submitted program versions without printing machine-specific path
@@ -30,7 +30,7 @@
 . local findsj_data_file `"`r(fn)'"'
 
 . 
-. quietly findfile getiref.ado
+. quietly findfile _getiref.ado
 
 . local getiref_file `"`r(fn)'"'
 
@@ -262,22 +262,22 @@ Showing 3 of 49 results. (all)
 [1] Speaking Stata: Three commands for data reduction
     Cox, Nicholas J. (2026). Stata Journal 26(2): 291-322
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[2] Speaking Stata: How to debug, part I
-    Cox, Nicholas J. (2026). Stata Journal 26(1): 132-143
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] Announcement of the Stata Journal Editors’ Prize 2026
+[2] Announcement of the Stata Journal Editors’ Prize 2026
     Cox, Nicholas J.; Jenkins, Stephen P. (2026). Stata Journal 26(1): 5-6
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[4] Speaking Stata: Some notes on quadratic fits
-    Cox, Nicholas J. (2025). Stata Journal 25(4): 847-864
+[3] Speaking Stata: How to debug, part I
+    Cox, Nicholas J. (2026). Stata Journal 26(1): 132-143
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[4] The Stata Journal Editors’ Prize 2025: Michael J. Crowther
+    Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(4):
+    696-698
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [5] Stata tip 165: Marginal titles for graph bar, graph dot, graph box, and
 beyond
     Cox, Nicholas J. (2025). Stata Journal 25(4): 865-871
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] The Stata Journal Editors’ Prize 2025: Michael J. Crowther
-    Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(4):
-    696-698
+[6] Speaking Stata: Some notes on quadratic fits
+    Cox, Nicholas J. (2025). Stata Journal 25(4): 847-864
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [7] Stata tip 162: Add marginal rugs using marker symbols or axis ticks
     Cox, Nicholas J. (2025). Stata Journal 25(2): 491-497
@@ -308,26 +308,26 @@ Stata
     Huang, Wenxin; Wang, Yiru; Zhou, Lingyun (2024). Stata Journal 24(1):
     46-71
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] A Lagrange multiplier test for the mean stationarity assumption in dynamic
+[3] xtnumfac: A battery of estimators for the number of common factors in time
+series and panel-data models
+    Ditzen, Jan; Reese, Simon (2023). Stata Journal 23(2): 438-454
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[4] A Lagrange multiplier test for the mean stationarity assumption in dynamic
 panel-data models
     Magazzini, Laura; Calzolari, Giorgio (2023). Stata Journal 23(2):
     418-437
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[4] xtnumfac: A battery of estimators for the number of common factors in time
-series and panel-data models
-    Ditzen, Jan; Reese, Simon (2023). Stata Journal 23(2): 438-454
+[5] Improved tests for Granger noncausality in panel data
+    Xiao, Jiaqi; Karavias, Yiannis; Juodis, Artūras; Sarafidis, Vasilis;
+    Ditzen, Jan (2023). Stata Journal 23(1): 230-242
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[5] Stata tip 150: When is it appropriate to xtset a panel dataset with panelvar
+[6] Stata tip 150: When is it appropriate to xtset a panel dataset with panelvar
 only?
     Lazzaro, Carlo (2023). Stata Journal 23(1): 281-292
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Uniform nonparametric inference for spatially dependent panel data: The
+[7] Uniform nonparametric inference for spatially dependent panel data: The
 xtnpsreg command
     Li, Jia; Liao, Zhipeng; Zhou, Wenyu (2023). Stata Journal 23(1): 243-264
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[7] Improved tests for Granger noncausality in panel data
-    Xiao, Jiaqi; Karavias, Yiannis; Juodis, Artūras; Sarafidis, Vasilis;
-    Ditzen, Jan (2023). Stata Journal 23(1): 230-242
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [8] Instrumental-variable estimation of large-T panel-data models with common
 factors
@@ -354,12 +354,12 @@ Showing 10 of 25 results. (all)
     Rios-Avila, Fernando; Ramos, Andrey; Canavire-Bacarreza, Gustavo; Siles,
     Leonardo (2026). Stata Journal 26(1): 111-131
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[2] Weighted-average least squares: Beyond the classical linear regression model
-    Luca, Giuseppe De; Magnus, Jan R. (2025). Stata Journal 25(4): 772-811
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] Testing for slope heterogeneity bias in the fixed-effects estimator
+[2] Testing for slope heterogeneity bias in the fixed-effects estimator
     Alejo, Javier; Galvao, Antonio F.; Montes-Rojas, Gabriel (2025). Stata
     Journal 25(4): 836-846
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[3] Weighted-average least squares: Beyond the classical linear regression model
+    Luca, Giuseppe De; Magnus, Jan R. (2025). Stata Journal 25(4): 772-811
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
 Showing 3 of 78 results. (all)
@@ -394,13 +394,13 @@ Showing 3 of 78 results. (all)
     Cox, Nicholas J.; Jenkins, Stephen P. (2023). Stata Journal 23(4):
     905-908
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Finite mixture models for linked survey and administrative data: Estimation
+[6] Announcement of the Stata Journal Editors’ Prize 2023
+    Cox, Nicholas J.; Jenkins, Stephen P. (2023). Stata Journal 23(1): 1-2
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[7] Finite mixture models for linked survey and administrative data: Estimation
 and postestimation
     Jenkins, Stephen P.; Rios-Avila, Fernando (2023). Stata Journal 23(1):
     53-85
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[7] Announcement of the Stata Journal Editors’ Prize 2023
-    Cox, Nicholas J.; Jenkins, Stephen P. (2023). Stata Journal 23(1): 1-2
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [8] The Stata Journal Editors’ Prize 2022: Christopher F. Baum
     Cox, Nicholas J.; Jenkins, Stephen P. (2022). Stata Journal 22(4):
@@ -537,11 +537,11 @@ Test
 [15] Stata Tip 88: Efficiently Evaluating Elasticities with the Margins Command
     Baum, Christopher F. (2010). Stata Journal 10(2): 309-312
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[16] Evaluating Concavity for Production and Cost Functions
-    Baum, Christopher F.; Linz, Teresa (2009). Stata Journal 9(1): 161-165
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[17] Stata Tip 73: Append with Care!
+[16] Stata Tip 73: Append with Care!
     Baum, Christopher F. (2009). Stata Journal 9(1): 166-168
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[17] Evaluating Concavity for Production and Cost Functions
+    Baum, Christopher F.; Linz, Teresa (2009). Stata Journal 9(1): 161-165
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [18] Stata Tip 63: Modeling Proportions
     Baum, Christopher F. (2008). Stata Journal 8(2): 299-303
@@ -648,11 +648,11 @@ Test
 [15] Stata Tip 88: Efficiently Evaluating Elasticities with the Margins Command
     Baum, Christopher F. (2010). Stata Journal 10(2): 309-312
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[16] Stata Tip 73: Append with Care!
-    Baum, Christopher F. (2009). Stata Journal 9(1): 166-168
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[17] Evaluating Concavity for Production and Cost Functions
+[16] Evaluating Concavity for Production and Cost Functions
     Baum, Christopher F.; Linz, Teresa (2009). Stata Journal 9(1): 161-165
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[17] Stata Tip 73: Append with Care!
+    Baum, Christopher F. (2009). Stata Journal 9(1): 166-168
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [18] Stata Tip 63: Modeling Proportions
     Baum, Christopher F. (2008). Stata Journal 8(2): 299-303
@@ -669,11 +669,11 @@ Estimation and Testing
 [21] Stata Tip 40: Taking Care of Business
     Baum, Christopher F. (2007). Stata Journal 7(1): 137-139
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[22] Stata Tip 37: And the Last shall be First
-    Baum, Christopher F. (2006). Stata Journal 6(4): 588-589
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[23] Stata Tip 38: Testing for Groupwise Heteroskedasticity
+[22] Stata Tip 38: Testing for Groupwise Heteroskedasticity
     Baum, Christopher F. (2006). Stata Journal 6(4): 590-592
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[23] Stata Tip 37: And the Last shall be First
+    Baum, Christopher F. (2006). Stata Journal 6(4): 588-589
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [24] Stata: The Language of Choice for Time-Series Analysis?
     Baum, Christopher F. (2005). Stata Journal 5(1): 46-63
@@ -971,7 +971,7 @@ Local complete-token count: 26; website count: 25.
 
 . cd "`example_workspace'"
 /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_worker_default_ap
-> 529ya4/St51988.00005e_workspace
+> 529ya4/St51988.00006b_workspace
 
 . sysdir set PERSONAL "`isolated_personal'/"
 
@@ -1331,7 +1331,7 @@ PASS: The displayed DID result and citation DOI are identical.
 . 
 .     display as result "--- Example 22: Markdown citation from a DOI ---"
 --- Example 22: Markdown citation from a DOI ---
-.     getiref 10.1177/1536867x241297914, md
+.     _getiref 10.1177/1536867x241297914, md
   
 Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024). On synthetic differenc
 > e-in-differences and related estimation methods in Stata. The Stata Journal, 2
@@ -1376,18 +1376,18 @@ PASS: Per-article and batch citation bodies use the same APA text.
   Markdown format:
 ------------------------------------------------------------
 
-1. Yan, G., Chen, Q., & Xiao, Z. (2025). Quantile control method: Causal inferen
-> ce with one treated unit via random forest. The Stata Journal, 25(2), 407–437.
->  [Link](https://www.stata-journal.com/article.html?article=st0777), [PDF](http
-> s://journals.sagepub.com/doi/pdf/10.1177/1536867x251341181), [Google](<https:/
-> /scholar.google.com/scholar?q=Quantile%20control%20method:%20Causal%20inferenc
-> e%20with%20one%20treated%20unit%20via%20random%20forest>)
-2. Estrada, P., Estrada, J., Huynh, K. P., Jacho-Chávez, D., & Sánchez-Aragón, L
+1. Estrada, P., Estrada, J., Huynh, K. P., Jacho-Chávez, D., & Sánchez-Aragón, L
 > . (2025). netivreg: Estimation of peer effects in endogenous social networks. 
 > The Stata Journal, 25(2), 344–373. [Link](https://www.stata-journal.com/articl
 > e.html?article=st0775), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/153
 > 6867x251341145), [Google](<https://scholar.google.com/scholar?q=netivreg:%20Es
 > timation%20of%20peer%20effects%20in%20endogenous%20social%20networks>)
+2. Yan, G., Chen, Q., & Xiao, Z. (2025). Quantile control method: Causal inferen
+> ce with one treated unit via random forest. The Stata Journal, 25(2), 407–437.
+>  [Link](https://www.stata-journal.com/article.html?article=st0777), [PDF](http
+> s://journals.sagepub.com/doi/pdf/10.1177/1536867x251341181), [Google](<https:/
+> /scholar.google.com/scholar?q=Quantile%20control%20method:%20Causal%20inferenc
+> e%20with%20one%20treated%20unit%20via%20random%20forest>)
 
 ----------------------------------------------------------
   View        Open_Mac       Open_Win          dir
@@ -1404,18 +1404,18 @@ PASS: Per-article and batch citation bodies use the same APA text.
   Plain text format:
 ------------------------------------------------------------
 
-1. Estrada, P., Estrada, J., Huynh, K. P., Jacho-Chávez, D., & Sánchez-Aragón, L
-> . (2025). netivreg: Estimation of peer effects in endogenous social networks. 
-> The Stata Journal, 25(2), 344–373. Link: https://www.stata-journal.com/article
-> .html?article=st0775, PDF: https://journals.sagepub.com/doi/pdf/10.1177/153686
-> 7x251341145, Google: https://scholar.google.com/scholar?q=netivreg:%20Estimati
-> on%20of%20peer%20effects%20in%20endogenous%20social%20networks
-2. Yan, G., Chen, Q., & Xiao, Z. (2025). Quantile control method: Causal inferen
+1. Yan, G., Chen, Q., & Xiao, Z. (2025). Quantile control method: Causal inferen
 > ce with one treated unit via random forest. The Stata Journal, 25(2), 407–437.
 >  Link: https://www.stata-journal.com/article.html?article=st0777, PDF: https:/
 > /journals.sagepub.com/doi/pdf/10.1177/1536867x251341181, Google: https://schol
 > ar.google.com/scholar?q=Quantile%20control%20method:%20Causal%20inference%20wi
 > th%20one%20treated%20unit%20via%20random%20forest
+2. Estrada, P., Estrada, J., Huynh, K. P., Jacho-Chávez, D., & Sánchez-Aragón, L
+> . (2025). netivreg: Estimation of peer effects in endogenous social networks. 
+> The Stata Journal, 25(2), 344–373. Link: https://www.stata-journal.com/article
+> .html?article=st0775, PDF: https://journals.sagepub.com/doi/pdf/10.1177/153686
+> 7x251341145, Google: https://scholar.google.com/scholar?q=netivreg:%20Estimati
+> on%20of%20peer%20effects%20in%20endogenous%20social%20networks
 3. Yan, G., & Chen, Q. (2023). synth2: Synthetic control method with placebo tes
 > ts, robustness test, and visualization. The Stata Journal, 23(3), 597–624. Lin
 > k: https://www.stata-journal.com/article.html?article=st0722, PDF: https://jou
@@ -1438,19 +1438,19 @@ PASS: Per-article and batch citation bodies use the same APA text.
 > 9(4), 832–848. Link: https://www.stata-journal.com/article.html?article=st0579
 > , PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x19893626, Google: 
 > https://scholar.google.com/scholar?q=distcomp:%20Comparing%20distributions
-7. Xu, R., Frank, K. A., Maroulis, S. J., & Rosenberg, J. M. (2019). konfound: C
-> ommand to quantify robustness of causal inferences. The Stata Journal, 19(3), 
-> 523–550. Link: https://www.stata-journal.com/article.html?article=st0565, PDF:
->  https://journals.sagepub.com/doi/pdf/10.1177/1536867x19874223, Google: https:
-> //scholar.google.com/scholar?q=konfound:%20Command%20to%20quantify%20robustnes
-> s%20of%20causal%20inferences
-8. Cerulli, G., & Ventura, M. (2019). Estimation of pre- and posttreatment avera
+7. Cerulli, G., & Ventura, M. (2019). Estimation of pre- and posttreatment avera
 > ge treatment effects with binary time-varying treatment using Stata. The Stata
 >  Journal, 19(3), 551–565. Link: https://www.stata-journal.com/article.html?art
 > icle=st0566, PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x1987422
 > 4, Google: https://scholar.google.com/scholar?q=Estimation%20of%20pre-%20and%2
 > 0posttreatment%20average%20treatment%20effects%20with%20binary%20time-varying%
 > 20treatment%20using%20Stata
+8. Xu, R., Frank, K. A., Maroulis, S. J., & Rosenberg, J. M. (2019). konfound: C
+> ommand to quantify robustness of causal inferences. The Stata Journal, 19(3), 
+> 523–550. Link: https://www.stata-journal.com/article.html?article=st0565, PDF:
+>  https://journals.sagepub.com/doi/pdf/10.1177/1536867x19874223, Google: https:
+> //scholar.google.com/scholar?q=konfound:%20Command%20to%20quantify%20robustnes
+> s%20of%20causal%20inferences
 9. Terza, J. V. (2017). Causal Effect Estimation and Inference Using Stata. The 
 > Stata Journal, 17(4), 939–961. Link: https://www.stata-journal.com/article.htm
 > l?article=st0506, PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x18
@@ -1467,7 +1467,7 @@ PASS: Per-article and batch citation bodies use the same APA text.
 ----------------------------------------------------------
 .     timer off 1
 .     timer list 1
-   1:      0.02 /        1 =       0.0180
+   1:      0.02 /        1 =       0.0170
 .     capture erase "_findsj_temp_out_.txt"
 . 
 .     *-------------------------------------------------------------------------
@@ -1497,26 +1497,26 @@ The command is not executed here because it replaces the installed database.
 --- Example 26: Managing download paths ---
 .     findsj, querypath
 Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
-> stata_worker_default_ap529ya4/St51988.00005e_workspace (default)
+> stata_worker_default_ap529ya4/St51988.00006b_workspace (default)
 .     findsj, setpath("`demo_path'")
 Download path set to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_wor
-> ker_default_ap529ya4/St51988.00005e_workspace/personal/downloads
+> ker_default_ap529ya4/St51988.00006b_workspace/personal/downloads
 This setting will be remembered for future sessions.
 .     findsj, querypath
 Current download path: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_wo
-> rker_default_ap529ya4/St51988.00005e_workspace/personal/downloads
+> rker_default_ap529ya4/St51988.00006b_workspace/personal/downloads
 . 
 .     display as result "--- Example 27: BibTeX and RIS downloads ---"
 --- Example 27: BibTeX and RIS downloads ---
 .     findsj st0377, bib
 Downloading bib file for st0377... done.
 Save to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_worker_default_a
-> p529ya4/St51988.00005e_workspace/personal/downloads/st0377.bib
+> p529ya4/St51988.00006b_workspace/personal/downloads/st0377.bib
 .     confirm file "`demo_path'/st0377.bib"
 .     findsj dm0065, ris
 Downloading ris file for dm0065... done.
 Save to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_worker_default_a
-> p529ya4/St51988.00005e_workspace/personal/downloads/dm0065.ris
+> p529ya4/St51988.00006b_workspace/personal/downloads/dm0065.ris
 .     confirm file "`demo_path'/dm0065.ris"
 . 
 .     findsj, resetpath
@@ -1524,7 +1524,7 @@ Download path reset to default (current working directory)
 Use findsj ..., setpath(path) to set a custom download path
 .     findsj, querypath
 Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
-> stata_worker_default_ap529ya4/St51988.00005e_workspace (default)
+> stata_worker_default_ap529ya4/St51988.00006b_workspace (default)
 . 
 .     if c(linesize) != 80 {
 .         display as error "Regression test failed: findsj changed linesize."
@@ -1593,5 +1593,5 @@ PASS: caller linesize remains 80.
       name:  <unnamed>
        log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.log
   log type:  text
- closed on:   2 Aug 2026, 18:20:46
+ closed on:   2 Aug 2026, 21:00:32
 --------------------------------------------------------------------------------

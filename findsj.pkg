@@ -37,5 +37,5 @@ F findsj_version.dta
 f findsj_examples.do
 f findsj_examples.log
 f README.txt
-F getiref.ado
-F getiref.sthlp
+F _getiref.ado
+F _getiref.sthlp

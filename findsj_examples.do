@@ -1,4 +1,4 @@
-*! version 1.4.4  Reproducing examples for "findsj: Interactive search and citation management"
+*! version 1.4.5  Reproducing examples for "findsj: Interactive search and citation management"
 *! Authors: Yujun Lian and Chucheng Wan
 *! Date: 2026-08-02
 
@@ -29,7 +29,7 @@ display as text "`findsj_version'"
 quietly findfile findsj.dta
 local findsj_data_file `"`r(fn)'"'
 
-quietly findfile getiref.ado
+quietly findfile _getiref.ado
 local getiref_file `"`r(fn)'"'
 tempname getiref_handle
 file open `getiref_handle' using `"`getiref_file'"', read text
@@ -485,7 +485,7 @@ capture noisily {
         "PASS: The displayed DID result and citation DOI are identical."
 
     display as result "--- Example 22: Markdown citation from a DOI ---"
-    getiref 10.1177/1536867x241297914, md
+    _getiref 10.1177/1536867x241297914, md
     local getiref_body = strtrim(`"`r(refbody)'"')
 
     preserve

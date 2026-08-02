@@ -1,14 +1,18 @@
 {smcl}
 {* *! version 2.3  08May2025}{...}
-{hi:help getiref}{right:also see: {help lianxh}}
+{hi:help _getiref}{right:also see: {help lianxh}}
 {right: {browse "https://github.com/arlionn/getiref"}}
 {hline}
+
+{pstd}
+This is the private, namespaced citation component bundled with {cmd:findsj}.
+The independently installable public command remains {help getiref}.
 
 {marker title}{...}
 {title:Title}
 
 {p2colset 5 16 16 2}{...}
-{p2col:{hi: getiref} {hline 2}}list reference in Results Window, and download PDF, .ris, .bibtex files for given {DOI}. 
+{p2col:{hi: _getiref} {hline 2}}list reference in Results Window, and download PDF, .ris, .bibtex files for given {DOI}. 
 {p_end}
 {p2colreset}{...}
 
@@ -16,17 +20,17 @@
 {marker quickexample}{...}
 {title:Quick examples}
 
-{phang}. {stata "getiref  10.1257/aer.109.4.1197"}{p_end}
-{phang}. {stata "getiref  10.1257/aer.109.4.1197, cite"}{p_end}
-{phang}. {stata "getiref  10.1257/aer.109.4.1197, pdf bib"}{p_end}
-{phang}. {stata "getiref  10.3368/jhr.50.2.317, pdf bib md"}{p_end}
+{phang}. {stata "_getiref  10.1257/aer.109.4.1197"}{p_end}
+{phang}. {stata "_getiref  10.1257/aer.109.4.1197, cite"}{p_end}
+{phang}. {stata "_getiref  10.1257/aer.109.4.1197, pdf bib"}{p_end}
+{phang}. {stata "_getiref  10.3368/jhr.50.2.317, pdf bib md"}{p_end}
 
 
 {marker syntax}{...}
 {title:Syntax}
 
 {phang}
-{cmd:getiref}  {it:DOI}  
+{cmd:_getiref}  {it:DOI}  
 [{cmd:,} {opt p:ath(str)} 
          {opt m:d}           
          {opt md1}                 
@@ -110,7 +114,7 @@
 {title:Description}
 
 {pstd}
-{help getiref} make it easy to get meta data of most academic articles using their {it:DOI}s.
+{help _getiref} make it easy to get meta data of most academic articles using their {it:DOI}s.
 It gets information like {it:Author name}, {it:Publication year}, {it:article Title}, {it:page range}, and even provides links to PDFs, as well as {bf:.bibtex/.ris} files associated with an anticle.
 
 {pstd}
@@ -130,7 +134,7 @@ significantly saving time on downloading, organizing PDF documents, and managing
 {pstd}
 It is simple: a valid {bf:DOI} is enough
 
-{phang2}. {stata "getiref 10.1257/aer.109.4.1197"}{p_end}
+{phang2}. {stata "_getiref 10.1257/aer.109.4.1197"}{p_end}
 
 {phang}:-->{p_end}
 {phang}Blanchard, O. (2019). Public Debt and Low Interest Rates. American Economic Review, 109(4), 1197–1229.{p_end}
@@ -146,11 +150,11 @@ It is simple: a valid {bf:DOI} is enough
 {dlgtab:Download PDF and .ris files}
 
 {phang}
-With option {cmd:pdf}, {help getiref} can download PDF documents for most articles. 
+With option {cmd:pdf}, {help _getiref} can download PDF documents for most articles. 
 By default, a new folder named "{bf:_temp_getref_}" will be created in current working directory and the PDF file will 
 be saved in this new folder (Note: you can copy, renanme or even delete this folder later). When {cmd:path()} is specified, the PDF files will be saved in user specified directory.{p_end}
 
-{phang2}. {stata "getiref 10.1257/aer.109.4.1197, pdf bib"}{p_end}
+{phang2}. {stata "_getiref 10.1257/aer.109.4.1197, pdf bib"}{p_end}
 
 {phang}:-->{p_end}
 {phang2}
@@ -173,7 +177,7 @@ Note that if you click '{bf:Bibtex}' or '{bf:RIS}' in the {bf:Results Window}, t
 
 {dlgtab:List meta data in Markdown format}
 
-{phang2}. {stata "getiref 10.3368/jhr.50.2.317, md"}{p_end}
+{phang2}. {stata "_getiref 10.3368/jhr.50.2.317, md"}{p_end}
 
 {phang}:-->{p_end}
 {phang2}Colin Cameron, A., & Miller, D. L. (2015).
@@ -196,7 +200,7 @@ Journal of Human Resources, 50(2), 317–372.
 
 {dlgtab:In text citation format:}
 
-{phang2}. {stata "getiref 10.1257/aer.109.4.1197, cite"}{p_end}
+{phang2}. {stata "_getiref 10.1257/aer.109.4.1197, cite"}{p_end}
 
 {phang}:-->{p_end}
 {phang2}[{browse "https://doi.org/10.1257/aer.109.4.1197":Blanchard}](https://doi.org/10.1257/aer.109.4.1197)
@@ -207,7 +211,7 @@ Journal of Human Resources, 50(2), 317–372.
     
 {col 9}{ul:version 2:}
 
-{phang2}. {stata "getiref 10.1257/aer.109.4.1197, cite2"}{p_end}
+{phang2}. {stata "_getiref 10.1257/aer.109.4.1197, cite2"}{p_end}
 
 {phang2}Similar as the {cmd:cite} case, but the text does not have a hyperlink.{p_end}
 
@@ -217,9 +221,9 @@ Journal of Human Resources, 50(2), 317–372.
 {pstd}
 The following two commands are equivalent, and 'ar' means 'arxiv'.:
 
-{phang2}. {stata "getiref 2303.17564, ar"}{p_end}
+{phang2}. {stata "_getiref 2303.17564, ar"}{p_end}
 
-{phang2}. {stata "getiref 10.48550/arXiv.2303.17564"}{p_end}
+{phang2}. {stata "_getiref 10.48550/arXiv.2303.17564"}{p_end}
 
 
 {title:Appendix: About DOI}
@@ -289,9 +293,9 @@ i.e., {browse "https://arxiv.org/pdf/2312.05400.pdf"}
 {title:Saved results}
 
 {pstd}
-{cmd:getiref} saves the following in {cmd:r()} in case of the following commands:
+{cmd:_getiref} saves the following in {cmd:r()} in case of the following commands:
 
-{phang}. {stata "getiref 10.1257/aer.109.4.1197, md pdf bib"}{p_end} 
+{phang}. {stata "_getiref 10.1257/aer.109.4.1197, md pdf bib"}{p_end} 
 {phang}. {stata "ret list"}{p_end} 
 
 {pstd}

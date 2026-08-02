@@ -34,8 +34,8 @@ FILES FOR THE STATA PACKAGE
   findsj.sthlp            Help file
   findsj.dta              Bundled article metadata (1,269 records)
   findsj_version.dta      Database-version metadata
-  getiref.ado             Bundled DOI citation component
-  getiref.sthlp           Help file for getiref
+  _getiref.ado             Private bundled DOI citation component
+  _getiref.sthlp           Help file for the private component
   findsj.pkg              Package manifest
   stata.toc               Package index
   findsj_examples.do      Reproduces article examples and regression tests
@@ -89,10 +89,14 @@ INSTALLATION
 
        . ssc install findsj, all replace
 
-  It installs findsj, the bundled getiref, findsj.dta, and
+  It installs findsj, the private bundled _getiref component, findsj.dta, and
   findsj_version.dta in Stata's PLUS directory. Local search reads the
   database from that installed location, so changing the current working
   directory does not affect it.
+
+  The private _getiref component is namespaced for findsj citation links. It
+  can coexist with the public getiref package, and uninstalling either package
+  does not remove the other command.
 
   The all option also obtains the complete ancillary reproducibility
   materials, including the example do-file, supplied log, and this README.

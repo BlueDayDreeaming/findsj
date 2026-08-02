@@ -4,7 +4,8 @@
 * Search Stata Journal articles
 * v3.2.9: Expose a single database-update interface, findsj, update; download,
 *   validate, and transactionally install both runtime files from GitHub while
-*   preserving caller data; remove source-selection options
+*   preserving caller data; remove source-selection options; namespace the
+*   bundled DOI formatter as the private _getiref component
 * v3.2.8: Cache true APA-style citation strings, use record-level citation
 *   fallbacks, and keep single-article and batch citation presentation aligned
 * v3.2.7: Ensure the bundled runtime database and version metadata are
@@ -25,8 +26,9 @@
 *   arbitrary substrings; replace the generic type() download interface with
 *   explicit bib/ris options; validate article IDs before downloads
 * v3.2: Option pruning and getiref bundling (in response to SJ peer review)
-*   - Bundled: getiref.ado/getiref.sthlp now ship with findsj; removed the
-*     runtime "ssc install getiref" auto-install block
+*   - Bundled: getiref.ado/getiref.sthlp shipped with findsj; removed the
+*     runtime "ssc install getiref" auto-install block.  The bundled copy was
+*     later namespaced as _getiref in v3.2.9.
 *   - Removed options: checkdb, installdb(), debug, clear, nobrowser,
 *     nopdf, nopkg, offline. Their behavior is either obsolete or now
 *     handled automatically (e.g. offline mode is auto-enabled when the
@@ -49,10 +51,10 @@
 *   - Fixed Bug #1: Citation count display (results < n)
 *   - Fixed Bug #3: Author name order (via citation_apa)
 *   - Fixed Bug #4: Added text/txt options as aliases for plain format
-* v1.6.0: Use local citation_apa field for offline citations (no need to call getiref)
+* v1.6.0: Use local citation_apa field for offline citations (no need to call _getiref)
 * v1.5.0: 'added by Yujun Lian 2026/02/03', add number list before ref
 * v1.4.0: Auto-check for database updates (monthly reminder with download option)
-* v1.3.0: Direct getiref integration - click .md/.latex/.txt calls getiref with DOI
+* v1.3.0: Direct _getiref integration - click .md/.latex/.txt calls _getiref with DOI
 * v1.2.0: Simplified to single 'ref' option with three format buttons
 * v1.1.1: Added individual "Ref" button for each article to copy citation
 * v1.1.0: Removed local data file dependency, all info fetched online
@@ -1276,14 +1278,14 @@ else {
     dis as text " | " _c
     dis as text `"{stata "search `art_id_nobom'":Install}"' _c
     
-    * Display .md .latex .txt buttons (citation formats) using getiref with DOI
+    * Display .md .latex .txt buttons (citation formats) using _getiref with DOI
     if `has_doi' == 1 {
         dis as text "  |  " _c
-        dis as text `"{stata "getiref `doi_i', md":.md}"' _c
+        dis as text `"{stata "_getiref `doi_i', md":.md}"' _c
         dis as text " | " _c
-        dis as text `"{stata "getiref `doi_i', latex":.latex}"' _c
+        dis as text `"{stata "_getiref `doi_i', latex":.latex}"' _c
         dis as text " | " _c
-        dis as text `"{stata "getiref `doi_i', text":.txt}"' _c
+        dis as text `"{stata "_getiref `doi_i', text":.txt}"' _c
     }
     
     * Display BibTeX and RIS buttons (on-demand download via helper program)
@@ -2148,11 +2150,11 @@ program define findsj_show_ref
     * Display citation buttons or error message
     if `has_doi' == 1 {
         dis as text "Cite: " _c
-        dis as text `"{stata "getiref `doi', md":.md}"' _c
+        dis as text `"{stata "_getiref `doi', md":.md}"' _c
         dis as text " | " _c
-        dis as text `"{stata "getiref `doi', latex":.latex}"' _c
+        dis as text `"{stata "_getiref `doi', latex":.latex}"' _c
         dis as text " | " _c
-        dis as text `"{stata "getiref `doi', text":.txt}"'
+        dis as text `"{stata "_getiref `doi', text":.txt}"'
     }
     else {
         dis as text "" as error "(No DOI found)" as text " - Try: " _c
@@ -2801,7 +2803,7 @@ end
 
 
 *==========================================
-* Clipboard function (similar to getiref's get_clipout)
+* Clipboard function (similar to _getiref's get_clipout)
 *==========================================
 // cap program drop findsj_clipout
 program define findsj_clipout

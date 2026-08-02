@@ -56,13 +56,18 @@ For the recommended SSC installation, type:
 ssc install findsj, all replace
 ```
 
-This installs the command, help files, bundled `getiref`, and the runtime
+This installs the command, help files, the private bundled `_getiref` citation
+component, and the runtime
 databases (`findsj.dta` and `findsj_version.dta`) in Stata's PLUS directory.
 Local search uses that installed database, so changing the current working
 directory does not affect it. The `all` option also downloads ancillary files such as
 `findsj_examples.do`, `findsj_examples.log`, and `README.txt`; it is not
 required for the runtime databases, but it is recommended so that the complete
 distribution and reproducibility materials are obtained together.
+
+The private `_getiref` component is used only by `findsj` citation links. Its
+namespaced files coexist with the independently installable public `getiref`
+package, and uninstalling either package does not remove the other command.
 
 ### GitHub
 

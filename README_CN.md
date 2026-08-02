@@ -52,12 +52,15 @@
 ssc install findsj, all replace
 ```
 
-该命令会把主命令、帮助文件、捆绑的 `getiref` 以及运行时数据库
+该命令会把主命令、帮助文件、私有的 `_getiref` 引用组件以及运行时数据库
 `findsj.dta` 和 `findsj_version.dta` 安装到 Stata 的 PLUS 目录。本地搜索
 始终读取该安装位置，因此切换当前工作目录不会影响本地搜索。`all`
 还会下载 `findsj_examples.do`、`findsj_examples.log` 和 `README.txt`
 等附属可复现文件；虽然安装运行时数据库并不依赖 `all`，但推荐保留
 该选项，以便一次取得完整的软件包和复现材料。
+
+私有的 `_getiref` 组件仅供 `findsj` 的引用按钮调用。其命名空间文件可以
+与独立安装的公开 `getiref` 软件包并存；卸载任一软件包都不会删除另一个命令。
 
 ### GitHub
 

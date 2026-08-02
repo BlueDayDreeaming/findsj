@@ -1,10 +1,12 @@
 *! version 2.3  2025/05/08
+*! Private, namespaced copy bundled with findsj 3.2.9 (02Aug2026)
+*! The public getiref command remains a separate SSC package.
 *   // 'http' to 'https'
 *   local API   "https://api.crossref.org/works"   
 *  version 2.2  2024/12/6
 *   a. for arXiv.org papers, you can use 
-*                      'getiref                2401.01645, arxiv'
-*        instead of    'getiref 10.48550/arXiv.2401.01645'
+*                      '_getiref                2401.01645, arxiv'
+*        instead of    '_getiref 10.48550/arXiv.2401.01645'
 *   b. PDF documents can be download properly now 
 *      shell curl -L "https://arxiv.org/pdf/2401.01645.pdf" -o "`FN'.pdf"
 *  version 2.1  2024/11/18 
@@ -154,15 +156,15 @@ global DOI "10.1007/978-3-030-86186-5"
 cls 
 // set trace on 
   
-getiref "$DOI", d             
+_getiref "$DOI", d             
                 
          */ 
   
 *-get individual reference for given {DOI} 
 * renamed from 'getref.ado', 2023/12/20 23:45
 
-cap program drop getiref
-program define getiref, rclass 
+cap program drop _getiref
+program define _getiref, rclass 
 version 14
 
 	syntax anything(everything) ///
@@ -229,9 +231,9 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
       local pdf "pdf"
       local bib "bib"
   }
-  * Note:    getiref DOI, all 
+  * Note:    _getiref DOI, all 
   *  is same as 
-  *          getiref DOI, pdf bib 
+  *          _getiref DOI, pdf bib 
   
   if "`altname'" != ""{
       
@@ -266,9 +268,9 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
   
 // Update: 2024/12/6 10:06  
 *   for arXiv.org papers, you can use 
-*                         getiref                2401.01645, arxiv  
+*                         _getiref                2401.01645, arxiv  
 *           instead of    
-*                         getiref 10.48550/arXiv.2401.01645  
+*                         _getiref 10.48550/arXiv.2401.01645  
   if ("`arxiv'" != "") & (strpos("`anything'", "/ar"))==0{
        local anything "10.48550/arXiv.`anything'"
   }
@@ -296,7 +298,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
       local path "_temp_getref_"
   }
   
-  qui get_checkpath "`path'"
+  qui _getiref_get_checkpath "`path'"
   local path "`r(path)'"
  
 /*
@@ -314,7 +316,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
 
   if ("${sci__hub_}" == "") | ("`fastscihub'" != ""){
       
-      cap get_scihub       // get the fast url of SCI-Hub 
+      cap _getiref_get_scihub       // get the fast url of SCI-Hub 
       
       if _rc==0{
           global  sci__hub_ "`r(best)'"
@@ -329,8 +331,8 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
 
   if "`doicheck'" != ""{  // get {DOI} and check validity
   
-//    cap noi get_doi `"`anything'"', nodisplay   // old
-      cap noi get_doi `anything', nodisplay
+//    cap noi _getiref_get_doi `"`anything'"', nodisplay   // old
+      cap noi _getiref_get_doi `anything', nodisplay
       
       if `r(valid)' == 0{
           exit
@@ -353,7 +355,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
    if "`latex'" == ""    local tex_opt ""
    else                  local tex_opt ", `latex'"
        
-   get_doidata `DOI' `tex_opt'  // .... download meta data , new 2024/1/8 13:27
+   _getiref_get_doidata `DOI' `tex_opt'  // .... download meta data , new 2024/1/8 13:27
                        // suit for both 'crossref' and 'datacite'
    
    local DOI = "`r(DOI)'"
@@ -371,7 +373,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
   *-Get file name of PDF article:
   *    Author-Year-Title
   
-    get_au_yr_ti "`ref_body'", doi("`DOI'") 
+    _getiref_get_au_yr_ti "`ref_body'", doi("`DOI'") 
   
   *-filename of PDF document
     if "`notitle'" == ""{
@@ -385,10 +387,10 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
     
   *-transfer to valid filename (delete invalid characters: '* \ / : * ? " < > | ')
     if "`blank'" == ""{
-        get_filename "`fn_au_year'"
+        _getiref_get_filename "`fn_au_year'"
     }  
     else{
-        get_filename "`fn_au_year'", blank(`blank')
+        _getiref_get_filename "`fn_au_year'", blank(`blank')
     }
   
   if "`filename'" == ""{            // Gomez_2023_The_Effect_of_Mandatory_Disclosure……
@@ -409,12 +411,12 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
     local link_br  `"{browse "`link'":Link}"'
     
   * PDF url given by SCI-HUB
-    local pdf_web "${sci__hub_}/`DOI'"  // http://sci-hub.ren/ or return by 'get_scihub.ado'  
+    local pdf_web "${sci__hub_}/`DOI'"  // http://sci-hub.ren/ or return by '_getiref_get_scihub.ado'  
     local  pdf_br  `"{browse "`pdf_web'":PDF}"'
      
     *-deal with ASCII characters in {DOI}
       
-      get_doi_scihub_special  `DOI'           // deal with special characters
+      _getiref_get_doi_scihub_special  `DOI'           // deal with special characters
       
       local DOI_scihub "`r(doi_scihub)'"
     
@@ -804,13 +806,13 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
 *---------------  
 
   if "`cite'" != ""{
-      get_cite `v_body', doi("`DOI'") link `latex'         // author (Year), with link
+      _getiref_get_cite `v_body', doi("`DOI'") link `latex'         // author (Year), with link
   }
   if "`c1'" != "" | "`cite1'" != ""{                       // intext, with link
-      get_cite `v_body', doi("`DOI'") link intext `latex'  // (author, Year)
+      _getiref_get_cite `v_body', doi("`DOI'") link intext `latex'  // (author, Year)
   }  
   if "`c2'" != "" | "`cite2'" != ""{              // plain text, no link
-      get_cite `v_body', doi("`DOI'")      
+      _getiref_get_cite `v_body', doi("`DOI'")      
   }
   if "`cite'`c1'`cite1'`c2'`cite2'" != ""{
       local refout "`r(cite)'"
@@ -837,7 +839,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
       } 
       else{
           if `pdf_source' == 0{ // from SCI-HUB
-              cap noi get_pdf_scihub "`DOI'", saving("`filename'") path("`path'")
+              cap noi _getiref_get_pdf_scihub "`DOI'", saving("`filename'") path("`path'")
               
               * Stata Journal: Some paper is open-access
               if `r(pdf_got)'==0 & strpos("`DOI'", "10.1177/1536867"){
@@ -845,7 +847,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
               }
           }
           else{
-              get_pdf_nonSCIHUB "`DOI'", saving("`filename'") path("`path'")            
+              _getiref_get_pdf_nonSCIHUB "`DOI'", saving("`filename'") path("`path'")            
           }
            
 //           return local pdfurl `"`r(pdfurl)'"'
@@ -861,7 +863,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
 
   if "`bib'" != ""{
       
-      get_bib `DOI', path("`path'") `notip'
+      _getiref_get_bib `DOI', path("`path'") `notip'
       
       local got_bib = `r(got_bib)'
       local bibtex "`r(bibtex)'"
@@ -873,7 +875,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
 
     if "`clipoff'" == ""{
         dis " "
-        get_clipout "`refout'", `clipoff' `notip'  
+        _getiref_get_clipout "`refout'", `clipoff' `notip'  
     }
 
     
@@ -887,7 +889,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
       
       *-send to CLIP
       if "`clipoff'" == ""{
-          get_clipout "`filename'", `clipoff' notip
+          _getiref_get_clipout "`filename'", `clipoff' notip
       }       
   }
   
@@ -896,7 +898,7 @@ preserve //>>>>>>>>>>>>>>>>>>>>>>>>>>>>> preserve begin
 *-return values 
 *--------------
 
-  get_au_yr_ti "`ref_body'", doi("`DOI'") 
+  _getiref_get_au_yr_ti "`ref_body'", doi("`DOI'") 
 
   return local au_yr "`r(au_yr)'"
   return local au_yr_ti "`r(au_yr_ti)'"
@@ -944,9 +946,9 @@ end
 
 
 
-*------------------ subprogram ------------- get_doi.ado
-cap program drop get_doi
-program define get_doi, rclass
+*------------------ subprogram ------------- _getiref_get_doi.ado
+cap program drop _getiref_get_doi
+program define _getiref_get_doi, rclass
 version 14
 
 *  input: reference text including {DOI} information 
@@ -981,7 +983,7 @@ syntax anything [, Display aregex]
 end 
 
 
-*------------------ subprogram ------------- get_doiserver.ado
+*------------------ subprogram ------------- _getiref_get_doiserver.ado
 * version 1.1  08jan2024
 * Yujun Lian,  arlionn@163.com
 *
@@ -996,9 +998,9 @@ end
 *  ret list 
 
 * 平均耗时：0.15s
-*--------------------------- get_doiserver.ado -------------- 0 ------------
-cap program drop get_doiserver
-program define   get_doiserver, rclass
+*--------------------------- _getiref_get_doiserver.ado -------------- 0 ------------
+cap program drop _getiref_get_doiserver
+program define   _getiref_get_doiserver, rclass
 
 syntax anything(name=doi) [, Display]
 
@@ -1042,10 +1044,10 @@ global doi "10.1016/j.eneco.2023.107287"   // crossref
 global doi "10.1126/science.169.3946.635"   // crossref
 global doi "10.1016/j.jhealeco.2015.10.004" // crossref
 
-get_doiserver $doi, dis 
+_getiref_get_doiserver $doi, dis 
 ret list
 
-. get_doiserver $doi, dis 
+. _getiref_get_doiserver $doi, dis 
 SERVER: DATACITE
 
 . ret list
@@ -1061,14 +1063,14 @@ macros:
 
 
 
-*------------------ subprogram ------------- get_doidata.ado
+*------------------ subprogram ------------- _getiref_get_doidata.ado
 
 *  version 1.1 2024/1/7 23:17
 *    suit for both 'crossref' and 'datacite'
 *  version 1.0 2023/12/23 18:06
 
-cap program drop get_doidata
-program define get_doidata, rclass
+cap program drop _getiref_get_doidata
+program define _getiref_get_doidata, rclass
 
 *  input: {DOI}
 * output: local `ref_body' and `ref_full' with meta data for given {DOI} 
@@ -1106,7 +1108,7 @@ preserve
   }
   else{                    // can not get meta data: first time ('crossref')
     *-check/get the DOI
-      cap noi get_doi `DOI', nodisplay
+      cap noi _getiref_get_doi `DOI', nodisplay
       
       if `r(valid)' == 0{
           dis as error `"Invalid DOI. See {browse "https://www.doi.org/the-identifier/what-is-a-doi/":DOI-1}, {browse "https://academicguides.waldenu.edu/library/doi":DOI-2} or {browse "https://www.doi.org/the-identifier/resources/handbook":DOI-Handbook} for details."'
@@ -1121,21 +1123,21 @@ preserve
               local server "CROSSREF"
           }
           else{
-               qui get_doiserver `DOI'       // get agency server of {DOI}
+               qui _getiref_get_doiserver `DOI'       // get agency server of {DOI}
                
                local server "`r(server)'"
                
                if `r(is_crossref)' == 1{
-                   get_error_doi_data `DOI'  // show error message 
+                   _getiref_get_error_doi_data `DOI'  // show error message 
                }
                else if `r(is_datacite)' == 1{
                    cap qui copy `"`url_datacite'"'  "`doi_ref'.txt", replace   // datacite  
                    if _rc{       // can not get meta data: second time ('datacite')
-                       get_error_doi_data `DOI'
+                       _getiref_get_error_doi_data `DOI'
                    }
                }
                else{
-                   get_error_doi_data `DOI', only simple          
+                   _getiref_get_error_doi_data `DOI', only simple          
                }
           }
       }
@@ -1232,10 +1234,10 @@ global doi "10.48550/arXiv.2312.05400" // datacite
 global doi "10.14454/fxws-0523"        // datacite 
 
 // set trace on 
-get_doidata $doi
+_getiref_get_doidata $doi
 ret list 
 
-get_doidata $doi, dis
+_getiref_get_doidata $doi, dis
 ret list 
 dis "|`r(ref_body)'|"
 dis "|`r(ref_full)'|"
@@ -1243,9 +1245,9 @@ dis "|`r(ref_full)'|"
 
 
 
-*------------------ subprogram ------------- get_error_doi_data .ado 
-cap program drop get_error_doi_data      
-program define get_error_doi_data, rclass
+*------------------ subprogram ------------- _getiref_get_error_doi_data .ado 
+cap program drop _getiref_get_error_doi_data      
+program define _getiref_get_error_doi_data, rclass
 
 syntax anything(name=DOI) [, Simple Only]
 
@@ -1266,12 +1268,12 @@ end
 
 
 
-*------------------ subprogram ------------- get_au_yr_ti.ado 
+*------------------ subprogram ------------- _getiref_get_au_yr_ti.ado 
 * version 1.2  change the input from 'varname' to 'string' (ref_full)
 * 2023/12/23 16:41
 
-cap program drop get_au_yr_ti
-program define get_au_yr_ti, rclass
+cap program drop _getiref_get_au_yr_ti
+program define _getiref_get_au_yr_ti, rclass
 
 *  input: {DOI}
 * output: filename --> Author-Year-Title
@@ -1351,18 +1353,18 @@ end
 // new version: 2023/12/23 17:33
 global doi "10.1111/j.1467-629X.2010.00375.x"
 global doi 10.1111/j.1467-629X.2010.00375.x
-get_doidata $doi
+_getiref_get_doidata $doi
 ret list 
 global ref_body "`r(ref_body)'"
-get_au_yr_ti "$ref_body", doi($doi)
+_getiref_get_au_yr_ti "$ref_body", doi($doi)
 ret list 
-get_au_yr_ti "$ref_body", doi($doi) doifn
+_getiref_get_au_yr_ti "$ref_body", doi($doi) doifn
 ret list 
 */
 
 
 
-*------------------ subprogram -------------get_filename.ado
+*------------------ subprogram -------------_getiref_get_filename.ado
 * version 1.0 29dec2023
 * this is a simplified version of 'getfn.ado'
 
@@ -1371,8 +1373,8 @@ ret list
                     * \ / : * ? " < > | 
 // Source: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
 
-cap program drop get_filename 
-program define   get_filename, rclass
+cap program drop _getiref_get_filename 
+program define   _getiref_get_filename, rclass
 
 syntax anything(name=filename) [, Delete(string) Blank(string)]
 
@@ -1415,21 +1417,21 @@ end
 
 
 
-*------------------ subprogram -------------get_cite.ado
+*------------------ subprogram -------------_getiref_get_cite.ado
 
 /*
 test:
 global DOI "10.1093/rfs/hhs072" 
 global DOI "10.1257/aer.109.4.1197"  
 global DOI "10.1016/j.jeconom.2020.10.012"  // 2 authors
-get_cite body, doi("$DOI") 
+_getiref_get_cite body, doi("$DOI") 
 ret list 
-get_cite body, doi("$DOI") link
+_getiref_get_cite body, doi("$DOI") link
 ret list 
 */
 
-cap program drop get_cite
-program define get_cite, rclass
+cap program drop _getiref_get_cite
+program define _getiref_get_cite, rclass
 
 *  input: {DOI}
 * output: Author (Year)
@@ -1481,7 +1483,7 @@ preserve
   *-Link
     if "`link'" != ""{
         local art_link "https://doi.org/`DOI'"
-        local pdf_web  "${sci__hub_}/`DOI'"     // http://sci-hub.ren/ or return by get_scihub.ado
+        local pdf_web  "${sci__hub_}/`DOI'"     // http://sci-hub.ren/ or return by _getiref_get_scihub.ado
         
         if "`latex'"==""{  // link with Markdown format
             local au_1 "[`au_1'](`art_link')"
@@ -1532,7 +1534,7 @@ end
 
 
 
-*------------------ subprogram ------------- get_doi_scihub_special.ado
+*------------------ subprogram ------------- _getiref_get_doi_scihub_special.ado
 
 * version 1.0, 17Dec2023
 * Yujun Lian, arlionn@163.com
@@ -1545,8 +1547,8 @@ end
 *         {DOI_scihub}
 *         "`scihub'/`DOI_scihub'`suffix'"   (url of PDF)
 
-cap program drop get_doi_scihub_special
-program define   get_doi_scihub_special, rclass
+cap program drop _getiref_get_doi_scihub_special
+program define   _getiref_get_doi_scihub_special, rclass
  
 syntax anything(name=DOI) [, View] 
 
@@ -1611,22 +1613,22 @@ end
 *--- Test ----
 set trace on 
 local DOI "10.1002/1521-3951(200101)223:1<293::AID-PSSB293>3.0.CO;2-N"
-get_doi_scihub_special "`DOI'"
+_getiref_get_doi_scihub_special "`DOI'"
 ret list 
 
-get_doi_scihub_special "`DOI'", view
+_getiref_get_doi_scihub_special "`DOI'", view
 ret list 
 
 cls 
 set trace on
 local DOI "10.1177/1536867X1101100308"
-get_doi_scihub_special "`DOI'", view
+_getiref_get_doi_scihub_special "`DOI'", view
 ret list 
 */
 
 
 
-*------------------ subprogram -------------get_pdf_scihub.ado
+*------------------ subprogram -------------_getiref_get_pdf_scihub.ado
 
 * version 1.2 2023/12/24 11:10
 * chg: sometimes, SCI-HUB may change the Upper letter in {DOI} into lower case, 
@@ -1644,8 +1646,8 @@ ret list
 *-- basic idea: --
 *   copy "https://sci.bban.top/pdf/{DOI}.pdf"  abc.pdf
 
-cap program drop get_pdf_scihub
-program   define get_pdf_scihub, rclass
+cap program drop _getiref_get_pdf_scihub
+program   define _getiref_get_pdf_scihub, rclass
 
 syntax anything [ , Saving(string) Path(string) ]
 
@@ -1676,7 +1678,7 @@ syntax anything [ , Saving(string) Path(string) ]
   *               scihub                suffix
   * e.g.  https://sci.bban.top/pdf/10.1111/j.1467-629x.2010.00375.x.pdf  
   
-  get_doi_scihub_special `DOI'           // deal with special characters
+  _getiref_get_doi_scihub_special `DOI'           // deal with special characters
   
   local DOI_scihub "`r(doi_scihub)'"
   
@@ -1771,9 +1773,9 @@ end
   global DOI "10.1016/j.jbankfin.2019.07.014"
   cls 
   set trace on
-  get_pdf_scihub $DOI 
-  get_pdf_scihub $DOI, saving(Hansen-2021)
-  get_pdf_scihub $DOI, saving(Hansen-2021) hline 
+  _getiref_get_pdf_scihub $DOI 
+  _getiref_get_pdf_scihub $DOI, saving(Hansen-2021)
+  _getiref_get_pdf_scihub $DOI, saving(Hansen-2021) hline 
 */
 
 
@@ -1790,7 +1792,7 @@ https://sci.bban.top/pdf/10.1162/REST_a_00775.pdf
 
 
 
-*------------------ subprogram -------------get_pdf_nonSCIHUB.ado
+*------------------ subprogram -------------_getiref_get_pdf_nonSCIHUB.ado
 
 * version 1.1 2024/1/10 10:03
 
@@ -1806,8 +1808,8 @@ https://sci.bban.top/pdf/10.1162/REST_a_00775.pdf
 *-- basic idea: --
 *   copy "https:xxxx/pdf/{DOI}.pdf"  path/abc.pdf
 
-cap program drop get_pdf_nonSCIHUB
-program   define get_pdf_nonSCIHUB, rclass
+cap program drop _getiref_get_pdf_nonSCIHUB
+program   define _getiref_get_pdf_nonSCIHUB, rclass
 
 syntax anything(name=DOI) [ , Saving(string) Path(string) ]
 
@@ -1946,18 +1948,18 @@ test
 *-QE Open Access Journal
   global DOI 10.3982/QE1288 
   
-  get_pdf_nonSCIHUB $DOI
+  _getiref_get_pdf_nonSCIHUB $DOI
 */
 
 
 
 
-*------------------ subprogram ------------- get_bib.ado
+*------------------ subprogram ------------- _getiref_get_bib.ado
 * version 1.0 13Dec2023
 * Yujun Lian
 
-cap program drop get_bib 
-program define get_bib, rclass
+cap program drop _getiref_get_bib 
+program define _getiref_get_bib, rclass
 version 14
 
 *:Goal: download and list .ris and .bibtex files for given {DOI}
@@ -2047,7 +2049,7 @@ end
 /* test and Examples
 
    local DOI "10.1016/j.jbankfin.2019.07.014"
-   get_bib `DOI'
+   _getiref_get_bib `DOI'
    ret list 
    
   ==Citation Export== RIS: EndNote, ProCite, Mendeley
@@ -2064,9 +2066,9 @@ macros:
 
 
 
-*------------------ subprogram ------------- get_checkpath.ado 
-cap program drop get_checkpath 
-program define get_checkpath, rclass
+*------------------ subprogram ------------- _getiref_get_checkpath.ado 
+cap program drop _getiref_get_checkpath 
+program define _getiref_get_checkpath, rclass
 version 14
 
 syntax anything(name=path)
@@ -2112,17 +2114,17 @@ end
 /*
 === test
 
-get_checkpath aaa
+_getiref_get_checkpath aaa
 ret list 
  
-get_checkpath "D:/___temp/delete_later"
+_getiref_get_checkpath "D:/___temp/delete_later"
 ret list
 
 */
 
 
 
-*------------------ subprogram ------------- get_clipout.ado --v2--
+*------------------ subprogram ------------- _getiref_get_clipout.ado --v2--
 *  version 1.1 2023/2/23 16:15
 *  version 1.2 2023/11/14 23:07
 *  echo text to clipboard. Support: Windows, MacOSX
@@ -2137,8 +2139,8 @@ ret list
 *  https://www.alphr.com/echo-without-newline/
 *  https://linuxhandbook.com/echo-without-newline/
 
-cap program drop get_clipout
-program define get_clipout
+cap program drop _getiref_get_clipout
+program define _getiref_get_clipout
 
     syntax anything [, Clipoff NOTIP]
 	
@@ -2182,7 +2184,7 @@ end
 /* 
 
 # Description Goal: 
-  Package 'get_scihub' displays and checks the valid URLs of SCI-Hub, a 
+  Package '_getiref_get_scihub' displays and checks the valid URLs of SCI-Hub, a 
   special website to search or browse academic papers.  
   For some reasons, the URL of SCI-Hub always change. 
   Some commonly use URLs are listed in 
@@ -2190,9 +2192,9 @@ end
   Their URLs share the format as: http(s)://sci-hub.xx. 
   For example, http://sci-hub.ren/.
   
-  'get_scihub' can also be used to get the PDF link of an article even though
+  '_getiref_get_scihub' can also be used to get the PDF link of an article even though
   the URL of SCI-Hub is changing. The dynamic PDF link will be:
-  http://{best URL returned by get_scihub}/{DOI}
+  http://{best URL returned by _getiref_get_scihub}/{DOI}
 
 # Methods: 
   1. copy webpage of "https://lovescihub.wordpress.com/"
@@ -2211,11 +2213,11 @@ end
      
 # Usage and Examples
   (1) display a list of valid URLs of SCI-Hub
-  . get_scihub, list
+  . _getiref_get_scihub, list
   (2) check validity and list valid ones
-  . get_scihub, list check
+  . _getiref_get_scihub, list check
   (3) programming use
-  . qui get_scihub
+  . qui _getiref_get_scihub
   . local scihub  "`r(best)'"
   . local DOI "10.1257/aer.109.4.1197"
   . view browse "`scihub'/`DOI'"  // open the PDF document 
@@ -2227,8 +2229,8 @@ end
 */
 
 
-cap program drop get_scihub
-program define get_scihub, rclass
+cap program drop _getiref_get_scihub
+program define _getiref_get_scihub, rclass
 version 14
 
   syntax [, Check List]
@@ -2340,16 +2342,16 @@ end
   
 *===== test ======
  
-  get_scihub
+  _getiref_get_scihub
   ret list 
   
-  get_scihub, check
+  _getiref_get_scihub, check
   ret list 
   
   clear 
   set trace on
-  get_scihub, list
-  get_scihub, l
+  _getiref_get_scihub, list
+  _getiref_get_scihub, l
   ret list   
   
 */
