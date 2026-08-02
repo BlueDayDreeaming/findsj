@@ -2,9 +2,9 @@
       name:  <unnamed>
        log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.log
   log type:  text
- opened on:  26 Jul 2026, 18:22:50
+ opened on:   2 Aug 2026, 18:20:37
 
-.
+. 
 . * Record the submitted program versions without printing machine-specific path
 > s.
 . quietly findfile findsj.ado
@@ -20,16 +20,16 @@
 . file close `findsj_handle'
 
 . display as text "`findsj_version'"
-*! version 3.2.8  26Jul2026
+*! version 3.2.9  02Aug2026
 
-.
+. 
 . * Locate the bundled runtime database through adopath. This works both when
 . * reproducing a submission directory and after net/SSC installation into PLUS.
 . quietly findfile findsj.dta
 
 . local findsj_data_file `"`r(fn)'"'
 
-.
+. 
 . quietly findfile getiref.ado
 
 . local getiref_file `"`r(fn)'"'
@@ -45,7 +45,7 @@
 . display as text "`getiref_version'"
 *! version 2.3  2025/05/08
 
-.
+. 
 . * Verify that an author command returns exactly the records whose author field
 . * contains every query term as a complete name token.
 . capture program drop verify_author_count
@@ -53,35 +53,35 @@
 . program define verify_author_count
   1.     version 16
   2.     syntax, Query(string) Returned(integer) Datafile(string)
-  3.
+  3. 
 .     preserve
   4.     quietly use `"`datafile'"', clear
   5.     capture confirm variable authors
   6.     if !_rc rename authors author
-  7.
+  7. 
 .     tempvar author_tokens matched
   8.     quietly gen strL `author_tokens' = ustrlower(author)
-  9.     quietly replace `author_tokens' =         ustrregexra(`author_tokens',
-> "[^\p{L}\p{N}_]+", " ")
- 10.     quietly replace `author_tokens' =         " " + strtrim(stritrim(`autho
-> r_tokens')) + " "
- 11.
-.     local query_clean =         ustrlower(ustrregexra(`"`query'"', "[^\p{L}\p{
-> N}_]+", " "))
+  9.     quietly replace `author_tokens' = ///
+>         ustrregexra(`author_tokens', "[^\p{L}\p{N}_]+", " ")
+ 10.     quietly replace `author_tokens' = ///
+>         " " + strtrim(stritrim(`author_tokens')) + " "
+ 11. 
+.     local query_clean = ///
+>         ustrlower(ustrregexra(`"`query'"', "[^\p{L}\p{N}_]+", " "))
  12.     local query_clean = strtrim(stritrim(`"`query_clean'"'))
  13.     local n_words = wordcount(`"`query_clean'"')
- 14.
+ 14. 
 .     quietly gen byte `matched' = 1
  15.     forvalues i = 1/`n_words' {
  16.         local query_word = word(`"`query_clean'"', `i')
- 17.         quietly replace `matched' = 0 if             strpos(`author_tokens'
-> , " `query_word' ") == 0
+ 17.         quietly replace `matched' = 0 if ///
+>             strpos(`author_tokens', " `query_word' ") == 0
  18.     }
- 19.
+ 19. 
 .     quietly count if `matched'
  20.     local expected = r(N)
  21.     restore
- 22.
+ 22. 
 .     if `returned' != `expected' {
  23.         display as error "Author-search regression test failed for: `query'
 > "
@@ -89,34 +89,34 @@
 > "
  25.         exit 9
  26.     }
- 27.     display as result         "PASS: `query' returned all `returned' comple
-> te-token matches."
+ 27.     display as result ///
+>         "PASS: `query' returned all `returned' complete-token matches."
  28. end
 
-.
+. 
 . * Inspect a batch export as raw text, rather than importing it as delimited
 . * data. This catches unwanted CSV quoting and format-specific escaping errors.
 . capture program drop verify_export_file
 
 . program define verify_export_file
   1.     version 16
-  2.     syntax using/, Format(string) Expected(integer)         [Firstid(string
-> ) Contains(string) Excludes(string)]
-  3.
+  2.     syntax using/, Format(string) Expected(integer) ///
+>         [Firstid(string) Contains(string) Excludes(string)]
+  3. 
 .     local format = lower(`"`format'"')
   4.     if !inlist(`"`format'"', "markdown", "latex", "plain") {
   5.         display as error "Unknown export format in regression test: `format
 > '"
   6.         exit 198
   7.     }
-  8.
+  8. 
 .     tempname export_handle
   9.     capture file open `export_handle' using `"`using'"', read text
  10.     if _rc {
  11.         display as error "Could not open export file: `using'"
  12.         exit _rc
  13.     }
- 14.
+ 14. 
 .     local n_lines 0
  15.     local outer_quotes 0
  16.     local missing_marker 0
@@ -125,32 +125,32 @@
  19.     local first_identity_mismatch 0
  20.     local required_text_found = (`"`contains'"' == "")
  21.     local excluded_text_found 0
- 22.
+ 22. 
 .     file read `export_handle' export_line
  23.     while r(eof) == 0 {
  24.         if strtrim(`"`export_line'"') != "" {
  25.             local n_lines = `n_lines' + 1
- 26.
+ 26. 
 .             if `n_lines' == 1 & `"`firstid'"' != "" {
  27.                 if strpos(`"`export_line'"', `"`firstid'"') == 0 {
  28.                     local first_identity_mismatch 1
  29.                 }
  30.             }
- 31.
-.             if `"`contains'"' != "" &                strpos(`"`export_line'"',
->  `"`contains'"') > 0 {
+ 31. 
+.             if `"`contains'"' != "" & ///
+>                strpos(`"`export_line'"', `"`contains'"') > 0 {
  32.                 local required_text_found 1
  33.             }
- 34.             if `"`excludes'"' != "" &                strpos(`"`export_line'
-> "', `"`excludes'"') > 0 {
+ 34.             if `"`excludes'"' != "" & ///
+>                strpos(`"`export_line'"', `"`excludes'"') > 0 {
  35.                 local excluded_text_found 1
  36.             }
- 37.
-.             if substr(`"`export_line'"', 1, 1) == char(34) |                su
-> bstr(`"`export_line'"', -1, 1) == char(34) {
+ 37. 
+.             if substr(`"`export_line'"', 1, 1) == char(34) | ///
+>                substr(`"`export_line'"', -1, 1) == char(34) {
  38.                 local outer_quotes = `outer_quotes' + 1
  39.             }
- 40.
+ 40. 
 .             if `"`format'"' == "markdown" {
  41.                 if strpos(`"`export_line'"', "[Link](") == 0 {
  42.                     local missing_marker = `missing_marker' + 1
@@ -163,8 +163,8 @@
  49.                 if strpos(`"`export_line'"', "\\href{") > 0 {
  50.                     local doubled_href = `doubled_href' + 1
  51.                 }
- 52.                 local percent_check =                     subinstr(`"`expor
-> t_line'"', "\%", "", .)
+ 52.                 local percent_check = ///
+>                     subinstr(`"`export_line'"', "\%", "", .)
  53.                 if strpos(`"`percent_check'"', "%") > 0 {
  54.                     local unescaped_percent = `unescaped_percent' + 1
  55.                 }
@@ -178,61 +178,63 @@
  63.         file read `export_handle' export_line
  64.     }
  65.     file close `export_handle'
- 66.
+ 66. 
 .     if `n_lines' != `expected' {
- 67.         display as error             "`format' export contained `n_lines' r
-> ecords; expected `expected'."
+ 67.         display as error ///
+>             "`format' export contained `n_lines' records; expected `expected'.
+> "
  68.         exit 9
  69.     }
  70.     if `outer_quotes' {
- 71.         display as error             "`format' export wrapped one or more r
-> ecords in CSV quotes."
+ 71.         display as error ///
+>             "`format' export wrapped one or more records in CSV quotes."
  72.         exit 9
  73.     }
  74.     if `missing_marker' {
- 75.         display as error             "`format' export omitted its expected
-> link syntax."
+ 75.         display as error ///
+>             "`format' export omitted its expected link syntax."
  76.         exit 9
  77.     }
  78.     if `doubled_href' {
- 79.         display as error             "LaTeX export used a doubled backslash
->  before href."
+ 79.         display as error ///
+>             "LaTeX export used a doubled backslash before href."
  80.         exit 9
  81.     }
  82.     if `unescaped_percent' {
- 83.         display as error             "LaTeX export contained an unescaped p
-> ercent sign."
+ 83.         display as error ///
+>             "LaTeX export contained an unescaped percent sign."
  84.         exit 9
  85.     }
  86.     if `first_identity_mismatch' {
- 87.         display as error             "The first export record did not match
->  returned art_id_1."
+ 87.         display as error ///
+>             "The first export record did not match returned art_id_1."
  88.         exit 9
  89.     }
  90.     if !`required_text_found' {
- 91.         display as error             "`format' export omitted required cita
-> tion text: `contains'"
+ 91.         display as error ///
+>             "`format' export omitted required citation text: `contains'"
  92.         exit 9
  93.     }
  94.     if `excluded_text_found' {
- 95.         display as error             "`format' export retained excluded cit
-> ation text: `excludes'"
+ 95.         display as error ///
+>             "`format' export retained excluded citation text: `excludes'"
  96.         exit 9
  97.     }
- 98.
-.     display as result         "PASS: `format' export has `expected' raw, corre
-> ctly formatted records."
+ 98. 
+.     display as result ///
+>         "PASS: `format' export has `expected' raw, correctly formatted records
+> ."
  99. end
 
-.
-.
+. 
+. 
 . *-----------------------------------------------------------------------------
 > --
 . * Section 1: Basic search functionality
 . * Manuscript: Introduction and Syntax and usage
 . *-----------------------------------------------------------------------------
 > --
-.
+. 
 . display as result "--- Example 1: Basic keyword search ---"
 --- Example 1: Basic keyword search ---
 
@@ -252,7 +254,7 @@ Stata
 
 Showing 3 of 49 results. (all)
 
-.
+. 
 . display as result "--- Example 2: Search by author ---"
 --- Example 2: Search by author ---
 
@@ -266,16 +268,16 @@ Showing 3 of 49 results. (all)
 [3] Announcement of the Stata Journal Editors’ Prize 2026
     Cox, Nicholas J.; Jenkins, Stephen P. (2026). Stata Journal 26(1): 5-6
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[4] Stata tip 165: Marginal titles for graph bar, graph dot, graph box, and
+[4] Speaking Stata: Some notes on quadratic fits
+    Cox, Nicholas J. (2025). Stata Journal 25(4): 847-864
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[5] Stata tip 165: Marginal titles for graph bar, graph dot, graph box, and
 beyond
     Cox, Nicholas J. (2025). Stata Journal 25(4): 865-871
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[5] The Stata Journal Editors’ Prize 2025: Michael J. Crowther
+[6] The Stata Journal Editors’ Prize 2025: Michael J. Crowther
     Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(4):
     696-698
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Speaking Stata: Some notes on quadratic fits
-    Cox, Nicholas J. (2025). Stata Journal 25(4): 847-864
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [7] Stata tip 162: Add marginal rugs using marker symbols or axis ticks
     Cox, Nicholas J. (2025). Stata Journal 25(2): 491-497
@@ -283,16 +285,16 @@ beyond
 [8] Speaking Stata: Nine notes on dealing with dates and times
     Cox, Nicholas J. (2025). Stata Journal 25(2): 471-483
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[9] Announcement of the Stata Journal Editors' Prize 2025
-    Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(1): 1-2
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[10] Stata tip 159: Absent friends: How to plot what is not present
+[9] Stata tip 159: Absent friends: How to plot what is not present
     Cox, Nicholas J. (2025). Stata Journal 25(1): 244-251
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[10] Announcement of the Stata Journal Editors' Prize 2025
+    Cox, Nicholas J.; Jenkins, Stephen P. (2025). Stata Journal 25(1): 1-2
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
-Showing 10 of 188 results. (all)
+Showing 10 of 189 results. (all)
 
-.
+. 
 . display as result "--- Example 3: Multiword title search ---"
 --- Example 3: Multiword title search ---
 
@@ -315,17 +317,17 @@ panel-data models
 series and panel-data models
     Ditzen, Jan; Reese, Simon (2023). Stata Journal 23(2): 438-454
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[5] Improved tests for Granger noncausality in panel data
-    Xiao, Jiaqi; Karavias, Yiannis; Juodis, Artūras; Sarafidis, Vasilis;
-    Ditzen, Jan (2023). Stata Journal 23(1): 230-242
+[5] Stata tip 150: When is it appropriate to xtset a panel dataset with panelvar
+only?
+    Lazzaro, Carlo (2023). Stata Journal 23(1): 281-292
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [6] Uniform nonparametric inference for spatially dependent panel data: The
 xtnpsreg command
     Li, Jia; Liao, Zhipeng; Zhou, Wenyu (2023). Stata Journal 23(1): 243-264
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[7] Stata tip 150: When is it appropriate to xtset a panel dataset with panelvar
-only?
-    Lazzaro, Carlo (2023). Stata Journal 23(1): 281-292
+[7] Improved tests for Granger noncausality in panel data
+    Xiao, Jiaqi; Karavias, Yiannis; Juodis, Artūras; Sarafidis, Vasilis;
+    Ditzen, Jan (2023). Stata Journal 23(1): 230-242
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [8] Instrumental-variable estimation of large-T panel-data models with common
 factors
@@ -343,7 +345,7 @@ Stata
 
 Showing 10 of 25 results. (all)
 
-.
+. 
 . display as result "--- Example 4: Limiting displayed results ---"
 --- Example 4: Limiting displayed results ---
 
@@ -352,25 +354,25 @@ Showing 10 of 25 results. (all)
     Rios-Avila, Fernando; Ramos, Andrey; Canavire-Bacarreza, Gustavo; Siles,
     Leonardo (2026). Stata Journal 26(1): 111-131
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[2] Testing for slope heterogeneity bias in the fixed-effects estimator
+[2] Weighted-average least squares: Beyond the classical linear regression model
+    Luca, Giuseppe De; Magnus, Jan R. (2025). Stata Journal 25(4): 772-811
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[3] Testing for slope heterogeneity bias in the fixed-effects estimator
     Alejo, Javier; Galvao, Antonio F.; Montes-Rojas, Gabriel (2025). Stata
     Journal 25(4): 836-846
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] Weighted-average least squares: Beyond the classical linear regression model
-    Luca, Giuseppe De; Magnus, Jan R. (2025). Stata Journal 25(4): 772-811
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 
 Showing 3 of 78 results. (all)
 
-.
-.
+. 
+. 
 . *-----------------------------------------------------------------------------
 > --
 . * Section 2: Targeted local author-search regression tests
 . * Manuscript: How findsj resolves a query
 . *-----------------------------------------------------------------------------
 > --
-.
+. 
 . display as result "--- Example 5: Local Jenkins author search ---"
 --- Example 5: Local Jenkins author search ---
 
@@ -445,11 +447,11 @@ Showing 16 of 16 results. (all)
 .     exit 9
 . }
 
-. verify_author_count, query("jenkins") returned(`n_jenkins_local')     datafile
-> (`"`findsj_data_file'"')
+. verify_author_count, query("jenkins") returned(`n_jenkins_local') ///
+>     datafile(`"`findsj_data_file'"')
 PASS: jenkins returned all 16 complete-token matches.
 
-.
+. 
 . display as result "--- Example 6: Local Lian author search ---"
 --- Example 6: Local Lian author search ---
 
@@ -473,126 +475,15 @@ Showing 2 of 2 results. (all)
 .     exit 9
 . }
 
-. verify_author_count, query("lian") returned(`n_lian_local')     datafile(`"`fi
-> ndsj_data_file'"')
+. verify_author_count, query("lian") returned(`n_lian_local') ///
+>     datafile(`"`findsj_data_file'"')
 PASS: lian returned all 2 complete-token matches.
 
-.
+. 
 . display as result "--- Example 7: Local Baum author search ---"
 --- Example 7: Local Baum author search ---
 
 . findsj baum, author allresults
-[1] Stata tip 166: Changing the axis scale with marginsplot
-    Baum, Christopher F. (2025). Stata Journal 25(4): 872-873
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[2] Estimating treatment effects when program participation is misreported
-    Baum, Christopher F.; Tommasi, Denni; Zhang, Lina (2024). Stata Journal
-    24(4): 614-629
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[3] Testing for time-varying Granger causality
-    Baum, Christopher F.; Hurn, Stan; Otero, Jesús (2022). Stata Journal
-    22(2): 355-378
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[4] Erratum: Unit-root tests for explosive behavior
-    Baum, Christopher F.; Otero, Jesús (2022). Stata Journal 22(1): 234-237
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[5] Fitting mixture models for feeling and uncertainty for rating data analysis
-    Cerulli, Giovanni; Simone, Rosaria; Di Iorio, Francesca; Piccolo,
-    Domenico; Baum, Christopher F. (2022). Stata Journal 22(1): 195-223
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[6] Unit-root tests for explosive behavior
-    Baum, Christopher F.; Otero, Jesús (2021). Stata Journal 21(4): 999-1020
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[7] “What good is a volatility model?” A reexamination after 20 years
-    Baum, Christopher F.; Hurn, Stan (2021). Stata Journal 21(2): 295-319
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[8] The BDS test of independence
-    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2021). Stata Journal
-    21(2): 279-294
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[9] Local Whittle estimation of the long-memory parameter
-    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2020). Stata Journal
-    20(3): 565-583
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[10] Advice on using heteroskedasticity-based identification
-    Baum, Christopher F.; Lewbel, Arthur (2019). Stata Journal 19(4):
-    757-767
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[11] Unit-root Tests Based on Forward and Reverse Dickey–Fuller Regressions
-    Otero, Jesús; Baum, Christopher F. (2018). Stata Journal 18(1): 22-28
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[12] Response Surface Models for the Elliott, Rothenberg, and Stock Unit-root
-Test
-    Otero, Jesús; Baum, Christopher F. (2017). Stata Journal 17(4): 985-1002
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[13] Stata Tip 126: Handling Irregularly Spaced high-frequency Transactions Data
-    Baum, Christopher F.; Bibo, Sebastiaan (2016). Stata Journal 16(2):
-    517-520
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[14] Richard Sperling (1961–2011)
-    Baum, Christopher F. (2011). Stata Journal 11(2): 157-158
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[15] Stata Tip 88: Efficiently Evaluating Elasticities with the Margins Command
-    Baum, Christopher F. (2010). Stata Journal 10(2): 309-312
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[16] Evaluating Concavity for Production and Cost Functions
-    Baum, Christopher F.; Linz, Teresa (2009). Stata Journal 9(1): 161-165
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[17] Stata Tip 73: Append with Care!
-    Baum, Christopher F. (2009). Stata Journal 9(1): 166-168
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[18] Stata Tip 63: Modeling Proportions
-    Baum, Christopher F. (2008). Stata Journal 8(2): 299-303
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[19] Enhanced Routines for Instrumental Variables/Generalized Method of Moments
-Estimation and Testing
-    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2007). Stata
-    Journal 7(4): 465-506
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[20] Stata Tip 45: Getting those Data into Shape
-    Baum, Christopher F.; Cox, Nicholas J. (2007). Stata Journal 7(2):
-    268-271
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[21] Stata Tip 40: Taking Care of Business
-    Baum, Christopher F. (2007). Stata Journal 7(1): 137-139
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[22] Stata Tip 38: Testing for Groupwise Heteroskedasticity
-    Baum, Christopher F. (2006). Stata Journal 6(4): 590-592
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[23] Stata Tip 37: And the Last shall be First
-    Baum, Christopher F. (2006). Stata Journal 6(4): 588-589
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[24] Stata: The Language of Choice for Time-Series Analysis?
-    Baum, Christopher F. (2005). Stata Journal 5(1): 46-63
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[25] Instrumental Variables and GMM: Estimation and Testing
-    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2003). Stata
-    Journal 3(1): 1-31
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[26] Residual Diagnostics for Cross-section Time Series Regression Models
-    Baum, Christopher F. (2001). Stata Journal 1(1): 101-104
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-
-Showing 26 of 26 results. (all)
-
-. local source_baum_local `"`r(search_source)'"'
-
-. local n_baum_local = r(n_results)
-
-. if `"`source_baum_local'"' != "local" {
-.     display as error "Expected the local search path for Baum."
-.     exit 9
-. }
-
-. verify_author_count, query("baum") returned(`n_baum_local')     datafile(`"`fi
-> ndsj_data_file'"')
-PASS: baum returned all 26 complete-token matches.
-
-.
-. display as result "--- Example 8: Local multiword author search ---"
---- Example 8: Local multiword author search ---
-
-. findsj "Christopher F. Baum", author allresults
 [1] Stata tip 166: Changing the axis scale with marginsplot
     Baum, Christopher F. (2025). Stata Journal 25(4): 872-873
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -614,12 +505,12 @@ PASS: baum returned all 26 complete-token matches.
 [6] Unit-root tests for explosive behavior
     Baum, Christopher F.; Otero, Jesús (2021). Stata Journal 21(4): 999-1020
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[7] The BDS test of independence
+[7] “What good is a volatility model?” A reexamination after 20 years
+    Baum, Christopher F.; Hurn, Stan (2021). Stata Journal 21(2): 295-319
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[8] The BDS test of independence
     Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2021). Stata Journal
     21(2): 279-294
-    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
-[8] “What good is a volatility model?” A reexamination after 20 years
-    Baum, Christopher F.; Hurn, Stan (2021). Stata Journal 21(2): 295-319
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
 [9] Local Whittle estimation of the long-memory parameter
     Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2020). Stata Journal
@@ -686,6 +577,117 @@ Estimation and Testing
 
 Showing 26 of 26 results. (all)
 
+. local source_baum_local `"`r(search_source)'"'
+
+. local n_baum_local = r(n_results)
+
+. if `"`source_baum_local'"' != "local" {
+.     display as error "Expected the local search path for Baum."
+.     exit 9
+. }
+
+. verify_author_count, query("baum") returned(`n_baum_local') ///
+>     datafile(`"`findsj_data_file'"')
+PASS: baum returned all 26 complete-token matches.
+
+. 
+. display as result "--- Example 8: Local multiword author search ---"
+--- Example 8: Local multiword author search ---
+
+. findsj "Christopher F. Baum", author allresults
+[1] Stata tip 166: Changing the axis scale with marginsplot
+    Baum, Christopher F. (2025). Stata Journal 25(4): 872-873
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[2] Estimating treatment effects when program participation is misreported
+    Baum, Christopher F.; Tommasi, Denni; Zhang, Lina (2024). Stata Journal
+    24(4): 614-629
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[3] Testing for time-varying Granger causality
+    Baum, Christopher F.; Hurn, Stan; Otero, Jesús (2022). Stata Journal
+    22(2): 355-378
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[4] Erratum: Unit-root tests for explosive behavior
+    Baum, Christopher F.; Otero, Jesús (2022). Stata Journal 22(1): 234-237
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[5] Fitting mixture models for feeling and uncertainty for rating data analysis
+    Cerulli, Giovanni; Simone, Rosaria; Di Iorio, Francesca; Piccolo,
+    Domenico; Baum, Christopher F. (2022). Stata Journal 22(1): 195-223
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[6] Unit-root tests for explosive behavior
+    Baum, Christopher F.; Otero, Jesús (2021). Stata Journal 21(4): 999-1020
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[7] “What good is a volatility model?” A reexamination after 20 years
+    Baum, Christopher F.; Hurn, Stan (2021). Stata Journal 21(2): 295-319
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[8] The BDS test of independence
+    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2021). Stata Journal
+    21(2): 279-294
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[9] Local Whittle estimation of the long-memory parameter
+    Baum, Christopher F.; Hurn, Stan; Lindsay, Kenneth (2020). Stata Journal
+    20(3): 565-583
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[10] Advice on using heteroskedasticity-based identification
+    Baum, Christopher F.; Lewbel, Arthur (2019). Stata Journal 19(4):
+    757-767
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[11] Unit-root Tests Based on Forward and Reverse Dickey–Fuller Regressions
+    Otero, Jesús; Baum, Christopher F. (2018). Stata Journal 18(1): 22-28
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[12] Response Surface Models for the Elliott, Rothenberg, and Stock Unit-root
+Test
+    Otero, Jesús; Baum, Christopher F. (2017). Stata Journal 17(4): 985-1002
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[13] Stata Tip 126: Handling Irregularly Spaced high-frequency Transactions Data
+    Baum, Christopher F.; Bibo, Sebastiaan (2016). Stata Journal 16(2):
+    517-520
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[14] Richard Sperling (1961–2011)
+    Baum, Christopher F. (2011). Stata Journal 11(2): 157-158
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[15] Stata Tip 88: Efficiently Evaluating Elasticities with the Margins Command
+    Baum, Christopher F. (2010). Stata Journal 10(2): 309-312
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[16] Stata Tip 73: Append with Care!
+    Baum, Christopher F. (2009). Stata Journal 9(1): 166-168
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[17] Evaluating Concavity for Production and Cost Functions
+    Baum, Christopher F.; Linz, Teresa (2009). Stata Journal 9(1): 161-165
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[18] Stata Tip 63: Modeling Proportions
+    Baum, Christopher F. (2008). Stata Journal 8(2): 299-303
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[19] Enhanced Routines for Instrumental Variables/Generalized Method of Moments
+Estimation and Testing
+    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2007). Stata
+    Journal 7(4): 465-506
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[20] Stata Tip 45: Getting those Data into Shape
+    Baum, Christopher F.; Cox, Nicholas J. (2007). Stata Journal 7(2):
+    268-271
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[21] Stata Tip 40: Taking Care of Business
+    Baum, Christopher F. (2007). Stata Journal 7(1): 137-139
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[22] Stata Tip 37: And the Last shall be First
+    Baum, Christopher F. (2006). Stata Journal 6(4): 588-589
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[23] Stata Tip 38: Testing for Groupwise Heteroskedasticity
+    Baum, Christopher F. (2006). Stata Journal 6(4): 590-592
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[24] Stata: The Language of Choice for Time-Series Analysis?
+    Baum, Christopher F. (2005). Stata Journal 5(1): 46-63
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[25] Instrumental Variables and GMM: Estimation and Testing
+    Baum, Christopher F.; Schaffer, Mark E.; Stillman, Steven (2003). Stata
+    Journal 3(1): 1-31
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+[26] Residual Diagnostics for Cross-section Time Series Regression Models
+    Baum, Christopher F. (2001). Stata Journal 1(1): 101-104
+    Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
+
+Showing 26 of 26 results. (all)
+
 . local source_fullname_local `"`r(search_source)'"'
 
 . local n_fullname_local = r(n_results)
@@ -695,19 +697,19 @@ Showing 26 of 26 results. (all)
 .     exit 9
 . }
 
-. verify_author_count, query("Christopher F. Baum")     returned(`n_fullname_loc
-> al') datafile(`"`findsj_data_file'"')
+. verify_author_count, query("Christopher F. Baum") ///
+>     returned(`n_fullname_local') datafile(`"`findsj_data_file'"')
 PASS: Christopher F. Baum returned all 26 complete-token matches.
 
-.
-.
+. 
+. 
 . *-----------------------------------------------------------------------------
 > --
 . * Section 3: Stata Journal website-supplied results
 . * Manuscript: Local and online search semantics
 . *-----------------------------------------------------------------------------
 > --
-.
+. 
 . display as result "--- Example 9: Online Jenkins author search ---"
 --- Example 9: Online Jenkins author search ---
 
@@ -719,7 +721,7 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ...
+  Searching ... 
 [1] Finite mixture models for linked survey and administrative data: Estimation
 and postestimation
     S. P. Jenkins and F. Rios-Avila (2023). Stata Journal 23(1)
@@ -759,14 +761,15 @@ Showing 8 of 8 results. (all)
 .     exit 9
 . }
 
-. display as result     "PASS: Jenkins used the online search source."
+. display as result ///
+>     "PASS: Jenkins used the online search source."
 PASS: Jenkins used the online search source.
 
-. display as text "Local complete-token count: `n_jenkins_local'; "     "website
->  count: `n_jenkins_online'."
+. display as text "Local complete-token count: `n_jenkins_local'; " ///
+>     "website count: `n_jenkins_online'."
 Local complete-token count: 16; website count: 8.
 
-.
+. 
 . display as result "--- Example 10: Online Lian author search ---"
 --- Example 10: Online Lian author search ---
 
@@ -778,7 +781,7 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ...
+  Searching ... 
 [1] ge_gravity2: A command for solving universal gravity models
     R. G. Campos, I. Reggio, and J. Timini (2025). Stata Journal 25(4)
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -822,14 +825,15 @@ Showing 9 of 9 results. (all)
 .     exit 9
 . }
 
-. display as result     "PASS: Lian used the online search source."
+. display as result ///
+>     "PASS: Lian used the online search source."
 PASS: Lian used the online search source.
 
-. display as text "Local complete-token count: `n_lian_local'; "     "website co
-> unt: `n_lian_online'."
+. display as text "Local complete-token count: `n_lian_local'; " ///
+>     "website count: `n_lian_online'."
 Local complete-token count: 2; website count: 9.
 
-.
+. 
 . display as result "--- Example 11: Online Baum author search ---"
 --- Example 11: Online Baum author search ---
 
@@ -841,7 +845,7 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ...
+  Searching ... 
 [1] Stata tip 166: Changing the axis scale with marginsplot
     C. F. Baum (2025). Stata Journal 25(4)
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -934,14 +938,15 @@ Showing 25 of 25 results. (all)
 .     exit 9
 . }
 
-. display as result     "PASS: Baum used the online search source."
+. display as result ///
+>     "PASS: Baum used the online search source."
 PASS: Baum used the online search source.
 
-. display as text "Local complete-token count: `n_baum_local'; "     "website co
-> unt: `n_baum_online'."
+. display as text "Local complete-token count: `n_baum_local'; " ///
+>     "website count: `n_baum_online'."
 Local complete-token count: 26; website count: 25.
 
-.
+. 
 . * All remaining examples that write files or settings run in a unique temporar
 > y
 . * workspace. The caller's directory and path configuration are restored below,
@@ -966,13 +971,13 @@ Local complete-token count: 26; website count: 25.
 
 . cd "`example_workspace'"
 /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_worker_default_ap
-> 529ya4/St51988.00003m_workspace
+> 529ya4/St51988.00005e_workspace
 
 . sysdir set PERSONAL "`isolated_personal'/"
 
 . global findsj_download_path ""
 
-.
+. 
 . capture noisily {
 .     *-------------------------------------------------------------------------
 > --
@@ -980,7 +985,7 @@ Local complete-token count: 26; website count: 25.
 .     * Manuscript: Citation management
 .     *-------------------------------------------------------------------------
 > --
-.
+. 
 .     display as result "--- Example 12: Local Markdown export ---"
 --- Example 12: Local Markdown export ---
 .     findsj did, md n(2) noclip
@@ -992,7 +997,7 @@ Local complete-token count: 26; website count: 25.
 1. Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024). On synthetic differ
 > ence-in-differences and related estimation methods in Stata. The Stata Journal
 > , 24(4), 557–598. [Link](https://www.stata-journal.com/article.html?article=st
-> 0757), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/1536867x241297914),
+> 0757), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/1536867x241297914), 
 > [Google](<https://scholar.google.com/scholar?q=On%20synthetic%20difference-in-
 > differences%20and%20related%20estimation%20methods%20in%20Stata>)
 2. de Chaisemartin, C., D’Haultfœuille, X., & Guyonvarch, Y. (2019). Fuzzy diffe
@@ -1010,12 +1015,14 @@ Local complete-token count: 26; website count: 25.
 .         display as error "Local Markdown export returned unexpected results."
 .         exit 9
 .     }
-.     verify_export_file using "_findsj_temp_out_.md",         format(markdown)
-> expected(2)         contains("Clarke, D., Pailañir, D., Athey, S., & Imbens, G
-> . (2024).")         excludes("Clarke, Damian;")
+.     verify_export_file using "_findsj_temp_out_.md", ///
+>         format(markdown) expected(2) ///
+>         contains("Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024).") 
+> ///
+>         excludes("Clarke, Damian;")
 PASS: markdown export has 2 raw, correctly formatted records.
 .     capture erase "_findsj_temp_out_.md"
-.
+. 
 .     display as result "--- Example 13: Local LaTeX export ---"
 --- Example 13: Local LaTeX export ---
 .     findsj did, latex n(2) noclip
@@ -1047,11 +1054,12 @@ PASS: markdown export has 2 raw, correctly formatted records.
 .         display as error "Local LaTeX export returned unexpected results."
 .         exit 9
 .     }
-.     verify_export_file using "_findsj_temp_out_.tex",         format(latex) ex
-> pected(2)         contains("Clarke, D.") excludes("Clarke, Damian;")
+.     verify_export_file using "_findsj_temp_out_.tex", ///
+>         format(latex) expected(2) ///
+>         contains("Clarke, D.") excludes("Clarke, Damian;")
 PASS: latex export has 2 raw, correctly formatted records.
 .     capture erase "_findsj_temp_out_.tex"
-.
+. 
 .     display as result "--- Example 14: Local plain-text export ---"
 --- Example 14: Local plain-text export ---
 .     findsj did, plain n(2) noclip
@@ -1082,12 +1090,14 @@ PASS: latex export has 2 raw, correctly formatted records.
 > "
 .         exit 9
 .     }
-.     verify_export_file using "_findsj_temp_out_.txt",         format(plain) ex
-> pected(2)         contains("Clarke, D., Pailañir, D., Athey, S., & Imbens, G.
-> (2024).")         excludes("Clarke, Damian;")
+.     verify_export_file using "_findsj_temp_out_.txt", ///
+>         format(plain) expected(2) ///
+>         contains("Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024).") 
+> ///
+>         excludes("Clarke, Damian;")
 PASS: plain export has 2 raw, correctly formatted records.
 .     capture erase "_findsj_temp_out_.txt"
-.
+. 
 .     display as result "--- Example 15: Online Markdown alias export ---"
 --- Example 15: Online Markdown alias export ---
 .     findsj lian, author online markdown n(2) noclip
@@ -1098,7 +1108,7 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ...
+  Searching ... 
 ------------------------------------------------------------
   Markdown format:
 ------------------------------------------------------------
@@ -1116,26 +1126,27 @@ findsj applies no query-term post-filter.
 > 10.1177/1536867x241233676), [Google](<https://scholar.google.com/scholar?q=Bro
 > wse%20and%20cite%20Stata%20manuals%20easily:%20The%20wwwhelp%20command>)
 
-
+ 
 ----------------------------------------------------------
   View        Open_Mac       Open_Win          dir
 ----------------------------------------------------------
 .     local export_source `"`r(search_source)'"'
 .     local export_total = r(n_results)
 .     local export_first_id `"`r(art_id_1)'"'
-.     if `"`export_source'"' != "online" |        `export_total' != `n_lian_onli
-> ne' |        `"`export_first_id'"' == "" {
+.     if `"`export_source'"' != "online" | ///
+>        `export_total' != `n_lian_online' | ///
+>        `"`export_first_id'"' == "" {
 .         display as error "Online Markdown export returned unexpected results."
 .         exit 9
 .     }
-.     verify_export_file using "_findsj_temp_out_.md",         format(markdown)
-> expected(2) firstid(`"`export_first_id'"')
+.     verify_export_file using "_findsj_temp_out_.md", ///
+>         format(markdown) expected(2) firstid(`"`export_first_id'"')
 PASS: markdown export has 2 raw, correctly formatted records.
 .     capture erase "_findsj_temp_out_.md"
-.     display as result         "PASS: Online display and export preserved the w
-> ebsite result count."
+.     display as result ///
+>         "PASS: Online display and export preserved the website result count."
 PASS: Online display and export preserved the website result count.
-.
+. 
 .     display as result "--- Example 16: Online LaTeX alias export ---"
 --- Example 16: Online LaTeX alias export ---
 .     findsj lian, author online tex n(2) noclip
@@ -1146,12 +1157,12 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ...
+  Searching ... 
 ------------------------------------------------------------
   LaTeX format:
 ------------------------------------------------------------
 
-1. Campos, R. G., Reggio, I., \& Timini, J. (2025). ge\_gravity2: A command for
+1. Campos, R. G., Reggio, I., \& Timini, J. (2025). ge\_gravity2: A command for 
 > solving universal gravity models. The Stata Journal, 25(4), 743–771. \href{htt
 > ps://www.stata-journal.com/article.html?article=st0790}{Link}, \href{https://j
 > ournals.sagepub.com/doi/pdf/10.1177/1536867x251398335}{PDF}, \href{https://sch
@@ -1165,23 +1176,23 @@ findsj applies no query-term post-filter.
 > r?q=Browse\%20and\%20cite\%20Stata\%20manuals\%20easily:\%20The\%20wwwhelp\%20
 > command}{Google}
 
-
+ 
 ----------------------------------------------------------
   View        Open_Mac       Open_Win          dir
 ----------------------------------------------------------
 .     local export_source `"`r(search_source)'"'
 .     local export_total = r(n_results)
 .     local export_first_id `"`r(art_id_1)'"'
-.     if `"`export_source'"' != "online" | `export_total' < 2 |        `"`export
-> _first_id'"' == "" {
+.     if `"`export_source'"' != "online" | `export_total' < 2 | ///
+>        `"`export_first_id'"' == "" {
 .         display as error "Online LaTeX export returned unexpected results."
 .         exit 9
 .     }
-.     verify_export_file using "_findsj_temp_out_.tex",         format(latex) ex
-> pected(2) firstid(`"`export_first_id'"')
+.     verify_export_file using "_findsj_temp_out_.tex", ///
+>         format(latex) expected(2) firstid(`"`export_first_id'"')
 PASS: latex export has 2 raw, correctly formatted records.
 .     capture erase "_findsj_temp_out_.tex"
-.
+. 
 .     display as result "--- Example 17: Online plain-text alias export ---"
 --- Example 17: Online plain-text alias export ---
 .     findsj lian, author online txt n(2) noclip
@@ -1192,7 +1203,7 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ...
+  Searching ... 
 ------------------------------------------------------------
   Plain text format:
 ------------------------------------------------------------
@@ -1210,31 +1221,31 @@ findsj applies no query-term post-filter.
 > 1177/1536867x241233676, Google: https://scholar.google.com/scholar?q=Browse%20
 > and%20cite%20Stata%20manuals%20easily:%20The%20wwwhelp%20command
 
-
+ 
 ----------------------------------------------------------
   View        Open_Mac       Open_Win          dir
 ----------------------------------------------------------
 .     local export_source `"`r(search_source)'"'
 .     local export_total = r(n_results)
 .     local export_first_id `"`r(art_id_1)'"'
-.     if `"`export_source'"' != "online" | `export_total' < 2 |        `"`export
-> _first_id'"' == "" {
+.     if `"`export_source'"' != "online" | `export_total' < 2 | ///
+>        `"`export_first_id'"' == "" {
 .         display as error "Online plain-text export returned unexpected results
 > ."
 .         exit 9
 .     }
-.     verify_export_file using "_findsj_temp_out_.txt",         format(plain) ex
-> pected(2) firstid(`"`export_first_id'"')
+.     verify_export_file using "_findsj_temp_out_.txt", ///
+>         format(plain) expected(2) firstid(`"`export_first_id'"')
 PASS: plain export has 2 raw, correctly formatted records.
 .     capture erase "_findsj_temp_out_.txt"
-.
+. 
 .     *-------------------------------------------------------------------------
 > --
 .     * Section 5: Returned-results and input-validation regression tests
 .     * Manuscript: Syntax and usage
 .     *-------------------------------------------------------------------------
 > --
-.
+. 
 .     display as result "--- Example 18: Local zero-result return contract ---"
 --- Example 18: Local zero-result return contract ---
 .     findsj zzzxqvnonexistentfindsjtest, n(1)
@@ -1243,14 +1254,16 @@ Try different keywords or search scope.
 .     local zero_source `"`r(search_source)'"'
 .     local zero_results = r(n_results)
 .     if `"`zero_source'"' != "local" | `zero_results' != 0 {
-.         display as error             "Local zero-result search did not return
-> n_results=0/source=local."
+.         display as error ///
+>             "Local zero-result search did not return n_results=0/source=local.
+> "
 .         exit 9
 .     }
-.     display as result         "PASS: Local zero-result search returned n_resul
-> ts=0 and source=local."
+.     display as result ///
+>         "PASS: Local zero-result search returned n_results=0 and source=local.
+> "
 PASS: Local zero-result search returned n_results=0 and source=local.
-.
+. 
 .     display as result "--- Example 19: Online zero-result return contract ---"
 --- Example 19: Online zero-result return contract ---
 .     findsj zzzxqvnonexistentfindsjtest, online n(1)
@@ -1266,14 +1279,16 @@ Try different keywords or search scope.
 .     local zero_source `"`r(search_source)'"'
 .     local zero_results = r(n_results)
 .     if `"`zero_source'"' != "online" | `zero_results' != 0 {
-.         display as error             "Online zero-result search did not return
->  n_results=0/source=online."
+.         display as error ///
+>             "Online zero-result search did not return n_results=0/source=onlin
+> e."
 .         exit 9
 .     }
-.     display as result         "PASS: Online zero-result search returned n_resu
-> lts=0 and source=online."
+.     display as result ///
+>         "PASS: Online zero-result search returned n_results=0 and source=onlin
+> e."
 PASS: Online zero-result search returned n_results=0 and source=online.
-.
+. 
 .     display as result "--- Example 20: Reject nonpositive n() ---"
 --- Example 20: Reject nonpositive n() ---
 .     capture noisily findsj did, n(0)
@@ -1285,14 +1300,14 @@ Option n() must specify a positive integer.
 .     }
 .     display as result "PASS: n(0) was rejected with error 198."
 PASS: n(0) was rejected with error 198.
-.
+. 
 .     *-------------------------------------------------------------------------
 > --
 .     * Section 6: Citation management
 .     * Manuscript: Citation management and worked ten-article example
 .     *-------------------------------------------------------------------------
 > --
-.
+. 
 .     display as result "--- Example 21: DOI display and reference links ---"
 --- Example 21: DOI display and reference links ---
 .     findsj did, ref n(1)
@@ -1306,22 +1321,22 @@ Stata
 Showing 1 of 49 results. (all)
 .     local did_doi `"`r(doi_1)'"'
 .     if lower(`"`did_doi'"') != "10.1177/1536867x241297914" {
-.         display as error             "The first DID result returned an unexpec
-> ted DOI: `did_doi'"
+.         display as error ///
+>             "The first DID result returned an unexpected DOI: `did_doi'"
 .         exit 9
 .     }
-.     display as result         "PASS: The displayed DID result and citation DOI
->  are identical."
+.     display as result ///
+>         "PASS: The displayed DID result and citation DOI are identical."
 PASS: The displayed DID result and citation DOI are identical.
-.
+. 
 .     display as result "--- Example 22: Markdown citation from a DOI ---"
 --- Example 22: Markdown citation from a DOI ---
 .     getiref 10.1177/1536867x241297914, md
-
+  
 Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024). On synthetic differenc
 > e-in-differences and related estimation methods in Stata. The Stata Journal, 2
 > 4(4), 557–598.
-    Link    PDF    Google
+    Link    PDF    Google    
 
 Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024). On synthetic differenc
 > e-in-differences and related estimation methods in Stata. The Stata Journal, 2
@@ -1329,30 +1344,30 @@ Clarke, D., Pailañir, D., Athey, S., & Imbens, G. (2024). On synthetic differen
 > 14), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/1536867x241297914), [G
 > oogle](<https://scholar.google.com/scholar?q=On synthetic difference-in-differ
 > ences and related estimation methods in Stata>).
-
+ 
 Tips: Text is on clipboard. Press '' to paste, ^-^
 .     local getiref_body = strtrim(`"`r(refbody)'"')
-.
+. 
 .     preserve
 .     quietly use `"`findsj_data_file'"', clear
 .     quietly keep if lower(doi) == "10.1177/1536867x241297914"
 .     if _N != 1 {
-.         display as error             "Expected one cached citation for the dis
-> played DID article."
+.         display as error ///
+>             "Expected one cached citation for the displayed DID article."
 .         exit 9
 .     }
 .     local cached_body = strtrim(citation_apa[1])
 .     restore
-.
+. 
 .     if `"`getiref_body'"' != `"`cached_body'"' {
-.         display as error             "Per-article and cached batch citation bo
-> dies do not agree."
+.         display as error ///
+>             "Per-article and cached batch citation bodies do not agree."
 .         exit 9
 .     }
-.     display as result         "PASS: Per-article and batch citation bodies use
->  the same APA text."
+.     display as result ///
+>         "PASS: Per-article and batch citation bodies use the same APA text."
 PASS: Per-article and batch citation bodies use the same APA text.
-.
+. 
 .     display as result "--- Example 23: Batch Markdown export ---"
 --- Example 23: Batch Markdown export ---
 .     findsj causal inference, md n(2) noclip
@@ -1361,24 +1376,24 @@ PASS: Per-article and batch citation bodies use the same APA text.
   Markdown format:
 ------------------------------------------------------------
 
-1. Estrada, P., Estrada, J., Huynh, K. P., Jacho-Chávez, D., & Sánchez-Aragón, L
-> . (2025). netivreg: Estimation of peer effects in endogenous social networks.
-> The Stata Journal, 25(2), 344–373. [Link](https://www.stata-journal.com/articl
-> e.html?article=st0775), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/153
-> 6867x251341145), [Google](<https://scholar.google.com/scholar?q=netivreg:%20Es
-> timation%20of%20peer%20effects%20in%20endogenous%20social%20networks>)
-2. Yan, G., Chen, Q., & Xiao, Z. (2025). Quantile control method: Causal inferen
+1. Yan, G., Chen, Q., & Xiao, Z. (2025). Quantile control method: Causal inferen
 > ce with one treated unit via random forest. The Stata Journal, 25(2), 407–437.
 >  [Link](https://www.stata-journal.com/article.html?article=st0777), [PDF](http
 > s://journals.sagepub.com/doi/pdf/10.1177/1536867x251341181), [Google](<https:/
 > /scholar.google.com/scholar?q=Quantile%20control%20method:%20Causal%20inferenc
 > e%20with%20one%20treated%20unit%20via%20random%20forest>)
+2. Estrada, P., Estrada, J., Huynh, K. P., Jacho-Chávez, D., & Sánchez-Aragón, L
+> . (2025). netivreg: Estimation of peer effects in endogenous social networks. 
+> The Stata Journal, 25(2), 344–373. [Link](https://www.stata-journal.com/articl
+> e.html?article=st0775), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/153
+> 6867x251341145), [Google](<https://scholar.google.com/scholar?q=netivreg:%20Es
+> timation%20of%20peer%20effects%20in%20endogenous%20social%20networks>)
 
 ----------------------------------------------------------
   View        Open_Mac       Open_Win          dir
 ----------------------------------------------------------
 .     capture erase "_findsj_temp_out_.md"
-.
+. 
 .     display as result "--- Example 24: Ten-article plain-text export ---"
 --- Example 24: Ten-article plain-text export ---
 .     timer clear 1
@@ -1390,7 +1405,7 @@ PASS: Per-article and batch citation bodies use the same APA text.
 ------------------------------------------------------------
 
 1. Estrada, P., Estrada, J., Huynh, K. P., Jacho-Chávez, D., & Sánchez-Aragón, L
-> . (2025). netivreg: Estimation of peer effects in endogenous social networks.
+> . (2025). netivreg: Estimation of peer effects in endogenous social networks. 
 > The Stata Journal, 25(2), 344–373. Link: https://www.stata-journal.com/article
 > .html?article=st0775, PDF: https://journals.sagepub.com/doi/pdf/10.1177/153686
 > 7x251341145, Google: https://scholar.google.com/scholar?q=netivreg:%20Estimati
@@ -1401,19 +1416,19 @@ PASS: Per-article and batch citation bodies use the same APA text.
 > /journals.sagepub.com/doi/pdf/10.1177/1536867x251341181, Google: https://schol
 > ar.google.com/scholar?q=Quantile%20control%20method:%20Causal%20inference%20wi
 > th%20one%20treated%20unit%20via%20random%20forest
-3. Tübbicke, S. (2023). ebct: Using entropy balancing for continuous treatments
-> to estimate dose–response functions and their derivatives. The Stata Journal,
-> 23(3), 709–729. Link: https://www.stata-journal.com/article.html?article=st072
-> 6, PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x231196291, Google
-> : https://scholar.google.com/scholar?q=ebct:%20Using%20entropy%20balancing%20f
-> or%20continuous%20treatments%20to%20estimate%20dose–response%20functions%20and
-> %20their%20derivatives
-4. Yan, G., & Chen, Q. (2023). synth2: Synthetic control method with placebo tes
+3. Yan, G., & Chen, Q. (2023). synth2: Synthetic control method with placebo tes
 > ts, robustness test, and visualization. The Stata Journal, 23(3), 597–624. Lin
 > k: https://www.stata-journal.com/article.html?article=st0722, PDF: https://jou
 > rnals.sagepub.com/doi/pdf/10.1177/1536867x231195278, Google: https://scholar.g
 > oogle.com/scholar?q=synth2:%20Synthetic%20control%20method%20with%20placebo%20
 > tests,%20robustness%20test,%20and%20visualization
+4. Tübbicke, S. (2023). ebct: Using entropy balancing for continuous treatments 
+> to estimate dose–response functions and their derivatives. The Stata Journal, 
+> 23(3), 709–729. Link: https://www.stata-journal.com/article.html?article=st072
+> 6, PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x231196291, Google
+> : https://scholar.google.com/scholar?q=ebct:%20Using%20entropy%20balancing%20f
+> or%20continuous%20treatments%20to%20estimate%20dose–response%20functions%20and
+> %20their%20derivatives
 5. Yan, G., & Chen, Q. (2022). rcm: A command for the regression control method.
 >  The Stata Journal, 22(4), 842–883. Link: https://www.stata-journal.com/articl
 > e.html?article=st0693, PDF: https://journals.sagepub.com/doi/pdf/10.1177/15368
@@ -1421,10 +1436,10 @@ PASS: Per-article and batch citation bodies use the same APA text.
 > 20for%20the%20regression%20control%20method
 6. Kaplan, D. M. (2019). distcomp: Comparing distributions. The Stata Journal, 1
 > 9(4), 832–848. Link: https://www.stata-journal.com/article.html?article=st0579
-> , PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x19893626, Google:
+> , PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x19893626, Google: 
 > https://scholar.google.com/scholar?q=distcomp:%20Comparing%20distributions
 7. Xu, R., Frank, K. A., Maroulis, S. J., & Rosenberg, J. M. (2019). konfound: C
-> ommand to quantify robustness of causal inferences. The Stata Journal, 19(3),
+> ommand to quantify robustness of causal inferences. The Stata Journal, 19(3), 
 > 523–550. Link: https://www.stata-journal.com/article.html?article=st0565, PDF:
 >  https://journals.sagepub.com/doi/pdf/10.1177/1536867x19874223, Google: https:
 > //scholar.google.com/scholar?q=konfound:%20Command%20to%20quantify%20robustnes
@@ -1436,7 +1451,7 @@ PASS: Per-article and batch citation bodies use the same APA text.
 > 4, Google: https://scholar.google.com/scholar?q=Estimation%20of%20pre-%20and%2
 > 0posttreatment%20average%20treatment%20effects%20with%20binary%20time-varying%
 > 20treatment%20using%20Stata
-9. Terza, J. V. (2017). Causal Effect Estimation and Inference Using Stata. The
+9. Terza, J. V. (2017). Causal Effect Estimation and Inference Using Stata. The 
 > Stata Journal, 17(4), 939–961. Link: https://www.stata-journal.com/article.htm
 > l?article=st0506, PDF: https://journals.sagepub.com/doi/pdf/10.1177/1536867x18
 > 01700410, Google: https://scholar.google.com/scholar?q=Causal%20Effect%20Estim
@@ -1452,77 +1467,65 @@ PASS: Per-article and batch citation bodies use the same APA text.
 ----------------------------------------------------------
 .     timer off 1
 .     timer list 1
-   1:      0.02 /        1 =       0.0230
+   1:      0.02 /        1 =       0.0180
 .     capture erase "_findsj_temp_out_.txt"
-.
+. 
 .     *-------------------------------------------------------------------------
 > --
-.     * Section 7: Database-source display
+.     * Section 7: Database-update command
 .     * Manuscript: Database structure and updates
 .     *-------------------------------------------------------------------------
 > --
-.
-.     display as result "--- Example 25: Update-source menu ---"
---- Example 25: Update-source menu ---
-.     findsj, updatesource
-----------------------------------------------------------------------
-  Stata Journal Database Update
-----------------------------------------------------------------------
-
-Database location: /Users/ronald/Desktop/paper/statajournal/findsj/findsj.dta
-
-Download source options:
-  github = GitHub
-  gitee  = Gitee (Fallback when GitHub is unavailable)
-  both   = Try both (auto-detect language)
-
-Click on a source above to download.
-----------------------------------------------------------------------
-.
-.     display as text "To update the database manually, run: findsj, update"
-To update the database manually, run: findsj, update
-.
-.
+. 
+.     display as result "--- Example 25: Database-update command ---"
+--- Example 25: Database-update command ---
+.     display as text "Run: findsj, update"
+Run: findsj, update
+.     display as text "The command is not executed here because it replaces the 
+> installed database."
+The command is not executed here because it replaces the installed database.
+. 
+. 
 .     *-------------------------------------------------------------------------
 > --
 .     * Section 8: Isolated download and path-management tests
 .     * Manuscript: Download path management
 .     *-------------------------------------------------------------------------
 > --
-.
+. 
 .     display as result "--- Example 26: Managing download paths ---"
 --- Example 26: Managing download paths ---
 .     findsj, querypath
 Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
-> stata_worker_default_ap529ya4/St51988.00003m_workspace (default)
+> stata_worker_default_ap529ya4/St51988.00005e_workspace (default)
 .     findsj, setpath("`demo_path'")
 Download path set to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_wor
-> ker_default_ap529ya4/St51988.00003m_workspace/personal/downloads
+> ker_default_ap529ya4/St51988.00005e_workspace/personal/downloads
 This setting will be remembered for future sessions.
 .     findsj, querypath
 Current download path: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_wo
-> rker_default_ap529ya4/St51988.00003m_workspace/personal/downloads
-.
+> rker_default_ap529ya4/St51988.00005e_workspace/personal/downloads
+. 
 .     display as result "--- Example 27: BibTeX and RIS downloads ---"
 --- Example 27: BibTeX and RIS downloads ---
 .     findsj st0377, bib
 Downloading bib file for st0377... done.
 Save to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_worker_default_a
-> p529ya4/St51988.00003m_workspace/personal/downloads/st0377.bib
+> p529ya4/St51988.00005e_workspace/personal/downloads/st0377.bib
 .     confirm file "`demo_path'/st0377.bib"
 .     findsj dm0065, ris
 Downloading ris file for dm0065... done.
 Save to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/stata_worker_default_a
-> p529ya4/St51988.00003m_workspace/personal/downloads/dm0065.ris
+> p529ya4/St51988.00005e_workspace/personal/downloads/dm0065.ris
 .     confirm file "`demo_path'/dm0065.ris"
-.
+. 
 .     findsj, resetpath
 Download path reset to default (current working directory)
 Use findsj ..., setpath(path) to set a custom download path
 .     findsj, querypath
 Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
-> stata_worker_default_ap529ya4/St51988.00003m_workspace (default)
-.
+> stata_worker_default_ap529ya4/St51988.00005e_workspace (default)
+. 
 .     if c(linesize) != 80 {
 .         display as error "Regression test failed: findsj changed linesize."
 .         exit 9
@@ -1531,7 +1534,7 @@ Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
 
 . local isolated_examples_rc = _rc
 
-.
+. 
 . * Restore caller state before evaluating the captured return code.
 . cd "`package_root'"
 /Users/ronald/Desktop/paper/statajournal/findsj
@@ -1540,7 +1543,7 @@ Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
 
 . global findsj_download_path `"`saved_download_global'"'
 
-.
+. 
 . * Remove only files and directories created inside the unique workspace.
 . capture erase "`example_workspace'/_findsj_temp_out_.md"
 
@@ -1562,7 +1565,7 @@ Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
 
 . capture rmdir "`example_workspace'"
 
-.
+. 
 . if `isolated_examples_rc' {
 .     display as error "Isolated file-writing examples failed."
 .     capture program drop verify_author_count
@@ -1578,7 +1581,7 @@ PASS: caller working directory and path configuration restored.
 . display as result "PASS: caller linesize remains 80."
 PASS: caller linesize remains 80.
 
-.
+. 
 . capture program drop verify_author_count
 
 . capture program drop verify_export_file
@@ -1590,5 +1593,5 @@ PASS: caller linesize remains 80.
       name:  <unnamed>
        log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.log
   log type:  text
- closed on:  26 Jul 2026, 18:23:11
+ closed on:   2 Aug 2026, 18:20:46
 --------------------------------------------------------------------------------

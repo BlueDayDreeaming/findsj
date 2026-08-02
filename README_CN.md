@@ -4,11 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.8-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.9-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-当前版本：**3.2.8（26Jul2026）**。
+当前版本：**3.2.9（02Aug2026）**。
 
 `findsj` 可以按照关键词、作者或标题搜索 Stata Journal（SJ）文章。每条结果
 均提供可点击的文章页面、基于 DOI
@@ -66,17 +66,15 @@ ssc install findsj, all replace
 
 ```stata
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) all replace
-findsj, updatesource source(github)
 ```
 
 这里的 `all` 同样只用于获取附属可复现文件。省略 `all` 仍会把两个
 运行时数据库安装到 PLUS，并支持在任意工作目录中进行本地搜索。
 
-希望使用 Gitee 镜像的用户可以运行：
+希望通过 Gitee 镜像进行初次安装的用户可以运行：
 
 ```stata
 net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) all replace
-findsj, updatesource source(gitee)
 ```
 
 ## 快速开始
@@ -186,7 +184,6 @@ findsj 文章ID, ref
 findsj 文章ID, bib
 findsj 文章ID, ris
 findsj, update
-findsj, updatesource [source(github|gitee|both)]
 findsj, setpath(路径)
 findsj, querypath
 findsj, resetpath
@@ -228,17 +225,7 @@ findsj, resetpath
 
 ### 数据库管理
 
-- `update` — 使用 `source(both)` 的语言环境自适应双源回退策略
-- `updatesource` — 未指定 `source()` 时显示可点击的来源菜单
-- `updatesource source(github)` — 仅从 GitHub 更新
-- `updatesource source(gitee)` — 仅从 Gitee 更新
-- `updatesource source(both)` — 中文环境先尝试 Gitee，其他环境先尝试 GitHub，失败时再使用另一个源
-
-也就是说，`findsj, update` 等价于：
-
-```stata
-findsj, updatesource source(both)
-```
+- `update` — 从 GitHub 事务式更新本地数据库和版本元数据，同时保留调用者当前打开的数据
 
 常规搜索完成后，`r(search_source)` 会以 `local` 或 `online` 标明实际使用的
 搜索路径。

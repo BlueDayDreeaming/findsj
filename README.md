@@ -4,11 +4,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Stata](https://img.shields.io/badge/Stata-16%2B-blue)](https://www.stata.com/)
-[![Version](https://img.shields.io/badge/version-3.2.8-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
+[![Version](https://img.shields.io/badge/version-3.2.9-brightgreen)](https://github.com/BlueDayDreeaming/findsj)
 
 [English](README.md) | [中文文档](README_CN.md)
 
-Current release: **3.2.8 (26Jul2026)**.
+Current release: **3.2.9 (02Aug2026)**.
 
 `findsj` searches Stata Journal (SJ) articles by keyword, author, or title.
 Each result includes clickable links for
@@ -71,18 +71,16 @@ The canonical repository is
 
 ```stata
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) all replace
-findsj, updatesource source(github)
 ```
 
 Here too, `all` adds the ancillary reproducibility files. Omitting `all` still
 installs both runtime databases in PLUS and supports local search from any
 working directory.
 
-For users who prefer the Gitee mirror:
+For users who prefer the Gitee mirror for initial installation:
 
 ```stata
 net install findsj, from(https://gitee.com/ChuChengWan/findsj/raw/main/) all replace
-findsj, updatesource source(gitee)
 ```
 
 ## Quick start
@@ -199,7 +197,6 @@ findsj article_id, ref
 findsj article_id, bib
 findsj article_id, ris
 findsj, update
-findsj, updatesource [source(github|gitee|both)]
 findsj, setpath(path)
 findsj, querypath
 findsj, resetpath
@@ -247,17 +244,7 @@ findsj, resetpath
 
 ### Database management
 
-- `update` — update using the language-dependent two-source fallback in `source(both)`
-- `updatesource` — without `source()`, display a clickable source menu
-- `updatesource source(github)` — update from GitHub only
-- `updatesource source(gitee)` — update from Gitee only
-- `updatesource source(both)` — try Gitee first in a Chinese locale and GitHub first otherwise, then use the alternate source if needed
-
-In particular, `findsj, update` is equivalent to:
-
-```stata
-findsj, updatesource source(both)
-```
+- `update` — transactionally update the local database and version metadata from GitHub without replacing the caller's active dataset
 
 After a regular search, `r(search_source)` identifies the path used as `local`
 or `online`.

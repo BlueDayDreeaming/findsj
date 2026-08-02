@@ -1,6 +1,6 @@
-*! version 1.4.3  Reproducing examples for "findsj: Interactive search and citation management"
+*! version 1.4.4  Reproducing examples for "findsj: Interactive search and citation management"
 *! Authors: Yujun Lian and Chucheng Wan
-*! Date: 2026-07-26
+*! Date: 2026-08-02
 
 version 16
 clear all
@@ -520,14 +520,13 @@ capture noisily {
     capture erase "_findsj_temp_out_.txt"
 
     *---------------------------------------------------------------------------
-    * Section 7: Database-source display
+    * Section 7: Database-update command
     * Manuscript: Database structure and updates
     *---------------------------------------------------------------------------
 
-    display as result "--- Example 25: Update-source menu ---"
-    findsj, updatesource
-
-    display as text "To update the database manually, run: findsj, update"
+    display as result "--- Example 25: Database-update command ---"
+    display as text "Run: findsj, update"
+    display as text "The command is not executed here because it replaces the installed database."
 
 
     *---------------------------------------------------------------------------

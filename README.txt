@@ -1,5 +1,5 @@
-findsj 3.2.8 -- Resubmission software and reproducibility files
-26 July 2026
+findsj 3.2.9 -- Resubmission software and reproducibility files
+2 August 2026
 
 TITLE
 
@@ -30,7 +30,7 @@ REQUIREMENTS
 
 FILES FOR THE STATA PACKAGE
 
-  findsj.ado              Main command, version 3.2.8
+  findsj.ado              Main command, version 3.2.9
   findsj.sthlp            Help file
   findsj.dta              Bundled article metadata (1,269 records)
   findsj_version.dta      Database-version metadata
