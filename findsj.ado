@@ -1072,15 +1072,15 @@ else {
 * protects users who still have a database generated before the builder fix.
 tempvar title_clean
 findsj_html_clean title, generate(`title_clean')
-replace title = `title_clean'
-drop `title_clean'
+quietly replace title = `title_clean'
+quietly drop `title_clean'
 
 capture confirm variable citation_apa
 if !_rc {
     tempvar citation_clean
     findsj_html_clean citation_apa, generate(`citation_clean')
-    replace citation_apa = `citation_clean'
-    drop `citation_clean'
+    quietly replace citation_apa = `citation_clean'
+    quietly drop `citation_clean'
 }
 
 if "`search_source'" == "online" & `num_export' > 0 {
@@ -1845,16 +1845,16 @@ if `num_export' > 0 {
                     replace title = subinstr(title, "&quot;", char(34), .)
                     tempvar online_title_clean
                     findsj_html_clean title, generate(`online_title_clean')
-                    replace title = `online_title_clean'
-                    drop `online_title_clean'
+                    quietly replace title = `online_title_clean'
+                    quietly drop `online_title_clean'
 
                     capture confirm variable citation_apa
                     if !_rc {
                         tempvar online_citation_clean
                         findsj_html_clean citation_apa, ///
                             generate(`online_citation_clean')
-                        replace citation_apa = `online_citation_clean'
-                        drop `online_citation_clean'
+                        quietly replace citation_apa = `online_citation_clean'
+                        quietly drop `online_citation_clean'
                     }
                     
                     * Generate Google Scholar link (simplified - use space for now)
