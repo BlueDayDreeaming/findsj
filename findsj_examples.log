@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.log
   log type:  text
- opened on:   3 Aug 2026, 17:45:59
+ opened on:   3 Aug 2026, 23:21:45
 
 .
 . * Record the submitted program versions without printing machine-specific path
@@ -20,7 +20,7 @@
 . file close `findsj_handle'
 
 . display as text "`findsj_version'"
-*! version 3.2.9  02Aug2026
+*! version 3.2.10  03Aug2026
 
 .
 . * Locate the bundled runtime database through adopath. This works both when
@@ -239,8 +239,6 @@
 --- Example 1: Basic keyword search ---
 
 . findsj did, n(3)
-(0 real changes made)
-(0 real changes made)
 [1] On synthetic difference-in-differences and related estimation methods in
 Stata
     Clarke, Damian; Pailañir, Daniel; Athey, Susan; Imbens, Guido (2024).
@@ -263,8 +261,6 @@ Showing 3 of 49 results. (all)
 --- Example 2: Search by author ---
 
 . findsj cox, author
-(0 real changes made)
-(0 real changes made)
 [1] Speaking Stata: Three commands for data reduction
     Cox, Nicholas J. (2026). Stata Journal 26(2): 291-322
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -305,8 +301,6 @@ Showing 10 of 189 results. (all)
 --- Example 3: Multiword title search ---
 
 . findsj panel data, title
-(0 real changes made)
-(0 real changes made)
 [1] Testing and estimating structural breaks in time series and panel data in
 Stata
     Ditzen, Jan; Karavias, Yiannis; Westerlund, Joakim (2025). Stata Journal
@@ -358,8 +352,6 @@ Showing 10 of 25 results. (all)
 --- Example 4: Limiting displayed results ---
 
 . findsj panel data, n(3)
-(0 real changes made)
-(0 real changes made)
 [1] Estimation of quantile regressions with fixed effects
     Rios-Avila, Fernando; Ramos, Andrey; Canavire-Bacarreza, Gustavo; Siles,
     Leonardo (2026). Stata Journal 26(1): 111-131
@@ -387,8 +379,6 @@ Showing 3 of 78 results. (all)
 --- Example 5: Local Jenkins author search ---
 
 . findsj jenkins, author allresults
-(0 real changes made)
-(0 real changes made)
 [1] Announcement of the Stata Journal Editors’ Prize 2026
     Cox, Nicholas J.; Jenkins, Stephen P. (2026). Stata Journal 26(1): 5-6
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -468,8 +458,6 @@ PASS: jenkins returned all 16 complete-token matches.
 --- Example 6: Local Lian author search ---
 
 . findsj lian, author allresults
-(0 real changes made)
-(0 real changes made)
 [1] Browse and cite Stata manuals easily: The wwwhelp command
     Chen, Yongli; Lian, Yujun (2024). Stata Journal 24(1): 161-168
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -498,8 +486,6 @@ PASS: lian returned all 2 complete-token matches.
 --- Example 7: Local Baum author search ---
 
 . findsj baum, author allresults
-(0 real changes made)
-(0 real changes made)
 [1] Stata tip 166: Changing the axis scale with marginsplot
     Baum, Christopher F. (2025). Stata Journal 25(4): 872-873
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -611,8 +597,6 @@ PASS: baum returned all 26 complete-token matches.
 --- Example 8: Local multiword author search ---
 
 . findsj "Christopher F. Baum", author allresults
-(0 real changes made)
-(0 real changes made)
 [1] Stata tip 166: Changing the axis scale with marginsplot
     Baum, Christopher F. (2025). Stata Journal 25(4): 872-873
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -739,7 +723,7 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ... (0 real changes made)
+  Searching ...
 [1] Finite mixture models for linked survey and administrative data: Estimation
 and postestimation
     S. P. Jenkins and F. Rios-Avila (2023). Stata Journal 23(1)
@@ -799,7 +783,7 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ... (0 real changes made)
+  Searching ...
 [1] ge_gravity2: A command for solving universal gravity models
     R. G. Campos, I. Reggio, and J. Timini (2025). Stata Journal 25(4)
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -863,7 +847,7 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ... (3 real changes made)
+  Searching ...
 [1] Stata tip 166: Changing the axis scale with marginsplot
     C. F. Baum (2025). Stata Journal 25(4)
     Web | PDF | Google | Install  |  .md | .latex | .txt | BibTeX | RIS
@@ -988,7 +972,7 @@ Local complete-token count: 26; website count: 25.
 . capture mkdir "`demo_path'"
 
 . cd "`example_workspace'"
-/private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/S_22300.000001_workspac
+/private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/S_45867.000001_workspac
 > e
 
 . sysdir set PERSONAL "`isolated_personal'/"
@@ -1007,8 +991,6 @@ Local complete-token count: 26; website count: 25.
 .     display as result "--- Example 12: Local Markdown export ---"
 --- Example 12: Local Markdown export ---
 .     findsj did, md n(2) noclip
-(0 real changes made)
-(0 real changes made)
 
 ------------------------------------------------------------
   Markdown format:
@@ -1046,8 +1028,6 @@ PASS: markdown export has 2 raw, correctly formatted records.
 .     display as result "--- Example 13: Local LaTeX export ---"
 --- Example 13: Local LaTeX export ---
 .     findsj did, latex n(2) noclip
-(0 real changes made)
-(0 real changes made)
 
 ------------------------------------------------------------
   LaTeX format:
@@ -1085,8 +1065,6 @@ PASS: latex export has 2 raw, correctly formatted records.
 .     display as result "--- Example 14: Local plain-text export ---"
 --- Example 14: Local plain-text export ---
 .     findsj did, plain n(2) noclip
-(0 real changes made)
-(0 real changes made)
 
 ------------------------------------------------------------
   Plain text format:
@@ -1132,10 +1110,10 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ... (0 real changes made)
-(file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.000004 not
+  Searching ...
+(file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.000004 not
     found)
-file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.000004 saved as
+file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.000004 saved as
     .dta format
 
 ------------------------------------------------------------
@@ -1186,10 +1164,10 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ... (0 real changes made)
-(file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.000004 not
+  Searching ...
+(file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.000004 not
     found)
-file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.000004 saved as
+file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.000004 saved as
     .dta format
 
 ------------------------------------------------------------
@@ -1237,10 +1215,10 @@ The website supplies matching and ordering.
 findsj applies no query-term post-filter.
 ----------------------------------------------------------------------
 
-  Searching ... (0 real changes made)
-(file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.000004 not
+  Searching ...
+(file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.000004 not
     found)
-file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.000004 saved as
+file /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.000004 saved as
     .dta format
 
 ------------------------------------------------------------
@@ -1350,8 +1328,6 @@ PASS: n(0) was rejected with error 198.
 .     display as result "--- Example 21: DOI display and reference links ---"
 --- Example 21: DOI display and reference links ---
 .     findsj did, ref n(1)
-(0 real changes made)
-(0 real changes made)
 [1] On synthetic difference-in-differences and related estimation methods in
 Stata
     Clarke, Damian; Pailañir, Daniel; Athey, Susan; Imbens, Guido (2024).
@@ -1413,8 +1389,6 @@ PASS: Per-article and batch citation bodies use the same APA text.
 .     display as result "--- Example 23: HTML-free title and citation text ---"
 --- Example 23: HTML-free title and citation text ---
 .     findsj trigmm, title n(1)
-(0 real changes made)
-(0 real changes made)
 [1] Instrument-free estimation of triangular equation systems with the trigmm
 command
     Lee, Heejun; Lewbel, Arthur; Schennach, Susanne M.; Zhang, Linqi (2026).
@@ -1426,6 +1400,32 @@ Showing 1 of 1 results. (all)
 .     if ustrregexm(`"`trigmm_title'"', "<[^>]*>") {
 .         display as error "The displayed trigmm title still contains HTML marku
 > p."
+.         exit 9
+.     }
+.
+.     local trigmm_doi = `"`r(doi_1)'"'
+.     _getiref `trigmm_doi', md
+
+Lee, H., Lewbel, A., Schennach, S. M., & Zhang, L. (2026). Instrument-free estim
+> ation of triangular equation systems with the trigmm command. The Stata Journa
+> l, 26(1), 68–89.
+    Link    PDF    Google
+
+Lee, H., Lewbel, A., Schennach, S. M., & Zhang, L. (2026). Instrument-free estim
+> ation of triangular equation systems with the trigmm command. The Stata Journa
+> l, 26(1), 68–89. [Link](https://journals.sagepub.com/doi/10.1177/1536867x26142
+> 5780), [PDF](https://journals.sagepub.com/doi/pdf/10.1177/1536867x261425780),
+> [Google](<https://scholar.google.com/scholar?q=Instrument-free estimation of t
+> riangular equation systems with the trigmm command>).
+
+
+Tips: Text is on clipboard. Press 'Command+V' to paste, ^-^
+.     local trigmm_refbody = `"`r(refbody)'"'
+.     if strpos(`"`trigmm_refbody'"', "trigmm command") == 0 | ///
+>        ustrregexm(`"`trigmm_refbody'"', "<[^>]*>") {
+.         display as error ///
+>             "The private DOI formatter returned an incomplete or tagged title.
+> "
 .         exit 9
 .     }
 .
@@ -1441,8 +1441,6 @@ Showing 1 of 1 results. (all)
 .     restore
 .
 .     findsj trigmm, title txt n(1) noclip
-(0 real changes made)
-(0 real changes made)
 
 ------------------------------------------------------------
   Plain text format:
@@ -1464,15 +1462,12 @@ Showing 1 of 1 results. (all)
 PASS: plain export has 1 raw, correctly formatted records.
 .     capture erase "_findsj_temp_out_.txt"
 .     display as result ///
->         "PASS: Display, database, and plain-text export are free of HTML tags.
-> "
-PASS: Display, database, and plain-text export are free of HTML tags.
+>         "PASS: Display, DOI formatting, database, and export are HTML-free."
+PASS: Display, DOI formatting, database, and export are HTML-free.
 .
 .     display as result "--- Example 24: Batch Markdown export ---"
 --- Example 24: Batch Markdown export ---
 .     findsj causal inference, md n(2) noclip
-(0 real changes made)
-(0 real changes made)
 
 ------------------------------------------------------------
   Markdown format:
@@ -1501,8 +1496,6 @@ PASS: Display, database, and plain-text export are free of HTML tags.
 .     timer clear 1
 .     timer on 1
 .     findsj causal inference, txt n(10) noclip
-(0 real changes made)
-(0 real changes made)
 
 ------------------------------------------------------------
   Plain text format:
@@ -1571,7 +1564,7 @@ PASS: Display, database, and plain-text export are free of HTML tags.
 ----------------------------------------------------------
 .     timer off 1
 .     timer list 1
-   1:      0.01 /        1 =       0.0120
+   1:      0.01 /        1 =       0.0140
 .     capture erase "_findsj_temp_out_.txt"
 .
 .     *-------------------------------------------------------------------------
@@ -1601,25 +1594,25 @@ The command is not executed here because it replaces the installed database.
 --- Example 27: Managing download paths ---
 .     findsj, querypath
 Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
-> S_22300.000001_workspace (default)
+> S_45867.000001_workspace (default)
 .     findsj, setpath("`demo_path'")
-Download path set to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.
+Download path set to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.
 > 000001_workspace/personal/downloads
 This setting will be remembered for future sessions.
 .     findsj, querypath
-Current download path: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300
+Current download path: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867
 > .000001_workspace/personal/downloads
 .
 .     display as result "--- Example 28: BibTeX and RIS downloads ---"
 --- Example 28: BibTeX and RIS downloads ---
 .     findsj st0377, bib
 Downloading bib file for st0377... done.
-Save to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.000001_worksp
+Save to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.000001_worksp
 > ace/personal/downloads/st0377.bib
 .     confirm file "`demo_path'/st0377.bib"
 .     findsj dm0065, ris
 Downloading ris file for dm0065... done.
-Save to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_22300.000001_worksp
+Save to: /var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T//S_45867.000001_worksp
 > ace/personal/downloads/dm0065.ris
 .     confirm file "`demo_path'/dm0065.ris"
 .
@@ -1628,7 +1621,7 @@ Download path reset to default (current working directory)
 Use findsj ..., setpath(path) to set a custom download path
 .     findsj, querypath
 Current download path: /private/var/folders/6k/92v6bwb15zj1lxj7w1tlk7000000gn/T/
-> S_22300.000001_workspace (default)
+> S_45867.000001_workspace (default)
 .
 .     if c(linesize) != 80 {
 .         display as error "Regression test failed: findsj changed linesize."
@@ -1697,5 +1690,5 @@ PASS: caller linesize remains 80.
       name:  <unnamed>
        log:  /Users/ronald/Desktop/paper/statajournal/findsj/findsj_examples.log
   log type:  text
- closed on:   3 Aug 2026, 17:46:43
+ closed on:   3 Aug 2026, 23:21:58
 --------------------------------------------------------------------------------

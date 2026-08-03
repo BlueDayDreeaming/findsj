@@ -18,8 +18,8 @@ d KW: getiref
 d
 d Requires: Stata version 16 or higher
 d
-d Distribution-Date: 20260802
-d version: 3.2.9
+d Distribution-Date: 20260803
+d version: 3.2.10
 d License: MIT
 d
 d Author: Lian Yu-jun, Lingnan College, Sun Yat-Sen University, China
@@ -34,8 +34,5 @@ f findsj.ado
 f findsj.sthlp
 F findsj.dta
 F findsj_version.dta
-f findsj_examples.do
-f findsj_examples.log
-f README.txt
-F _getiref.ado
-F _getiref.sthlp
+f _getiref.ado
+f _getiref.sthlp

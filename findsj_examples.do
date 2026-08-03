@@ -1,4 +1,4 @@
-*! version 1.4.6  Reproducing examples for "findsj: Interactive search and citation management"
+*! version 1.4.7  Reproducing examples for "findsj: Interactive search and citation management"
 *! Authors: Yujun Lian and Chucheng Wan
 *! Date: 2026-08-03
 
@@ -515,6 +515,16 @@ capture noisily {
         exit 9
     }
 
+    local trigmm_doi = `"`r(doi_1)'"'
+    _getiref `trigmm_doi', md
+    local trigmm_refbody = `"`r(refbody)'"'
+    if strpos(`"`trigmm_refbody'"', "trigmm command") == 0 | ///
+       ustrregexm(`"`trigmm_refbody'"', "<[^>]*>") {
+        display as error ///
+            "The private DOI formatter returned an incomplete or tagged title."
+        exit 9
+    }
+
     preserve
     quietly use `"`findsj_data_file'"', clear
     quietly count if ustrregexm(title, "<[^>]*>") | ///
@@ -532,7 +542,7 @@ capture noisily {
         format(plain) expected(1) contains("trigmm") excludes(`"`tt_open'"')
     capture erase "_findsj_temp_out_.txt"
     display as result ///
-        "PASS: Display, database, and plain-text export are free of HTML tags."
+        "PASS: Display, DOI formatting, database, and export are HTML-free."
 
     display as result "--- Example 24: Batch Markdown export ---"
     findsj causal inference, md n(2) noclip

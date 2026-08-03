@@ -1,11 +1,13 @@
-*! version 3.2.9  02Aug2026
+*! version 3.2.10  03Aug2026
 *! Yujun Lian (arlionn@163.com), Chucheng Wan (chucheng.wan@outlook.com)
 
 * Search Stata Journal articles
+* v3.2.10: Strip HTML markup and source whitespace from titles and cached
+*   citations; namespace the bundled DOI formatter as the private _getiref
+*   component and include it in the standard SSC installation
 * v3.2.9: Expose a single database-update interface, findsj, update; download,
 *   validate, and transactionally install both runtime files from GitHub while
-*   preserving caller data; remove source-selection options; namespace the
-*   bundled DOI formatter as the private _getiref component
+*   preserving caller data; remove source-selection options
 * v3.2.8: Cache true APA-style citation strings, use record-level citation
 *   fallbacks, and keep single-article and batch citation presentation aligned
 * v3.2.7: Ensure the bundled runtime database and version metadata are
@@ -28,7 +30,7 @@
 * v3.2: Option pruning and getiref bundling (in response to SJ peer review)
 *   - Bundled: getiref.ado/getiref.sthlp shipped with findsj; removed the
 *     runtime "ssc install getiref" auto-install block.  The bundled copy was
-*     later namespaced as _getiref in v3.2.9.
+*     later namespaced as _getiref in v3.2.10.
 *   - Removed options: checkdb, installdb(), debug, clear, nobrowser,
 *     nopdf, nopkg, offline. Their behavior is either obsolete or now
 *     handled automatically (e.g. offline mode is auto-enabled when the

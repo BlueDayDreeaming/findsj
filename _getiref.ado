@@ -1,5 +1,5 @@
 *! version 2.3  2025/05/08
-*! Private, namespaced copy bundled with findsj 3.2.9 (02Aug2026)
+*! Private, namespaced copy bundled with findsj 3.2.10 (03Aug2026)
 *! The public getiref command remains a separate SSC package.
 *   // 'http' to 'https'
 *   local API   "https://api.crossref.org/works"   
@@ -1157,13 +1157,24 @@ preserve
   *        ---                                     ---- 
   *  "<i>Xxxx</i>"  to  "Xxxx"
   
-  qui replace `v_ref' = ustrregexra(`v_ref', `"<i>(.*)</i>"', `"$1"')  
-
-  local regex "(<\/?.+?>)"
-  qui replace `v_ref' = ustrregexra(`v_ref', `"`regex'"', "", 1)
-    
+  * Decode entities before removing individual tags.  Crossref sometimes
+  * returns inline markup such as <tt>...</tt> on separate lines; a greedy
+  * tag expression would delete both the markup and the enclosed title text.
   local regex "&amp;"
   qui replace `v_ref' = subinstr(`v_ref', `"`regex'"', "&", .)
+  qui replace `v_ref' = subinstr(`v_ref', "&lt;", "<", .)
+  qui replace `v_ref' = subinstr(`v_ref', "&gt;", ">", .)
+  qui replace `v_ref' = subinstr(`v_ref', "&quot;", char(34), .)
+  qui replace `v_ref' = subinstr(`v_ref', "&#39;", "'", .)
+  qui replace `v_ref' = subinstr(`v_ref', "&nbsp;", " ", .)
+  qui replace `v_ref' = ustrregexra(`v_ref', "<[^>]*>", "")
+
+  * The bibliography transform can span multiple physical lines.  Join every
+  * imported line before parsing authors, year, and title.
+  mata: st_sstore(1, "`v_ref'", invtokens(st_sdata(., "`v_ref'")'))
+  qui keep in 1
+  qui replace `v_ref' = ustrregexra(`v_ref', "[[:space:]]+", " ")
+  qui replace `v_ref' = strtrim(`v_ref')
 
   if "`latex'"!=""{  // update: 2024/1/13 18:14
       local regex "&"
