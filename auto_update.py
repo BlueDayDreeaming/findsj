@@ -16,6 +16,7 @@ Auto Update Stata Journal Database with Citation Information
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from html import unescape
 import re
 import time
 from pathlib import Path
@@ -38,6 +39,27 @@ HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 }
+
+
+def clean_html_text(value):
+    """Return readable plain text from Crossref or journal HTML fragments."""
+    if value is None:
+        return ''
+
+    decoded = unescape(str(value))
+    # Preserve adjacency around inline markup (for example ``<tt>x</tt>:``),
+    # while retaining a separator where block-level markup carried structure.
+    plain_text = re.sub(
+        r'<\s*(?:br|/p|/div|/li|/h[1-6])\b[^>]*>',
+        ' ',
+        decoded,
+        flags=re.IGNORECASE,
+    )
+    plain_text = re.sub(r'<[^>]*>', '', plain_text)
+    plain_text = re.sub(r'\s+', ' ', plain_text).strip()
+    plain_text = re.sub(r'\s+([,.;:!?%)\]])', r'\1', plain_text)
+    plain_text = re.sub(r'([(\[])\s+', r'\1', plain_text)
+    return plain_text
 
 def get_crossref_citation(doi, retry=3):
     """
@@ -78,7 +100,9 @@ def get_crossref_citation(doi, retry=3):
             # 提取关键信息
             citation_info = {
                 'doi': message.get('DOI', doi),
-                'title': message.get('title', [''])[0] if message.get('title') else '',
+                'title': clean_html_text(
+                    message.get('title', [''])[0] if message.get('title') else ''
+                ),
                 'container_title': message.get('container-title', [''])[0] if message.get('container-title') else '',
                 'publisher': message.get('publisher', ''),
                 'volume': str(message.get('volume', '')),
@@ -129,8 +153,7 @@ def get_crossref_citation(doi, retry=3):
             abstract = message.get('abstract', '')
             if abstract:
                 # 去除 HTML/XML 标签
-                clean_abstract = re.sub(r'<[^>]+>', '', abstract)
-                citation_info['abstract'] = clean_abstract.strip()
+                citation_info['abstract'] = clean_html_text(abstract)
             else:
                 citation_info['abstract'] = ''
             
@@ -562,7 +585,7 @@ def update_database():
             # 没有 DOI 的文章，只保留基本信息
             result = {
                 'art_id': artid,
-                'title': art.get('title_web', ''),
+                'title': clean_html_text(art.get('title_web', '')),
                 'volume': vol,
                 'number': num,
                 'year': year,
@@ -586,7 +609,9 @@ def update_database():
             if citation:
                 result = {
                     'art_id': artid,
-                    'title': citation.get('title', art.get('title_web', '')),
+                    'title': clean_html_text(
+                        citation.get('title', art.get('title_web', ''))
+                    ),
                     'volume': citation.get('volume', vol),
                     'number': citation.get('issue', num),
                     'year': citation.get('year', year),
@@ -607,7 +632,7 @@ def update_database():
                 # API 请求失败，使用基本信息
                 result = {
                     'art_id': artid,
-                    'title': art.get('title_web', ''),
+                    'title': clean_html_text(art.get('title_web', '')),
                     'volume': vol,
                     'number': num,
                     'year': year,
@@ -659,6 +684,11 @@ def update_database():
     for col in df.columns:
         if df[col].dtype == 'object':
             df[col] = df[col].fillna('')
+
+    # Keep both displayed titles and cached citations free of markup even if a
+    # future source changes from plain text to HTML fragments.
+    for col in ['title', 'citation_apa']:
+        df[col] = df[col].map(clean_html_text)
     
     # 按年份、卷号、期号排序（如果有的话，否则按art_id排序）
     df = df.sort_values(['year', 'volume', 'number'], ascending=[True, True, True])

@@ -95,6 +95,40 @@ end
 
 
 *===============================================================================
+* Helper program: findsj_html_clean
+* Decode common entities, remove markup, and collapse source whitespace.  The
+* database builder performs the same cleanup; this is a defensive layer for an
+* older installed database and for live website results.
+*===============================================================================
+program define findsj_html_clean
+    version 14
+    syntax varname, Generate(name)
+
+    confirm new variable `generate'
+    quietly gen strL `generate' = `varlist'
+    quietly replace `generate' = subinstr(`generate', "&amp;", "&", .)
+    quietly replace `generate' = subinstr(`generate', "&lt;", "<", .)
+    quietly replace `generate' = subinstr(`generate', "&gt;", ">", .)
+    quietly replace `generate' = subinstr(`generate', "&quot;", char(34), .)
+    quietly replace `generate' = subinstr(`generate', "&#39;", "'", .)
+    quietly replace `generate' = subinstr(`generate', "&apos;", "'", .)
+    quietly replace `generate' = subinstr(`generate', "&nbsp;", " ", .)
+    quietly replace `generate' = subinstr(`generate', "&#160;", " ", .)
+    quietly replace `generate' = subinstr(`generate', "&ndash;", "-", .)
+    quietly replace `generate' = subinstr(`generate', "&mdash;", "--", .)
+    quietly replace `generate' = ustrregexra(`generate', "<[^>]*>", "")
+    quietly replace `generate' = ustrregexra(`generate', "[[:space:]]+", " ")
+    quietly replace `generate' = strtrim(`generate')
+    foreach mark in "," "." ";" ":" "!" "?" "%" ")" "]" {
+        quietly replace `generate' = ///
+            subinstr(`generate', " `mark'", "`mark'", .)
+    }
+    quietly replace `generate' = subinstr(`generate', "( ", "(", .)
+    quietly replace `generate' = subinstr(`generate', "[ ", "[", .)
+end
+
+
+*===============================================================================
 * Helper program: findsj_tex_escape
 * Escape plain citation text or link destinations for use in LaTeX.  Private-use
 * Unicode markers prevent the backslashes and braces introduced by one
@@ -1029,12 +1063,30 @@ else {
     local total_results = _N
     if `num_export' > 0 {
         tempfile online_export_data
-        save "`online_export_data'", replace
     }
     } // End of online search qui block
 } // End of else (online search mode)
 
 * ===== COMMON DISPLAY CODE FOR BOTH ONLINE AND OFFLINE =====
+* Normalize source text before display, returned results, or export.  This also
+* protects users who still have a database generated before the builder fix.
+tempvar title_clean
+findsj_html_clean title, generate(`title_clean')
+replace title = `title_clean'
+drop `title_clean'
+
+capture confirm variable citation_apa
+if !_rc {
+    tempvar citation_clean
+    findsj_html_clean citation_apa, generate(`citation_clean')
+    replace citation_apa = `citation_clean'
+    drop `citation_clean'
+}
+
+if "`search_source'" == "online" & `num_export' > 0 {
+    save "`online_export_data'", replace
+}
+
 if "`allresults'" != "" local n_display = `total_results'
 else local n_display = min(`n', `total_results')
 
@@ -1791,6 +1843,19 @@ if `num_export' > 0 {
                     replace title = subinstr(title, "&lt;", "<", .)
                     replace title = subinstr(title, "&gt;", ">", .)
                     replace title = subinstr(title, "&quot;", char(34), .)
+                    tempvar online_title_clean
+                    findsj_html_clean title, generate(`online_title_clean')
+                    replace title = `online_title_clean'
+                    drop `online_title_clean'
+
+                    capture confirm variable citation_apa
+                    if !_rc {
+                        tempvar online_citation_clean
+                        findsj_html_clean citation_apa, ///
+                            generate(`online_citation_clean')
+                        replace citation_apa = `online_citation_clean'
+                        drop `online_citation_clean'
+                    }
                     
                     * Generate Google Scholar link (simplified - use space for now)
                     gen title_for_url = subinstr(title, " ", "%20", .)

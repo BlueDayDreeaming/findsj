@@ -1,6 +1,6 @@
-*! version 1.4.5  Reproducing examples for "findsj: Interactive search and citation management"
+*! version 1.4.6  Reproducing examples for "findsj: Interactive search and citation management"
 *! Authors: Yujun Lian and Chucheng Wan
-*! Date: 2026-08-02
+*! Date: 2026-08-03
 
 version 16
 clear all
@@ -507,11 +507,38 @@ capture noisily {
     display as result ///
         "PASS: Per-article and batch citation bodies use the same APA text."
 
-    display as result "--- Example 23: Batch Markdown export ---"
+    display as result "--- Example 23: HTML-free title and citation text ---"
+    findsj trigmm, title n(1)
+    local trigmm_title = `"`r(title_1)'"'
+    if ustrregexm(`"`trigmm_title'"', "<[^>]*>") {
+        display as error "The displayed trigmm title still contains HTML markup."
+        exit 9
+    }
+
+    preserve
+    quietly use `"`findsj_data_file'"', clear
+    quietly count if ustrregexm(title, "<[^>]*>") | ///
+        ustrregexm(citation_apa, "<[^>]*>")
+    if r(N) != 0 {
+        display as error ///
+            "The database contains HTML markup in title or citation_apa."
+        exit 9
+    }
+    restore
+
+    findsj trigmm, title txt n(1) noclip
+    local tt_open = char(60) + "tt" + char(62)
+    verify_export_file using "_findsj_temp_out_.txt", ///
+        format(plain) expected(1) contains("trigmm") excludes(`"`tt_open'"')
+    capture erase "_findsj_temp_out_.txt"
+    display as result ///
+        "PASS: Display, database, and plain-text export are free of HTML tags."
+
+    display as result "--- Example 24: Batch Markdown export ---"
     findsj causal inference, md n(2) noclip
     capture erase "_findsj_temp_out_.md"
 
-    display as result "--- Example 24: Ten-article plain-text export ---"
+    display as result "--- Example 25: Ten-article plain-text export ---"
     timer clear 1
     timer on 1
     findsj causal inference, txt n(10) noclip
@@ -524,7 +551,7 @@ capture noisily {
     * Manuscript: Database structure and updates
     *---------------------------------------------------------------------------
 
-    display as result "--- Example 25: Database-update command ---"
+    display as result "--- Example 26: Database-update command ---"
     display as text "Run: findsj, update"
     display as text "The command is not executed here because it replaces the installed database."
 
@@ -534,12 +561,12 @@ capture noisily {
     * Manuscript: Download path management
     *---------------------------------------------------------------------------
 
-    display as result "--- Example 26: Managing download paths ---"
+    display as result "--- Example 27: Managing download paths ---"
     findsj, querypath
     findsj, setpath("`demo_path'")
     findsj, querypath
 
-    display as result "--- Example 27: BibTeX and RIS downloads ---"
+    display as result "--- Example 28: BibTeX and RIS downloads ---"
     findsj st0377, bib
     confirm file "`demo_path'/st0377.bib"
     findsj dm0065, ris
