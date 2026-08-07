@@ -206,11 +206,11 @@ links. It can coexist with the independently installed public {help getiref}
 package, and uninstalling either package does not remove the other command.
 
 {pstd}
-The {cmd:all} option additionally downloads ancillary files such as
-{cmd:findsj_examples.do}, {cmd:findsj_examples.log}, and {cmd:README.txt}; it is
-not required for the runtime database, but is recommended so that the complete
-distribution and reproducibility materials are obtained together. The
-{cmd:replace} option lets the same command upgrade an existing installation.
+The {cmd:all} option additionally downloads the ancillary
+{cmd:findsj_examples.do} file distributed through SSC. The corresponding log
+and {cmd:README.txt} are supplied separately in the repository and resubmission
+materials. The {cmd:replace} option lets the same command upgrade an existing
+installation.
 
 {pstd}
 To refresh the database later without reinstalling the package, use

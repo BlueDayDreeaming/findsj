@@ -98,10 +98,9 @@ INSTALLATION
   can coexist with the public getiref package, and uninstalling either package
   does not remove the other command.
 
-  The all option also obtains the complete ancillary reproducibility
-  materials, including the example do-file, supplied log, and this README.
-  It is not required for either runtime database, but is recommended so that
-  the complete distribution is obtained in one step.
+  The all option additionally obtains findsj_examples.do from SSC. The
+  corresponding log and this README are supplied separately in the repository
+  and resubmission materials.
 
   Canonical repository:
   https://github.com/BlueDayDreeaming/findsj
