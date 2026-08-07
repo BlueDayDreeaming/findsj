@@ -65,7 +65,7 @@ REPRODUCTION
   rule. The do-file additionally tests a multiword local
   author query, the principal search scopes, zero-result returns, DOI display,
   local and online batch exports in Markdown, LaTeX, and plain text,
-  BibTeX/RIS downloads, the update-source menu, and download-path
+  BibTeX/RIS downloads, the GitHub database-update command, and download-path
   configuration.
 
   The do-file does not replace the installed database. The command for a

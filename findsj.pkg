@@ -36,3 +36,4 @@ F findsj.dta
 F findsj_version.dta
 F _getiref.ado
 F _getiref.sthlp
+f findsj_examples.do
