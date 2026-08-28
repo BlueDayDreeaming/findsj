@@ -1,4 +1,4 @@
-findsj 3.2.10 -- Resubmission software and reproducibility files
+findsj 3.2.10 -- Software and reproducibility files
 3 August 2026
 
 TITLE
@@ -15,8 +15,8 @@ DESCRIPTION
   when the local database is available. Local author searches use complete
   name-token AND matching. In all online modes, findsj displays or exports the
   website-supplied matches without applying an additional query-term
-  post-filter. The bundled database contains 1,269 records; some early records
-  have incomplete metadata fields.
+  post-filter. As of August 2026, the bundled database contains 1,269 records;
+  some early records have incomplete metadata fields.
 
 REQUIREMENTS
 
@@ -76,8 +76,10 @@ REPRODUCTION
   in-session download-path global are restored after the file-writing examples.
 
   Online searches, DOI citation generation, and BibTeX/RIS download examples
-  require an internet connection. The supplied findsj_examples.log is the
-  audit log from the completed reproduction run used for this resubmission.
+  require an internet connection. The supplied findsj_examples.log is generated
+  by a complete run of the accompanying do-file with the packaged code. Online
+  results come from a live external source, so their counts and ordering may
+  change over time.
 
 STORED RESULTS
 
@@ -85,7 +87,7 @@ STORED RESULTS
 
 INSTALLATION
 
-  The recommended SSC installation is:
+  Install from SSC with:
 
        . ssc install findsj, all replace
 
@@ -100,7 +102,7 @@ INSTALLATION
 
   The all option additionally obtains findsj_examples.do from SSC. The
   corresponding log and this README are supplied separately in the repository
-  and resubmission materials.
+  and the supplementary files accompanying the article.
 
   Canonical repository:
   https://github.com/BlueDayDreeaming/findsj

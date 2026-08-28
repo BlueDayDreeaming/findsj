@@ -27,7 +27,7 @@
 * v3.2.1: Fix author searches by matching complete name tokens instead of
 *   arbitrary substrings; replace the generic type() download interface with
 *   explicit bib/ris options; validate article IDs before downloads
-* v3.2: Option pruning and getiref bundling (in response to SJ peer review)
+* v3.2: Option pruning and getiref bundling
 *   - Bundled: getiref.ado/getiref.sthlp shipped with findsj; removed the
 *     runtime "ssc install getiref" auto-install block.  The bundled copy was
 *     later namespaced as _getiref in v3.2.10.
@@ -37,9 +37,9 @@
 *     local findsj.dta is present)
 *   - Aligned: ado syntax, findsj.sthlp option table, and the manuscript
 *     (myarticle_v3.tex) now list an identical, smaller option set
-*   - Docs: README/README_CN/findsj.sthlp recommend
-*     "ssc install findsj, all replace" so the ancillary findsj.dta is
-*     downloaded together with the program files
+*   - Docs: README/README_CN/findsj.sthlp use
+*     "ssc install findsj, all replace"; the runtime data install by default,
+*     and all additionally obtains the example do-file
 * v3.1: Final pre-submission cleanup (interactive button row, citation export)
 * v2.1.2: Bug fix - hyphenated keywords now supported
 *   - Fixed: Keywords with hyphens (e.g., "difference-in-differences") now work correctly
@@ -68,7 +68,7 @@
 * author queries such as "Christopher F. Baum".
 *===============================================================================
 program define findsj_author_match
-    version 14
+    version 16
     syntax varname, Generate(name) Query(string)
 
     confirm new variable `generate'
@@ -103,7 +103,7 @@ end
 * older installed database and for live website results.
 *===============================================================================
 program define findsj_html_clean
-    version 14
+    version 16
     syntax varname, Generate(name)
 
     confirm new variable `generate'
@@ -118,6 +118,11 @@ program define findsj_html_clean
     quietly replace `generate' = subinstr(`generate', "&#160;", " ", .)
     quietly replace `generate' = subinstr(`generate', "&ndash;", "-", .)
     quietly replace `generate' = subinstr(`generate', "&mdash;", "--", .)
+    quietly replace `generate' = subinstr(`generate', "&ldquo;", uchar(8220), .)
+    quietly replace `generate' = subinstr(`generate', "&rdquo;", uchar(8221), .)
+    quietly replace `generate' = subinstr(`generate', "&lsquo;", uchar(8216), .)
+    quietly replace `generate' = subinstr(`generate', "&rsquo;", uchar(8217), .)
+    quietly replace `generate' = subinstr(`generate', "&hellip;", uchar(8230), .)
     quietly replace `generate' = ustrregexra(`generate', "<[^>]*>", "")
     quietly replace `generate' = ustrregexra(`generate', "[[:space:]]+", " ")
     quietly replace `generate' = strtrim(`generate')
@@ -137,7 +142,7 @@ end
 * replacement from being escaped again by a later replacement.
 *===============================================================================
 program define findsj_tex_escape
-    version 14
+    version 16
     syntax varname, Generate(name) [URL]
 
     confirm new variable `generate'
@@ -220,7 +225,7 @@ end
 * first line so the downloaded file can be imported by BibTeX tools.
 *===============================================================================
 program define findsj_fix_bibtex
-    version 14
+    version 16
     args filename
 
     tempname source target
@@ -251,7 +256,7 @@ end
 * Download BibTeX or RIS file on-demand when user clicks the button
 *===============================================================================
 program define findsj_download
-    version 14
+    version 16
     syntax anything(name=artid), Type(string) [DOWNloadpath(string)]
 
     * Article IDs are used in URLs and filenames.  Accept only
@@ -363,7 +368,7 @@ end
 *===============================================================================
 // cap program drop findsj
 program define findsj, rclass
-version 14
+version 16
 
 syntax [anything(name=keywords id="keywords" everything)] [, ///
     Author  ///
@@ -2115,7 +2120,7 @@ end
 
 // cap program drop findsj_show_ref
 program define findsj_show_ref
-    version 14
+    version 16
     args art_id
     
     * Clean art_id (remove BOM if present)
@@ -2234,7 +2239,7 @@ end
 
 // cap program drop findsj_strget   
 program define findsj_strget, rclass 
-version 14 
+version 16
   syntax varname, Generate(string) [Begin(string) Endwith(string) Match(string) Jthmatch(integer 1)]
   
   cap noi confirm new variable `generate'
@@ -2251,7 +2256,7 @@ end
 
 // cap program drop findsj_current
 program define findsj_current, rclass
-version 14
+version 16
 qui {
 preserve
   tempvar v VolNum vol num volnum
@@ -2287,7 +2292,7 @@ end
 
 // cap program drop findsj_doi   
 program define findsj_doi, rclass
-version 14
+version 16
 args art_id
 preserve 
 qui {
@@ -2313,7 +2318,7 @@ end
 
 // cap program drop findsj_volnum
 program define findsj_volnum, rclass
-version 14
+version 16
   syntax, Volume(integer) Number(integer) [More]
 preserve 
 qui{	
@@ -2348,7 +2353,7 @@ end
 
 // cap program drop findsj_frmark
 program define findsj_frmark
-version 16 
+version 16
   qui pwf
   global Frame__User__ = r(currentframe)
 end
@@ -2366,7 +2371,7 @@ end
 
 // cap program drop findsj_sjarchive
 program define findsj_sjarchive, rclass
-version 14
+version 16
   syntax [, Saving(string)]
 preserve 
 qui{	
@@ -2396,7 +2401,7 @@ end
 
 // cap program drop findsj_data_id
 program define   findsj_data_id, rclass
-version 14
+version 16
 syntax [, Savepwd Filename(string)]
 preserve 
 qui{
@@ -2430,7 +2435,7 @@ end
 
 // cap program drop findsj_add_data
 program define findsj_add_data, rclass
-version 14
+version 16
 dis as error "Note: findsj_add_data is deprecated. Local data file support has been removed."
 dis as text "DOI and page information are now fetched in real-time when using the 'getdoi' option."
 exit 199
@@ -2467,7 +2472,7 @@ end
 
 // cap program drop findsj_compact_name
 program define findsj_compact_name, rclass
-version 8
+version 16
 syntax varlist(min=1) [, Add(string) Back Symbol(string) Generate(string)] 
 foreach var of varlist `varlist'{
   if "`generate'" == "" {
@@ -2555,6 +2560,7 @@ end
 
 // cap program drop findsj_update_db
 program define findsj_update_db
+    version 16
     dis as text "{hline 70}"
     dis as result "  Stata Journal Database Update"
     dis as text "{hline 70}"
@@ -2602,6 +2608,7 @@ program define findsj_update_db
     local update_rc = 0
     local failure_reason ""
     local n_records = .
+    local update_as_of ""
 
     dis as text "Downloading from GitHub..." _c
 
@@ -2679,6 +2686,14 @@ program define findsj_update_db
         if `validation_rc' == 0 {
             frame `validation_version': quietly summarize total_articles, meanonly
             if r(min) != `n_records' local validation_rc = 459
+        }
+
+        if `validation_rc' == 0 {
+            frame `validation_version': local update_date = update_date[1]
+            local update_day = daily("`update_date'", "YMD")
+            local update_month = mofd(`update_day')
+            local update_as_of : display %tmMonth_CCYY `update_month'
+            local update_as_of = strtrim("`update_as_of'")
         }
 
         capture frame drop `validation_version'
@@ -2771,6 +2786,9 @@ program define findsj_update_db
 
     dis as result " Success!"
 
+    local n_records_text : display %12.0fc `n_records'
+    local n_records_text = strtrim("`n_records_text'")
+
     * Normalize path for display
     local display_path = "`dta_file'"
     if c(os) == "Windows" {
@@ -2781,7 +2799,8 @@ program define findsj_update_db
     dis as result "  Update Complete!"
     dis as text "{hline 70}"
     dis as text "Database and version metadata updated successfully from GitHub"
-    dis as text "Total articles: " as result "`n_records'"
+    dis as text "As of: " as result "`update_as_of'"
+    dis as text "Total articles: " as result "`n_records_text'"
     dis as text "Location: " as result "`display_path'"
     dis as text "{hline 70}"
 end
@@ -2792,7 +2811,7 @@ end
 *===============================================================================
 // cap program drop findsj_check_update
 program define findsj_check_update
-    version 14
+    version 16
     
     * Silently check for updates - don't interrupt user workflow
     capture {
@@ -2874,7 +2893,7 @@ end
 *==========================================
 // cap program drop findsj_clipout
 program define findsj_clipout
-    version 14
+    version 16
     args text
     
     if "`c(os)'" == "Windows" {

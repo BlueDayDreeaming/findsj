@@ -4,8 +4,8 @@ d Search Stata Journal articles with clickable buttons for article pages,
 d DOI-based publisher PDF links, Google Scholar, package searches, and citation
 d generation. Export Markdown, LaTeX, or plain-text citations. Batch exports are
 d copied to the clipboard on Windows and macOS; Linux exports are file-only.
-d Download BibTeX/RIS files. The 1,269-record database is checked monthly via
-d GitHub Actions.
+d Download BibTeX/RIS files. As of August 2026, the bundled database contains
+d 1,269 records and is checked monthly via GitHub Actions.
 d
 d KW: findsj
 d KW: Stata Journal

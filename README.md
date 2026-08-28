@@ -15,7 +15,7 @@ Each result includes clickable links for
 the article page, a DOI-based publisher PDF link (when available), Google Scholar, package search,
 citation generation, and BibTeX/RIS download.
 
-The bundled database currently contains **1,269 records**. Searches use the
+As of August 2026, the bundled database contains **1,269 records**. Searches use the
 local database first for fast, offline access and fall back to the official
 Stata Journal website when the database is unavailable. The `online` option
 can explicitly select the website even when the local database is present.
@@ -50,7 +50,7 @@ file is still created normally.
 
 ### SSC
 
-For the recommended SSC installation, type:
+To install from SSC, type:
 
 ```stata
 ssc install findsj, all replace
@@ -60,10 +60,9 @@ This installs the command, help files, the private bundled `_getiref` citation
 component, and the runtime
 databases (`findsj.dta` and `findsj_version.dta`) in Stata's PLUS directory.
 Local search uses that installed database, so changing the current working
-directory does not affect it. The `all` option also downloads ancillary files such as
-`findsj_examples.do`, `findsj_examples.log`, and `README.txt`; it is not
-required for the runtime databases, but it is recommended so that the complete
-distribution and reproducibility materials are obtained together.
+directory does not affect it. The `all` option additionally downloads
+`findsj_examples.do`. The corresponding log and `README.txt` are available in
+the repository and in the supplementary files accompanying the article.
 
 The private `_getiref` component is used only by `findsj` citation links. Its
 namespaced files coexist with the independently installable public `getiref`
@@ -78,9 +77,8 @@ The canonical repository is
 net install findsj, from(https://raw.githubusercontent.com/BlueDayDreeaming/findsj/main/) all replace
 ```
 
-Here too, `all` adds the ancillary reproducibility files. Omitting `all` still
-installs both runtime databases in PLUS and supports local search from any
-working directory.
+Here too, `all` adds `findsj_examples.do`. Omitting `all` still installs both
+runtime databases in PLUS and supports local search from any working directory.
 
 For users who prefer the Gitee mirror for initial installation:
 
@@ -257,7 +255,7 @@ or `online`.
 ## Database coverage and maintenance
 
 - Stata Journal: 2001–present
-- Bundled records: 1,269 as of July 2026
+- Bundled records: 1,269 as of August 2026
 - Repository database check: monthly through GitHub Actions
 
 You can refresh an installed database at any time with:

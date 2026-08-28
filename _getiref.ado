@@ -165,7 +165,7 @@ _getiref "$DOI", d
 
 cap program drop _getiref
 program define _getiref, rclass 
-version 14
+version 16
 
 	syntax anything(everything) ///
 	    [, PAth(string)         ///
@@ -949,7 +949,7 @@ end
 *------------------ subprogram ------------- _getiref_get_doi.ado
 cap program drop _getiref_get_doi
 program define _getiref_get_doi, rclass
-version 14
+version 16
 
 *  input: reference text including {DOI} information 
 * output: {DOI} saved in r(doi)
@@ -1971,7 +1971,7 @@ test
 
 cap program drop _getiref_get_bib 
 program define _getiref_get_bib, rclass
-version 14
+version 16
 
 *:Goal: download and list .ris and .bibtex files for given {DOI}
 *--  input: {DOI} e.g.,  10.1016/j.jbankfin.2019.07.014
@@ -2080,7 +2080,7 @@ macros:
 *------------------ subprogram ------------- _getiref_get_checkpath.ado 
 cap program drop _getiref_get_checkpath 
 program define _getiref_get_checkpath, rclass
-version 14
+version 16
 
 syntax anything(name=path)
 
@@ -2242,7 +2242,7 @@ end
 
 cap program drop _getiref_get_scihub
 program define _getiref_get_scihub, rclass
-version 14
+version 16
 
   syntax [, Check List]
   

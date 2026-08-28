@@ -177,9 +177,9 @@ Windows and macOS (disable with {cmd:noclip}). Linux exports are saved to a file
 but automatic clipboard copying is not supported.
 
 {phang2}
-{bf:6. Smart Database} - The local database ({cmd:findsj.dta}) contains 1,269
-records and enables fast offline searching and local-first DOI lookup. Updates are
-available from GitHub.
+{bf:6. Smart Database} - As of August 2026, the local database
+({cmd:findsj.dta}) contains 1,269 records and enables fast offline searching and
+local-first DOI lookup. Updates are available from GitHub.
 
 
 {marker installation}{...}
@@ -189,7 +189,7 @@ available from GitHub.
 {cmd:findsj} requires Stata 16 or later.
 
 {pstd}
-For the recommended SSC installation, type:
+To install from SSC, type:
 
 {phang2}{cmd:. ssc install findsj, all replace}{p_end}
 
@@ -208,9 +208,9 @@ package, and uninstalling either package does not remove the other command.
 {pstd}
 The {cmd:all} option additionally downloads the ancillary
 {cmd:findsj_examples.do} file distributed through SSC. The corresponding log
-and {cmd:README.txt} are supplied separately in the repository and resubmission
-materials. The {cmd:replace} option lets the same command upgrade an existing
-installation.
+and {cmd:README.txt} are supplied separately in the repository and the
+supplementary files accompanying the article. The {cmd:replace} option lets the
+same command upgrade an existing installation.
 
 {pstd}
 To refresh the database later without reinstalling the package, use
@@ -353,9 +353,10 @@ file cannot be installed, the previous runtime files are restored.
 The database and version-metadata files are updated in place where
 {cmd:findsj.ado} is installed in PLUS; changing the current working directory
 does not change the database used for local search. The bundled database
-contains 1,269 records with article metadata, including DOI and page information
-where available. A GitHub Actions workflow checks the Stata Journal website
-monthly and updates the repository database when its contents change.
+contains 1,269 records as of August 2026, with article metadata including DOI and
+page information where available. A GitHub Actions workflow checks the Stata
+Journal website monthly and updates the repository database when its contents
+change.
 
 
 {dlgtab:Path management}

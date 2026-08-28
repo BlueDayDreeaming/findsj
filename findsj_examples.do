@@ -29,6 +29,23 @@ display as text "`findsj_version'"
 quietly findfile findsj.dta
 local findsj_data_file `"`r(fn)'"'
 
+quietly findfile findsj_version.dta
+local findsj_version_file `"`r(fn)'"'
+tempname snapshot_frame
+frame create `snapshot_frame'
+frame `snapshot_frame': quietly use `"`findsj_version_file'"', clear
+frame `snapshot_frame': local snapshot_date = update_date[1]
+frame `snapshot_frame': local snapshot_total = total_articles[1]
+frame drop `snapshot_frame'
+local snapshot_day = daily("`snapshot_date'", "YMD")
+local snapshot_month = mofd(`snapshot_day')
+local snapshot_as_of : display %tmMonth_CCYY `snapshot_month'
+local snapshot_as_of = strtrim("`snapshot_as_of'")
+local snapshot_total_text : display %12.0fc `snapshot_total'
+local snapshot_total_text = strtrim("`snapshot_total_text'")
+display as text "Database snapshot: As of `snapshot_as_of'; " ///
+    as result "`snapshot_total_text'" as text " articles."
+
 quietly findfile _getiref.ado
 local getiref_file `"`r(fn)'"'
 tempname getiref_handle

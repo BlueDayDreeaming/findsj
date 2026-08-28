@@ -15,7 +15,7 @@
 的出版商 PDF 链接（可用时，访问权限取决于出版商）、Google Scholar、软件包搜索、
 引用生成以及 BibTeX/RIS 下载链接。
 
-当前随附数据库包含 **1,269 条记录**。程序优先搜索本地数据库，从而实现快速
+截至 2026 年 8 月，随附数据库包含 **1,269 条记录**。程序优先搜索本地数据库，从而实现快速
 的离线检索；本地数据库不可用时，才回退到 Stata Journal 官方网站。即使本地
 数据库存在，也可以用 `online` 选项显式选择网站搜索。`findsj` 显示或导出网站
 提供的匹配结果，不再额外按查询词进行后置筛选；`n()` 和 `allresults` 仍用于
@@ -46,7 +46,7 @@
 
 ### SSC
 
-推荐使用以下 SSC 安装命令：
+使用以下 SSC 安装命令：
 
 ```stata
 ssc install findsj, all replace
@@ -55,9 +55,8 @@ ssc install findsj, all replace
 该命令会把主命令、帮助文件、私有的 `_getiref` 引用组件以及运行时数据库
 `findsj.dta` 和 `findsj_version.dta` 安装到 Stata 的 PLUS 目录。本地搜索
 始终读取该安装位置，因此切换当前工作目录不会影响本地搜索。`all`
-还会下载 `findsj_examples.do`、`findsj_examples.log` 和 `README.txt`
-等附属可复现文件；虽然安装运行时数据库并不依赖 `all`，但推荐保留
-该选项，以便一次取得完整的软件包和复现材料。
+还会下载 `findsj_examples.do`；相应的 log 和 `README.txt` 可从仓库及
+随文章提供的补充文件中取得。
 
 私有的 `_getiref` 组件仅供 `findsj` 的引用按钮调用。其命名空间文件可以
 与独立安装的公开 `getiref` 软件包并存；卸载任一软件包都不会删除另一个命令。
@@ -236,7 +235,7 @@ findsj, resetpath
 ## 数据库覆盖与维护
 
 - Stata Journal：2001 年至今
-- 随附记录数：截至 2026 年 7 月为 1,269 条
+- 随附记录数：截至 2026 年 8 月为 1,269 条
 - 仓库数据库检查：GitHub Actions 每月运行
 
 可随时手动刷新已安装的数据库：
