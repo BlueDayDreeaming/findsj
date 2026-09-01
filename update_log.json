@@ -1,5 +1,5 @@
 {
-  "update_datetime": "2026-08-01T04:22:26.634474",
+  "update_datetime": "2026-09-01T05:56:15.756785",
   "total_articles": 1269,
   "articles_with_doi": 1269,
   "articles_with_citation": 1269,
@@ -10,52 +10,52 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7547,
+      "cited_by_count": 7673,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2512,
+      "cited_by_count": 2558,
       "year": 2007
     },
     {
       "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
-      "cited_by_count": 1802,
+      "cited_by_count": 1820,
       "year": 2012
     },
     {
       "title": "Estimation of Average Treatment Effects Based on Propensity Scores",
-      "cited_by_count": 1795,
+      "cited_by_count": 1802,
       "year": 2002
     },
     {
       "title": "Multiple Imputation of Missing Values",
-      "cited_by_count": 1759,
+      "cited_by_count": 1760,
       "year": 2004
     },
     {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1730,
+      "cited_by_count": 1740,
       "year": 2003
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1642,
+      "cited_by_count": 1657,
       "year": 2006
     },
     {
       "title": "Cem: Coarsened Exact Matching in Stata",
-      "cited_by_count": 1470,
+      "cited_by_count": 1487,
       "year": 2009
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1379,
+      "cited_by_count": 1391,
       "year": 2008
     },
     {
       "title": "Computing Interaction Effects and Standard Errors in Logit and Probit Models",
-      "cited_by_count": 1331,
+      "cited_by_count": 1333,
       "year": 2004
     }
   ]
