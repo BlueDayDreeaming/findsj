@@ -1,8 +1,8 @@
 {
-  "update_datetime": "2026-09-01T05:56:15.756785",
-  "total_articles": 1269,
-  "articles_with_doi": 1269,
-  "articles_with_citation": 1269,
+  "update_datetime": "2026-10-01T06:49:16.236319",
+  "total_articles": 1276,
+  "articles_with_doi": 1276,
+  "articles_with_citation": 1276,
   "year_range": [
     2001,
     2026
@@ -10,52 +10,52 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7673,
+      "cited_by_count": 7896,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2558,
+      "cited_by_count": 2641,
       "year": 2007
     },
     {
       "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
-      "cited_by_count": 1820,
+      "cited_by_count": 1839,
       "year": 2012
     },
     {
       "title": "Estimation of Average Treatment Effects Based on Propensity Scores",
-      "cited_by_count": 1802,
+      "cited_by_count": 1821,
       "year": 2002
     },
     {
       "title": "Multiple Imputation of Missing Values",
-      "cited_by_count": 1760,
+      "cited_by_count": 1769,
       "year": 2004
     },
     {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1740,
+      "cited_by_count": 1764,
       "year": 2003
     },
     {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1657,
+      "cited_by_count": 1678,
       "year": 2006
     },
     {
       "title": "Cem: Coarsened Exact Matching in Stata",
-      "cited_by_count": 1487,
+      "cited_by_count": 1504,
       "year": 2009
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1391,
+      "cited_by_count": 1411,
       "year": 2008
     },
     {
       "title": "Computing Interaction Effects and Standard Errors in Logit and Probit Models",
-      "cited_by_count": 1333,
+      "cited_by_count": 1352,
       "year": 2004
     }
   ]
