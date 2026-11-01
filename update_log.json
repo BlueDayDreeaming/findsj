@@ -1,5 +1,5 @@
 {
-  "update_datetime": "2026-10-01T06:49:16.236319",
+  "update_datetime": "2026-11-01T07:08:28.482729",
   "total_articles": 1276,
   "articles_with_doi": 1276,
   "articles_with_citation": 1276,
@@ -10,52 +10,52 @@
   "top_cited": [
     {
       "title": "How to do Xtabond2: An Introduction to Difference and System GMM in Stata",
-      "cited_by_count": 7896,
+      "cited_by_count": 8076,
       "year": 2009
     },
     {
       "title": "Robust Standard Errors for Panel Regressions with Cross-Sectional Dependence",
-      "cited_by_count": 2641,
+      "cited_by_count": 2725,
       "year": 2007
     },
     {
       "title": "Using the Margins Command to Estimate and Interpret Adjusted Predictions and Marginal Effects",
-      "cited_by_count": 1839,
+      "cited_by_count": 1856,
       "year": 2012
     },
     {
       "title": "Estimation of Average Treatment Effects Based on Propensity Scores",
-      "cited_by_count": 1821,
+      "cited_by_count": 1834,
       "year": 2002
     },
     {
-      "title": "Multiple Imputation of Missing Values",
-      "cited_by_count": 1769,
-      "year": 2004
-    },
-    {
       "title": "Instrumental Variables and GMM: Estimation and Testing",
-      "cited_by_count": 1764,
+      "cited_by_count": 1782,
       "year": 2003
     },
     {
+      "title": "Multiple Imputation of Missing Values",
+      "cited_by_count": 1777,
+      "year": 2004
+    },
+    {
       "title": "Generalized Ordered Logit/Partial Proportional Odds Models for Ordinal Dependent Variables",
-      "cited_by_count": 1678,
+      "cited_by_count": 1704,
       "year": 2006
     },
     {
       "title": "Cem: Coarsened Exact Matching in Stata",
-      "cited_by_count": 1504,
+      "cited_by_count": 1517,
       "year": 2009
     },
     {
       "title": "The Blinder–Oaxaca Decomposition for Linear Regression Models",
-      "cited_by_count": 1411,
+      "cited_by_count": 1437,
       "year": 2008
     },
     {
       "title": "Computing Interaction Effects and Standard Errors in Logit and Probit Models",
-      "cited_by_count": 1352,
+      "cited_by_count": 1365,
       "year": 2004
     }
   ]
